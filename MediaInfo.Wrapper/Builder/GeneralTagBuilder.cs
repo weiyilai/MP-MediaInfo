@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+﻿#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
@@ -97,7 +97,6 @@ namespace MediaInfo.Builder
       (NativeMethods.General.General_Encoded_Date, TagBuilderHelper.TryGetDate),
       (NativeMethods.General.General_Tagged_Date, TagBuilderHelper.TryGetDate),
       (NativeMethods.General.General_Original_Released_Date, TagBuilderHelper.TryGetDate),
-      (NativeMethods.General.General_Original_Released_Date, TagBuilderHelper.TryGetDate),
       (NativeMethods.General.General_Written_Location, TagBuilderHelper.TryGetString),
       (NativeMethods.General.General_Recorded_Location, TagBuilderHelper.TryGetString),
       (NativeMethods.General.General_Archival_Location, TagBuilderHelper.TryGetString),
@@ -164,25 +163,25 @@ namespace MediaInfo.Builder
           coverDescription != null ||
           cover != null)
       {
-        var coverDataItems = ((string)coverData)?.Split(new[] { " / " }, StringSplitOptions.RemoveEmptyEntries);
-        var coverTypeItems = ((string)coverType)?.Split(new[] { " / " }, StringSplitOptions.RemoveEmptyEntries);
-        var coverMimeItems = ((string)coverMime)?.Split(new[] { " / " }, StringSplitOptions.RemoveEmptyEntries);
-        var coverItems = ((string)cover)?.Split(new[] { " / " }, StringSplitOptions.RemoveEmptyEntries);
-        var coverDescriptionItems = ((string)coverDescription)?.Split(new[] { " / " }, StringSplitOptions.RemoveEmptyEntries);
+        var coverDataItems = ((string?)coverData)?.Split([" / "], StringSplitOptions.RemoveEmptyEntries);
+        var coverTypeItems = ((string?)coverType)?.Split([" / "], StringSplitOptions.RemoveEmptyEntries);
+        var coverMimeItems = ((string?)coverMime)?.Split([" / "], StringSplitOptions.RemoveEmptyEntries);
+        var coverItems = ((string?)cover)?.Split([" / "], StringSplitOptions.RemoveEmptyEntries);
+        var coverDescriptionItems = ((string?)coverDescription)?.Split([" / "], StringSplitOptions.RemoveEmptyEntries);
         var itemCount = new[] { coverDataItems?.Length ?? 0, coverTypeItems?.Length ?? 0, coverMimeItems?.Length ?? 0, coverDescriptionItems?.Length ?? 0, coverItems?.Length ?? 0 }.Max();
         if (itemCount > 0)
         {
           var covers = new List<CoverInfo>(itemCount);
           for (var i = 0; i < itemCount; ++i)
           {
-            var data = coverDataItems.TryGet(i, string.Empty) ?? string.Empty;
+            var data = coverDataItems?.TryGet(i, string.Empty) ?? string.Empty;
             covers.Add(new CoverInfo
             {
-              Exists = ToBool(coverItems.TryGet(i, string.Empty)),
+              Exists = ToBool(coverItems?.TryGet(i, string.Empty)),
               Description = coverDescriptionItems?.TryGet(i, string.Empty) ?? string.Empty,
               Type = coverTypeItems?.TryGet(i, string.Empty) ?? string.Empty,
               Mime = coverMimeItems?.TryGet(i, string.Empty) ?? string.Empty,
-              Data = string.IsNullOrEmpty(data) ? null : Convert.FromBase64String(data)
+              Data = data.TryGetBase64(out byte[]? bytes) ? bytes : null,
             });
           }
 
@@ -282,12 +281,13 @@ namespace MediaInfo.Builder
       return result;
     }
 
-    protected static bool ToBool(string source) =>
-      string.Equals(source, "t", StringComparison.OrdinalIgnoreCase)
+    protected static bool ToBool(string? source) =>
+      !string.IsNullOrEmpty(source) &&
+       (string.Equals(source, "t", StringComparison.OrdinalIgnoreCase)
         || string.Equals(source, "true", StringComparison.OrdinalIgnoreCase)
         || string.Equals(source, "y", StringComparison.OrdinalIgnoreCase)
         || string.Equals(source, "yes", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(source, "1", StringComparison.OrdinalIgnoreCase);
+        || string.Equals(source, "1", StringComparison.OrdinalIgnoreCase));
   }
 
   internal static class ArrayExtensions

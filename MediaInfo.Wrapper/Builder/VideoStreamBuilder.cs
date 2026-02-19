@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+﻿#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
@@ -20,13 +20,13 @@ namespace MediaInfo.Builder
   {
     #region match dictionaries
 
-    private static readonly Dictionary<string, VideoStandard> VideoStandards = new Dictionary<string, VideoStandard>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, VideoStandard> VideoStandards = new(StringComparer.OrdinalIgnoreCase)
     {
       { "NTSC", VideoStandard.NTSC },
       { "PAL", VideoStandard.PAL },
     };
 
-    private static readonly Dictionary<string, ChromaSubSampling> ChromaSubSamplings = new Dictionary<string, ChromaSubSampling>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, ChromaSubSampling> ChromaSubSamplings = new(StringComparer.OrdinalIgnoreCase)
     {
       { "3:3:2", ChromaSubSampling.Sampling332 },
       { "4:1:0", ChromaSubSampling.Sampling410 },
@@ -41,7 +41,7 @@ namespace MediaInfo.Builder
       { "8:8:8", ChromaSubSampling.Sampling888 },
     };
 
-    private static readonly Dictionary<string, ColorSpace> ColorSpaces = new Dictionary<string, ColorSpace>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, ColorSpace> ColorSpaces = new(StringComparer.OrdinalIgnoreCase)
     {
       { "Display P3", ColorSpace.DisplayP3 },
       { "DCI P3", ColorSpace.DCIP3 },
@@ -62,7 +62,7 @@ namespace MediaInfo.Builder
       { "EBU Tech 3213", ColorSpace.EBUTech3213 }
     };
 
-    private static readonly Dictionary<string, TransferCharacteristic> TransferCharacteristics = new Dictionary<string, TransferCharacteristic>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, TransferCharacteristic> TransferCharacteristics = new(StringComparer.OrdinalIgnoreCase)
     {
       { "Printing density", TransferCharacteristic.PrintingDensity },
       { "SMPTE 274M", TransferCharacteristic.SMPTE274M },
@@ -75,7 +75,7 @@ namespace MediaInfo.Builder
       { "Z (depth) - linear", TransferCharacteristic.ZLinear }
     };
 
-    private static readonly Dictionary<string, AspectRatio> Ratios = new Dictionary<string, AspectRatio>
+    private static readonly Dictionary<string, AspectRatio> Ratios = new(StringComparer.Ordinal)
     {
       { "1:1", AspectRatio.Opaque },
       { "5:4", AspectRatio.HighEndDataGraphics },
@@ -94,7 +94,7 @@ namespace MediaInfo.Builder
       { "2.334", AspectRatio.CinemaScope }
     };
 
-    private static readonly Dictionary<string, StereoMode> StereoModes = new Dictionary<string, StereoMode>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, StereoMode> StereoModes = new(StringComparer.OrdinalIgnoreCase)
     {
       { "side-by-side (left eye first)", StereoMode.SideBySideLeft },
       { "top-bottom (right eye first)", StereoMode.TopBottomRight },
@@ -112,7 +112,7 @@ namespace MediaInfo.Builder
       { "both eyes laced in one block (right eye first)", StereoMode.BothEyesLacedRight }
     };
 
-    private static readonly Dictionary<string, Hdr> HdrFormats = new Dictionary<string, Hdr>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, Hdr> HdrFormats = new(StringComparer.OrdinalIgnoreCase)
     {
       { "Dolby Vision", Hdr.DolbyVision },
       { "HDR10", Hdr.HDR10 },
@@ -124,7 +124,7 @@ namespace MediaInfo.Builder
       { "HLG", Hdr.HLG },
     };
 
-    private static readonly Dictionary<string, VideoCodec> VideoCodecs = new Dictionary<string, VideoCodec>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, VideoCodec> VideoCodecs = new(StringComparer.OrdinalIgnoreCase)
     {
       { "V_UNCOMPRESSED", VideoCodec.Uncompressed },
       { "V_DIRAC", VideoCodec.Dirac },
@@ -285,7 +285,7 @@ namespace MediaInfo.Builder
       { "Default (H.263)", VideoCodec.H263 },
     };
 
-    private static readonly Dictionary<string, FrameRateMode> FrameRateModes = new Dictionary<string, FrameRateMode>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, FrameRateMode> FrameRateModes = new(StringComparer.OrdinalIgnoreCase)
     {
       { "CFR", FrameRateMode.Constant },
       { "VFR", FrameRateMode.Variable }

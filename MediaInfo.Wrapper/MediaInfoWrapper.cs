@@ -1,7 +1,7 @@
-#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
@@ -21,37 +21,44 @@ using System.Runtime.InteropServices;
 namespace MediaInfo
 {
   /// <summary>
-  /// Describes media info event argument.
-  /// Implements the <see cref="EventArgs" />
+  /// Provides data for the MediaInfo events.
   /// </summary>
+  /// <remarks>
+  /// This class is used as a parameter for events related to media information processing.
+  /// It contains a reference to the MediaInfo instance that holds the media information data.
+  /// </remarks>
   /// <seealso cref="EventArgs" />
-  public class MediaInfoEventArgs : EventArgs
+  /// <remarks>
+  /// Initializes a new instance of the <see cref="MediaInfoEventArgs"/> class.
+  /// </remarks>
+  /// <param name="mediaInfo">The MediaInfo instance containing the media information data.</param>
+  public class MediaInfoEventArgs(MediaInfo? mediaInfo) : EventArgs
   {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="MediaInfoEventArgs"/> class.
-    /// </summary>
-    /// <param name="mediaInfo">The media information.</param>
-    public MediaInfoEventArgs(MediaInfo mediaInfo)
-    {
-      MediaInfo = mediaInfo;
-    }
 
     /// <summary>
     /// Gets the media information.
     /// </summary>
-    public MediaInfo MediaInfo { get; }
+    public MediaInfo? MediaInfo { get; } = mediaInfo;
   }
 
   /// <summary>
-  /// Describes method and properties to retrieve information from media source
+  /// Represents a wrapper around the MediaInfo library to extract and provide media information in a structured way.
   /// </summary>
-    public class MediaInfoWrapper
+  /// <remarks>
+  /// The <see cref="MediaInfoWrapper"/> class serves as a high-level interface to interact with the MediaInfo library,
+  /// allowing users to easily access various properties of media files such as video and audio streams, subtitles,
+  /// chapters, and more. It also provides logging capabilities to track the processing of media files and handle any
+  /// potential errors that may arise during the extraction of media information. The class is designed to be flexible
+  /// and can be initialized with either a file path or a stream, making it suitable for a wide range of applications 
+  /// that require media information extraction. 
+  /// </remarks>
+  public class MediaInfoWrapper
   {
 #region private vars
 
     private const int BufferSize = 64 * 1024;
 
-    private static readonly Dictionary<string, bool> SubTitleExtensions = new()
+    private static readonly Dictionary<string, bool> SubTitleExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
       { ".AQT", true },
       { ".ASC", true },
@@ -87,19 +94,19 @@ namespace MediaInfo
     };
 
     private static readonly NumberFormatInfo _providerNumber = new() { NumberDecimalSeparator = "." };
-    private readonly ILogger _logger;
-    private readonly string _filePath;
+    private readonly ILogger? _logger;
+    private readonly string? _filePath;
 
 #endregion
 
 #region ctor
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MediaInfoWrapper"/> class.
+    /// Initializes a new instance of the <see cref="MediaInfoWrapper"/> class with the specified media stream size and logger.
     /// </summary>
-    /// <param name="size">The media stream size.</param>
-    /// <param name="logger">The logger instance.</param>
-    protected MediaInfoWrapper(long size, ILogger logger = null)
+    /// <param name="size">The size of the media stream.</param>
+    /// <param name="logger">The logger instance. Optional.</param>
+    protected MediaInfoWrapper(long size, ILogger? logger = null)
     {
       _logger = logger;
       VideoStreams = new List<VideoStream>();
@@ -111,23 +118,23 @@ namespace MediaInfo
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MediaInfoWrapper"/> class.
+    /// Initializes a new instance of the <see cref="MediaInfoWrapper"/> class with the specified media stream and logger.
     /// </summary>
-    /// <param name="inputStream">The sources media stream.</param>
-    /// <param name="logger">The logger instance.</param>
-    public MediaInfoWrapper(Stream inputStream, ILogger logger = null)
+    /// <param name="inputStream">The source media stream.</param>
+    /// <param name="logger">The logger instance. Optional.</param>
+    public MediaInfoWrapper(Stream inputStream, ILogger? logger = null)
 #if NET40 || NET45
       : this(inputStream, Environment.Is64BitProcess ? ".\\x64" : ".\\x86", logger)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MediaInfoWrapper"/> class.
+    /// Initializes a new instance of the <see cref="MediaInfoWrapper"/> class with the specified media stream, path to MediaInfo.dll, and logger.
     /// </summary>
-    /// <param name="inputStream">The sources media stream.</param>
+    /// <param name="inputStream">The source media stream.</param>
     /// <param name="pathToDll">The path to MediaInfo.dll file.</param>
-    /// <param name="logger">The logger instance.</param>
-    public MediaInfoWrapper(Stream inputStream, string pathToDll, ILogger logger)
+    /// <param name="logger">The logger instance. Optional.</param>
+    public MediaInfoWrapper(Stream inputStream, string pathToDll, ILogger? logger)
 #endif
       : this(inputStream.Length, logger)
     {
@@ -144,7 +151,8 @@ namespace MediaInfo
 #else
         ParseMedia(inputStream);
 #endif
-        logger.LogDebug(
+        LogDebug(
+          logger,
           "Process {file} was completed successfully. Video={video}, Audio={audio}, Subtitle={subtitle}",
           inputStream,
           VideoStreams.Count,
@@ -153,36 +161,36 @@ namespace MediaInfo
       }
       catch (Exception ex)
       {
-        logger.LogError(ex, "Error processing media stream");
+        LogError(logger, ex, "Error processing media stream");
       }
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MediaInfoWrapper"/> class.
+    /// Initializes a new instance of the <see cref="MediaInfoWrapper"/> class with the specified file path and logger.
     /// </summary>
-    /// <param name="filePath">The file path.</param>
-    /// <param name="logger">The logger instance.</param>
-    public MediaInfoWrapper(string filePath, ILogger logger = null)
+    /// <param name="filePath">The path to the media file.</param>
+    /// <param name="logger">The logger instance. Optional.</param>
+    public MediaInfoWrapper(string filePath, ILogger? logger = null)
 #if NET40 || NET45
       : this (filePath, Environment.Is64BitProcess ? @".\x64" : @".\x86", logger)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MediaInfoWrapper"/> class.
+    /// Initializes a new instance of the <see cref="MediaInfoWrapper"/> class with the specified file path, path to MediaInfo.dll, and logger.
     /// </summary>
-    /// <param name="filePath">The file path.</param>
+    /// <param name="filePath">The path to the media file.</param>
     /// <param name="pathToDll">The path to MediaInfo.dll file.</param>
-    /// <param name="logger">the logger instance.</param>
-    public MediaInfoWrapper(string filePath, string pathToDll, ILogger logger)
+    /// <param name="logger">The logger instance. Optional.</param>
+    public MediaInfoWrapper(string filePath, string pathToDll, ILogger? logger)
 #endif
        : this(0L, logger)
     {
       _filePath = filePath;
-      logger.LogDebug("Analyzing media {path}.", filePath);
+      LogDebug(_logger, "Analyzing media {path}.", filePath);
       if (string.IsNullOrEmpty(filePath))
       {
-        logger.LogError("Media file name to processing is null or empty");
+        LogError(_logger, "Media file name to processing is null or empty");
         return;
       }
 
@@ -190,37 +198,37 @@ namespace MediaInfo
       var realPathToDll = GetPathToMediaInfo(pathToDll, logger);
       if (string.IsNullOrEmpty(realPathToDll))
       {
-        logger.LogError("MediaInfo library was not found");
+        LogError(_logger, "MediaInfo library was not found");
         return;
       }
 #endif
 
       var isTv = filePath.IsLiveTv();
-      var isRadio = filePath.IsLiveTv();
+      var isRadio = filePath.IsLastFmStream();
       var isRtsp = filePath.IsRtsp(); // RTSP for live TV and recordings.
       var isMms = filePath.IsMms(); // MMS streams
       var isRtmp = filePath.IsRtmp(); // RTMP streams
       var isAvStream = filePath.IsAvStream(); // other AV streams
 
-      //currently disabled for all tv/radio
+      // currently disabled for all tv/radio
       if (isRtsp || isRtmp || isMms)
       {
-        logger.LogWarning("Media file is live stream");
+        LogWarning(_logger, "Media file is live stream");
         return;
       }
 
       if (isRadio || isTv)
       {
-        string path = Path.GetDirectoryName(filePath);
+        string path = Path.GetDirectoryName(filePath!)!;
         string fileName = Path.GetFileName(filePath);
-        string[] files = Directory.GetFiles(path,fileName + "*.ts");
+        string[] files = Directory.GetFiles(path!, fileName + "*.ts");
         if (files.Length > 0)
         {
           filePath = files[0];
         }
         else
         {
-          logger.LogWarning("Media file is {media}", GetMediaFileType(isTv, isRadio, isRtsp));
+          LogWarning(_logger, "Media file is {media}", GetMediaFileType(isTv, isRadio, isRtsp));
           return;
         }
       }
@@ -232,7 +240,7 @@ namespace MediaInfo
         {
           if (filePath.EndsWith(".ifo", StringComparison.OrdinalIgnoreCase))
           {
-            _logger.LogDebug("Detects DVD. Processing DVD information");
+            LogDebug(_logger, "Detects DVD. Processing DVD information");
 #if NET40 || NET45
             filePath = ProcessDvd(filePath, realPathToDll);
 #else
@@ -241,10 +249,10 @@ namespace MediaInfo
           }
           else if (filePath.EndsWith(".bdmv", StringComparison.OrdinalIgnoreCase))
           {
-            _logger.LogDebug("Detects BD.");
+            LogDebug(_logger, "Detects BD.");
             IsBluRay = true;
-            filePath = Path.GetDirectoryName(filePath);
-            Size = GetDirectorySize(filePath);
+            filePath = Path.GetDirectoryName(filePath!)!;
+            Size = GetDirectorySize(filePath!);
           }
           else
           {
@@ -254,16 +262,17 @@ namespace MediaInfo
           HasExternalSubtitles = !string.IsNullOrEmpty(filePath) && CheckHasExternalSubtitles(filePath);
           if (HasExternalSubtitles)
           {
-            _logger.LogDebug("Found external subtitles");
+            LogDebug(_logger, "Found external subtitles");
           }
         }
 
 #if NET40 || NET45
         ParseMedia(filePath, realPathToDll);
 #else
-        ParseMedia(filePath);
+        ParseMedia(filePath!);
 #endif
-        logger.LogDebug(
+        LogDebug(
+            _logger,
             "Process {file} was completed successfully. Video={videos}, Audio={audios}, Subtitle={subtitles}",
             filePath,
             VideoStreams.Count,
@@ -272,139 +281,149 @@ namespace MediaInfo
       }
       catch (Exception exception)
       {
-        logger.LogError(exception, "Error processing media file");
+        LogError(_logger, exception, "Error processing media file");
       }
 
       static string GetMediaFileType(bool tv, bool radio, bool rtsp) =>
-      (tv, radio, rtsp) switch
-      {
-        (true, _, _) => "TV",
-        (false, true, _) => "radio",
-        (false, false, true) => "RTSP",
-        _ => string.Empty
-      };
+        (tv, radio, rtsp) switch
+        {
+          (true, _, _) => "TV",
+          (false, true, _) => "radio",
+          (false, false, true) => "RTSP",
+          _ => string.Empty
+        };
     }
 
     /// <summary>
-    /// Writes the media information data to log.
+    /// Writes the media information to the log.
     /// </summary>
+    /// <remarks>
+    /// This method logs detailed information about the media file, including general properties,
+    /// video, audio, subtitles, and chapters if available.
+    /// </remarks>
     public void WriteInfo()
     {
-      _logger.LogInformation("Inspecting media    : {path}", _filePath);
+      LogInformation(_logger, "Inspecting media    : {path}", _filePath!);
       if (!Success)
       {
-        _logger.LogWarning("MediaInfo library was not loaded!");
+        LogWarning(_logger, "MediaInfo library was not loaded!");
       }
       else
       {
-        _logger.LogDebug("Library version      : {version}", Version);
+        LogDebug(_logger, "Library version      : {version}", Version!);
 
         // General
-        _logger.LogDebug("Media duration      : {duration}", TimeSpan.FromMilliseconds(Duration));
-        _logger.LogDebug("Has audio           : {audio}", (AudioStreams?.Count ?? 0) > 0);
-        _logger.LogDebug("Has video           : {video}", HasVideo);
-        _logger.LogDebug("Has subtitles       : {subtitles}", HasSubtitles);
-        _logger.LogDebug("Has chapters        : {chapters}", HasChapters);
-        _logger.LogDebug("Is DVD              : {dvd}", IsDvd);
-        _logger.LogDebug("Is Blu-Ray disk     : {bluRay}", IsBluRay);
+        LogDebug(_logger, "Media duration      : {duration}", TimeSpan.FromMilliseconds(Duration));
+        LogDebug(_logger, "Has audio           : {audio}", (AudioStreams?.Count ?? 0) > 0);
+        LogDebug(_logger, "Has video           : {video}", HasVideo);
+        LogDebug(_logger, "Has subtitles       : {subtitles}", HasSubtitles);
+        LogDebug(_logger, "Has chapters        : {chapters}", HasChapters);
+        LogDebug(_logger, "Is DVD              : {dvd}", IsDvd);
+        LogDebug(_logger, "Is Blu-Ray disk     : {bluRay}", IsBluRay);
 
         // Video
         if (HasVideo)
         {
-          _logger.LogDebug("Video duration      : {duration}", BestVideoStream?.Duration ?? TimeSpan.MinValue);
-          _logger.LogDebug("Video frame rate    : {rate}", Framerate);
-          _logger.LogDebug("Video width         : {width}", Width);
-          _logger.LogDebug("Video height        : {height}", Height);
-          _logger.LogDebug("Video aspect ratio  : {ratio}", AspectRatio);
-          _logger.LogDebug("Video codec         : {codec}", VideoCodec);
-          _logger.LogDebug("Video scan type     : {scanType}", ScanType);
-          _logger.LogDebug("Is video interlaced : {interlaced}", IsInterlaced);
-          _logger.LogDebug("Video resolution    : {resolution}", VideoResolution);
-          _logger.LogDebug("Video 3D mode       : {mode}", BestVideoStream?.Stereoscopic ?? StereoMode.Mono);
-          _logger.LogDebug("Video HDR standard  : {hdr}", BestVideoStream?.Hdr ?? Hdr.None);
+          LogDebug(_logger, "Video duration      : {duration}", BestVideoStream?.Duration ?? TimeSpan.MinValue);
+          LogDebug(_logger, "Video frame rate    : {rate}", Framerate);
+          LogDebug(_logger, "Video width         : {width}", Width);
+          LogDebug(_logger, "Video height        : {height}", Height);
+          LogDebug(_logger, "Video aspect ratio  : {ratio}", AspectRatio);
+          LogDebug(_logger, "Video codec         : {codec}", VideoCodec);
+          LogDebug(_logger, "Video scan type     : {scanType}", ScanType);
+          LogDebug(_logger, "Is video interlaced : {interlaced}", IsInterlaced);
+          LogDebug(_logger, "Video resolution    : {resolution}", VideoResolution);
+          LogDebug(_logger, "Video 3D mode       : {mode}", BestVideoStream?.Stereoscopic ?? StereoMode.Mono);
+          LogDebug(_logger, "Video HDR standard  : {hdr}", BestVideoStream?.Hdr ?? Hdr.None);
         }
 
         // Audio
         if ((AudioStreams?.Count ?? 0) > 0)
         {
-          _logger.LogDebug("Audio duration      : {duration}", BestAudioStream?.Duration ?? TimeSpan.MinValue);
-          _logger.LogDebug("Audio rate          : {rate}", AudioRate);
-          _logger.LogDebug("Audio channels      : {channels}", AudioChannelsFriendly);
-          _logger.LogDebug("Audio codec         : {codec}", AudioCodec);
-          _logger.LogDebug("Audio bit depth     : {bits}", BestAudioStream?.BitDepth ?? 0);
+          LogDebug(_logger, "Audio duration      : {duration}", BestAudioStream?.Duration ?? TimeSpan.MinValue);
+          LogDebug(_logger, "Audio rate          : {rate}", AudioRate);
+          LogDebug(_logger, "Audio channels      : {channels}", AudioChannelsFriendly);
+          LogDebug(_logger, "Audio codec         : {codec}", AudioCodec);
+          LogDebug(_logger, "Audio bit depth     : {bits}", BestAudioStream?.BitDepth ?? 0);
         }
 
         // Subtitles
         if (HasSubtitles)
         {
-          _logger.LogDebug("Subtitles count     : {count}", Subtitles?.Count ?? 0);
+          LogDebug(_logger, "Subtitles count     : {count}", Subtitles?.Count ?? 0);
         }
 
         // Chapters
         if (HasChapters)
         {
-          _logger.LogDebug("Chapters count      : {count}", Chapters?.Count ?? 0);
+          LogDebug(_logger, "Chapters count      : {count}", Chapters?.Count ?? 0);
         }
       }
     }
 
-    private void ParseStreamWithoutSeek(Stream stream, MediaInfo mediaInfo)
+    private unsafe void ParseStreamWithoutSeek(Stream stream, MediaInfo mediaInfo)
     {
+      if (!stream.CanRead)
+      {
+        LogDebug(_logger, "Stream is not readable. Can't parse media stream.");
+        return;
+      }
+
       mediaInfo.Option("File_IsSeekable", "0");
-      mediaInfo.OpenBufferInit(stream.Length, 0L);
-      int readed;
-      bool processed;
+      mediaInfo.OpenBufferInit(-1L, 0L);
+      int byteRead;
+      bool shouldContinue;
       var buffer = new byte[BufferSize];
-      do
+      var bufferSpan = buffer.AsSpan();
+      fixed (byte* pBuffer = buffer)
       {
-        readed = stream.Read(buffer, 0, buffer.Length);
-        GCHandle gcHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-        try
+        do
         {
-          processed = mediaInfo.OpenBufferContinue(gcHandle.AddrOfPinnedObject(), (IntPtr)readed) != IntPtr.Zero;
+          byteRead = stream.Read(bufferSpan);
+          shouldContinue = byteRead > 0 && (mediaInfo.OpenBufferContinue(pBuffer, byteRead) & 8) != 8;
         }
-        finally
-        {
-          gcHandle.Free();
-        }
+        while (shouldContinue);
       }
-      while (processed && stream.CanRead && readed > 0);
     }
 
-    private void ParseStreamWithSeek(Stream stream, MediaInfo mediaInfo)
+    private unsafe void ParseStreamWithSeek(Stream stream, MediaInfo mediaInfo)
     {
-      mediaInfo.OpenBufferInit(stream.Length, 0L);
-      int readed;
-      do
+      if (!stream.CanRead)
       {
-        int mediaProcessed;
-        var buffer = new byte[BufferSize];
-        readed = stream.Read(buffer, 0, buffer.Length);
-        var gcHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-        try
-        {
-          mediaProcessed = (int) mediaInfo.OpenBufferContinue(gcHandle.AddrOfPinnedObject(), (IntPtr)readed);
-        }
-        finally
-        {
-          gcHandle.Free();
-        }
+        LogDebug(_logger, "Stream is not readable. Can't parse media stream.");
+        return;
+      }
 
-        if ((mediaProcessed & 8) != 8)
+      if (!stream.CanSeek)
+      {
+        LogDebug(_logger, "Stream is not seekable. Can't parse media stream.");
+        return;
+      }
+
+      var buffer = new byte[BufferSize];
+      var bufferSpan = buffer.AsSpan();
+      mediaInfo.OpenBufferInit(stream.Length, 0L);
+      int byteRead;
+      fixed (byte* pBuffer = buffer)
+      {
+        bool mediaProcessed;
+        do
         {
-          var get = mediaInfo.OpenBufferContinueGoToGet();
-          if (get != -1L)
+          byteRead = stream.Read(bufferSpan);
+          mediaProcessed = (mediaInfo.OpenBufferContinue(pBuffer, byteRead) & 8) != 8;
+
+          if (mediaProcessed)
           {
-            var fileOffset = stream.Seek(get, SeekOrigin.Begin);
-            mediaInfo.OpenBufferInit(stream.Length, fileOffset);
+            var fileOffsetToGet = mediaInfo.OpenBufferContinueGoToGet();
+            if (fileOffsetToGet != -1L)
+            {
+              var fileOffset = stream.Seek(fileOffsetToGet, SeekOrigin.Begin);
+              mediaInfo.OpenBufferInit(stream.Length, fileOffset);
+            }
           }
         }
-        else
-        {
-          break;
-        }
+        while (mediaProcessed && byteRead > 0);
       }
-      while (stream.CanRead && readed > 0);
     }
 
 #if NET40 || NET45
@@ -440,41 +459,39 @@ namespace MediaInfo
     private string ProcessDvd(string filePath)
 #endif
     {
-      _logger.LogDebug("Processing DVD");
+      LogDebug(_logger, "Processing DVD");
       IsDvd = true;
       var path = Path.GetDirectoryName(filePath) ?? string.Empty;
       Size = GetDirectorySize(path);
       var bups = Directory.GetFiles(path, "*.BUP", SearchOption.TopDirectoryOnly);
-      var programBlocks = new List<(string FileName, int Duration)>();
-      _logger.LogDebug("DVD directory size {size}", Size);
-      foreach (var bupFile in bups)
-      {
+      LogDebug(_logger, "DVD directory size {size}", Size);
+      var programBlocks = bups
+        .Select(x => 
 #if NET40 || NET45
-        var (file, duration) = ProcessBupFile(bupFile, pathToDll);
+        ProcessBupFile(x, pathToDll)
 #else
-        var (file, duration) = ProcessBupFile(bupFile);
+        ProcessBupFile(x)
 #endif
-        if (!string.IsNullOrEmpty(file))
-        {
-          programBlocks.Add((file, duration));
-        }
-      }
+        )
+        .Where(x => !string.IsNullOrEmpty(x.FileName))
+        .ToList();
 
       // get all other info from main title's 1st vob
       if (programBlocks.Count > 0)
       {
         Duration = programBlocks.Max(x => x.Duration);
-        filePath = programBlocks.First(x => x.Duration == Duration).FileName;
+        return programBlocks.First(x => x.Duration == Duration).FileName!;
       }
 
+      Duration = 0;
       return filePath;
     }
 
 #if NET40 || NET45
 
-    private (string FileName, int Duration) ProcessBupFile(string file, string pathToDll)
+    private (string? FileName, int Duration) ProcessBupFile(string file, string pathToDll)
 #else
-    private (string FileName, int Duration) ProcessBupFile(string file)
+    private (string? FileName, int Duration) ProcessBupFile(string file)
 #endif
     {
 #if NET40 || NET45
@@ -482,9 +499,14 @@ namespace MediaInfo
 #else
       using var mi = new MediaInfo();
 #endif
-      _logger.LogDebug("Opening {file}", file);
+      LogDebug(_logger, "Opening {file}", file);
       Version = mi.Option("Info_Version");
-      mi.Open(file);
+      if (mi.Open(file) == IntPtr.Zero)
+      {
+        LogWarning(_logger, "MediaInfo library has not been opened media {path}", file);
+        return (null, 0);
+      }
+
       var profile = mi.Get(StreamKind.General, 0, "Format_Profile");
       if (profile == "Program")
       {
@@ -493,7 +515,7 @@ namespace MediaInfo
             NumberStyles.AllowDecimalPoint,
             _providerNumber,
             out var duration);
-          _logger.LogDebug("Profile is program with {duration} sec", duration);
+          LogDebug(_logger, "Profile is program with {duration} sec", duration);
           return (file, (int)duration);
       }
 
@@ -513,12 +535,12 @@ namespace MediaInfo
 #endif
       if (mediaInfo.Handle == IntPtr.Zero)
       {
-        _logger.LogWarning("MediaInfo library was not loaded!");
+        LogWarning(_logger, "MediaInfo library was not loaded!");
         return;
       }
 
       Version = mediaInfo.Option("Info_Version");
-      _logger.LogDebug("MediaInfo library was loaded. ({handle} Version={version}", mediaInfo.Handle, Version);
+      LogDebug(_logger, "MediaInfo library was loaded. ({handle} Version={version}", mediaInfo.Handle, Version);
       if (!stream.CanSeek)
       {
         ParseStreamWithoutSeek(stream, mediaInfo);
@@ -545,24 +567,24 @@ namespace MediaInfo
 #endif
       if (mediaInfo.Handle == IntPtr.Zero)
       {
-        _logger.LogWarning("MediaInfo library was not loaded!");
+        LogWarning(_logger, "MediaInfo library was not loaded!");
         return;
       }
       else
       {
         Version = mediaInfo.Option("Info_Version");
-        _logger.LogDebug("MediaInfo library was loaded. (handle={handle}, version={version})", mediaInfo.Handle, Version);
+        LogDebug(_logger, "MediaInfo library was loaded. (handle={handle}, version={version}", mediaInfo.Handle, Version);
       }
 
-      var filePricessingHandle = mediaInfo.Open(filePath);
-      if (filePricessingHandle == IntPtr.Zero)
+      var fileProcessingHandle = mediaInfo.Open(filePath);
+      if (fileProcessingHandle == IntPtr.Zero)
       {
-        _logger.LogWarning("MediaInfo library has not been opened media {path}", filePath);
+        LogWarning(_logger, "MediaInfo library has not been opened media {path}", filePath);
         return;
       }
       else
       {
-        _logger.LogDebug("MediaInfo library successfully opened {path}. (handle={handle})", filePath, filePricessingHandle);
+        LogDebug(_logger, "MediaInfo library successfully opened {path}. (handle={handle})", filePath, fileProcessingHandle);
       }
 
       ParseMedia(mediaInfo);
@@ -583,8 +605,8 @@ namespace MediaInfo
       Profile = mediaInfo.Get(StreamKind.General, 0, "Format_Profile");
       FormatVersion = mediaInfo.Get(StreamKind.General, 0, "Format_Version");
       Codec = mediaInfo.Get(StreamKind.General, 0, "CodecID");
-      _logger.LogDebug("Format=({format}, version={version}), Profile={profile}, Codec={Codec}", Format, FormatVersion, Profile, Codec);
-      _logger.LogDebug("Retrieving audio tags from stream position 0");
+      LogDebug(_logger, "Format=({format}, version={version}), Profile={profile}, Codec={Codec}", Format, FormatVersion, Profile, Codec);
+      LogDebug(_logger, "Retrieving audio tags from stream position 0");
       Tags = new AudioTagBuilder(mediaInfo, 0).Build();
       if (Size == 0)
       {
@@ -612,7 +634,7 @@ namespace MediaInfo
       }
       else
       {
-        _logger.LogWarning("Can't find any video, audio or subtitles streams. Set Success to false");
+        LogWarning(_logger, "Can't find any video, audio or subtitles streams. Set Success to false");
         SetupPropertiesDefault();
       }
     }
@@ -625,11 +647,11 @@ namespace MediaInfo
       }
 
       var result = 0;
-      _logger.LogDebug("Found {count} video streams.", mediaInfo.CountGet(StreamKind.Video));
+      LogDebug(_logger, "Found {count} video streams.", mediaInfo.CountGet(StreamKind.Video));
       for (var i = 0; i < mediaInfo.CountGet(StreamKind.Video); ++i)
       {
         var stream = new VideoStreamBuilder(mediaInfo, result++, i).Build();
-        _logger.LogDebug("Add video stream #{i}: codec={codec}, profile={profile}", i, stream.CodecName, stream.CodecProfile);
+        LogDebug(_logger, "Add video stream #{i}: codec={codec}, profile={profile}", i, stream.CodecName, stream.CodecProfile);
         VideoStreams.Add(stream);
       }
 
@@ -641,13 +663,13 @@ namespace MediaInfo
           _providerNumber,
           out var duration);
         Duration = (int)duration;
-        _logger.LogDebug("Set duration by video stream 0. Duration={duration}", TimeSpan.FromSeconds(Duration));
+        LogDebug(_logger, "Set duration by video stream 0. Duration={duration}", TimeSpan.FromSeconds(Duration));
       }
 
       // Fix 3D for some containers
       if (VideoStreams.Count == 1 && Tags.GeneralTags.TryGetValue((NativeMethods.General)1000, out var isStereo))
       {
-        _logger.LogDebug("Check for stereoscopic mode");
+        LogDebug(_logger, "Check for stereoscopic mode");
         var video = VideoStreams[0];
         if (Tags.GeneralTags.TryGetValue((NativeMethods.General)1001, out var stereoMode))
         {
@@ -658,7 +680,7 @@ namespace MediaInfo
           video.Stereoscopic = (bool) isStereo ? StereoMode.Stereo : StereoMode.Mono;
         }
 
-        _logger.LogDebug("Stereoscopic mode={mode}", video.Stereoscopic);
+        LogDebug(_logger, "Stereoscopic mode={mode}", video.Stereoscopic);
       }
 
       return result;
@@ -671,11 +693,11 @@ namespace MediaInfo
         throw new ArgumentNullException(nameof(mediaInfo));
       }
 
-      _logger.LogDebug("Found {audios} audio streams.", mediaInfo.CountGet(StreamKind.Audio));
+      LogDebug(_logger, "Found {audios} audio streams.", mediaInfo.CountGet(StreamKind.Audio));
       for (var i = 0; i < mediaInfo.CountGet(StreamKind.Audio); ++i)
       {
         var stream = new AudioStreamBuilder(mediaInfo, streamNumber++, i).Build();
-        _logger.LogDebug("Add audio stream #{i}: codec={codec}, friendly name={friendlyName}", i, stream.CodecName, stream.CodecFriendly);
+        LogDebug(_logger, "Add audio stream #{i}: codec={codec}, friendly name={friendlyName}", i, stream.CodecName, stream.CodecFriendly);
         AudioStreams.Add(stream);
       }
 
@@ -687,7 +709,7 @@ namespace MediaInfo
               _providerNumber,
               out var duration);
           Duration = (int)duration;
-        _logger.LogDebug("Set duration by audio stream 0. DurationDuration={duration}", TimeSpan.FromSeconds(Duration));
+        LogDebug(_logger, "Set duration by audio stream 0. Duration={duration}", TimeSpan.FromSeconds(Duration));
       }
 
       return streamNumber;
@@ -700,11 +722,11 @@ namespace MediaInfo
         throw new ArgumentNullException(nameof(mediaInfo));
       }
 
-      _logger.LogDebug("Found {subtitles} subtitle streams.", mediaInfo.CountGet(StreamKind.Text));
+      LogDebug(_logger, "Found {subtitles} subtitle streams.", mediaInfo.CountGet(StreamKind.Text));
       for (var i = 0; i < mediaInfo.CountGet(StreamKind.Text); ++i)
       {
         var stream = new SubtitleStreamBuilder(mediaInfo, streamNumber++, i).Build();
-        _logger.LogDebug("Add subtitle stream #{i}: format={format}", i, stream.Format);
+        LogDebug(_logger, "Add subtitle stream #{i}: format={format}", i, stream.Format);
         Subtitles.Add(stream);
       }
 
@@ -718,11 +740,11 @@ namespace MediaInfo
         throw new ArgumentNullException(nameof(mediaInfo));
       }
 
-      _logger.LogDebug("Found {chapters} chapters.", mediaInfo.CountGet(StreamKind.Other));
+      LogDebug(_logger, "Found {chapters} chapters.", mediaInfo.CountGet(StreamKind.Other));
       for (var i = 0; i < mediaInfo.CountGet(StreamKind.Other); ++i)
       {
         var chapter = new ChapterStreamBuilder(mediaInfo, streamNumber++, i).Build();
-        _logger.LogDebug("Add chapter #{i}: name={chapter}", i, chapter.Name);
+        LogDebug(_logger, "Add chapter #{i}: name={chapter}", i, chapter.Name);
         Chapters.Add(chapter);
       }
 
@@ -736,11 +758,11 @@ namespace MediaInfo
         throw new ArgumentNullException(nameof(mediaInfo));
       }
 
-      _logger.LogDebug("Found {menus} menu items.", mediaInfo.CountGet(StreamKind.Menu));
+      LogDebug(_logger, "Found {menus} menu items.", mediaInfo.CountGet(StreamKind.Menu));
       for (var i = 0; i < mediaInfo.CountGet(StreamKind.Menu); ++i)
       {
         var menu = new MenuStreamBuilder(mediaInfo, streamNumber++, i).Build();
-        _logger.LogDebug("Add menu #{i}: name={menu} duration={duration}", i, menu.Name, menu.Duration);
+        LogDebug(_logger, "Add menu #{i}: name={menu} duration={duration}", i, menu.Name, menu.Duration);
         MenuStreams.Add(menu);
       }
     }
@@ -750,7 +772,7 @@ namespace MediaInfo
     /// </summary>
     private void SetupPropertiesDefault()
     {
-      _logger.LogDebug("Set default media properties");
+      LogDebug(_logger, "Set default media properties");
       VideoCodec = string.Empty;
       VideoResolution = string.Empty;
       ScanType = string.Empty;
@@ -764,7 +786,7 @@ namespace MediaInfo
     /// <summary>
     /// Rise event in case the properties values was set.
     /// </summary>
-    protected virtual void OnSetupProperties(MediaInfo mediaInfo)
+    protected virtual void OnSetupProperties(MediaInfo? mediaInfo)
     {
       var @event = PropertiesInitialized;
       @event?.Invoke(this, new MediaInfoEventArgs(mediaInfo));
@@ -775,7 +797,7 @@ namespace MediaInfo
     /// </summary>
     private void SetupProperties(MediaInfo mediaInfo)
     {
-      _logger.LogDebug("Set media properties by detected streams");
+      LogDebug(_logger, "Set media properties by detected streams");
       BestVideoStream = VideoStreams.OrderByDescending(
           x => (long)x.Width * x.Height * x.BitDepth * (x.Stereoscopic == StereoMode.Mono ? 1L : 2L) * x.FrameRate * (x.Bitrate <= 1e-7 ? 1 : x.Bitrate))
         .FirstOrDefault();
@@ -787,7 +809,7 @@ namespace MediaInfo
       IsInterlaced = BestVideoStream?.Interlaced ?? false;
       Framerate = BestVideoStream?.FrameRate ?? 0;
       ScanType = BestVideoStream is not null
-                   ? mediaInfo.Get(StreamKind.Video, BestVideoStream.StreamPosition, "ScanType").ToLower()
+                   ? mediaInfo.Get(StreamKind.Video, BestVideoStream.StreamPosition, "ScanType").ToLowerInvariant()
                    : string.Empty;
       AspectRatio = BestVideoStream is not null
                       ? mediaInfo.Get(StreamKind.Video, BestVideoStream.StreamPosition, "DisplayAspectRatio")
@@ -806,16 +828,37 @@ namespace MediaInfo
       OnSetupProperties(mediaInfo);
 
       static string GetAspectRatioText(string ratio) =>
-      ratio switch
-      {
-        "4:3" or "1.333" => "fullscreen",
-        _ => "widescreen"
-      };
+        ratio switch
+        {
+          "4:3" or "1.333" => "fullscreen",
+          _ => "widescreen"
+        };
     }
 
 #endregion
 
 #region private methods
+
+    private static void LogDebug(ILogger? logger, string message, params object[] args) =>
+      logger?.LogDebug(message, args);
+
+    private static void LogInformation(ILogger? logger, string message, params object[] args) =>
+      logger?.LogInformation(message, args);
+
+    private static void LogWarning(ILogger? logger, string message, params object[] args) =>
+      logger?.LogWarning(message, args);
+
+    private static void LogError(ILogger? logger, string message, params object[] args) =>
+      logger?.LogError(message, args);
+
+    private static void LogError(ILogger? logger, Exception? exception, string message, params object[] args) =>
+      logger?.LogError(exception, message, args);
+
+    private static void LogCritical(ILogger? logger, string message, params object[] args) =>
+      logger?.LogCritical(message, args);
+
+    private static void LogCritical(ILogger? logger, Exception? exception, string message, params object[] args) =>
+      logger?.LogCritical(exception, message, args);
 
     private static bool CheckHasExternalSubtitles(string strFile)
     {
@@ -828,8 +871,7 @@ namespace MediaInfo
       try
       {
         return Directory.GetFiles(Path.GetDirectoryName(strFile) ?? string.Empty, filenameNoExt + "*")
-          .Select(file => new FileInfo(file))
-          .Any(fi => SubTitleExtensions.ContainsKey(fi.Extension.ToUpper()));
+          .Any(x => SubTitleExtensions.ContainsKey(Path.GetExtension(x)));
       }
       catch
       {
@@ -842,115 +884,129 @@ namespace MediaInfo
 #region public video related properties
 
     /// <summary>
-    /// Gets a value indicating whether this instance has video.
+    /// A value indicating whether media has at least one video stream.
     /// </summary>
     /// <value>
-    ///   <c>true</c> if this instance has video; otherwise, <c>false</c>.
+    ///   <c>true</c> if media has at least one video stream; otherwise, <c>false</c>.
     /// </value>
     public bool HasVideo => VideoStreams.Count > 0;
 
     /// <summary>
-    /// Gets a value indicating whether media has at least one video stream with stereoscopic effect.
+    /// A value indicating whether media has at least one video stream with 3D effect.
     /// </summary>
     /// <value>
-    ///   <c>true</c> if is3d; otherwise, <c>false</c>.
+    ///   <c>true</c> if media has at least one video stream with 3D effect; otherwise, <c>false</c>.
     /// </value>
     public bool Is3D => VideoStreams.Any(x => x.Stereoscopic != StereoMode.Mono);
 
     /// <summary>
-    /// Gets a value indicating whether media has at least one video stream with HDR effect.
+    /// A value indicating whether media has at least one video stream with HDR effect.
     /// </summary>
     /// <value>
-    ///   <c>true</c> if video stream with HDR effect; otherwise, <c>false</c>.
+    ///   <c>true</c> if media has at least one video stream with HDR effect; otherwise, <c>false</c>.
     /// </value>
     public bool IsHdr => VideoStreams.Any(x => x.Hdr != Hdr.None);
 
     /// <summary>
-    /// Gets the video streams.
+    /// A list of video streams. The list is empty if media has no video streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The video streams.
-    /// </value>
+    /// <remarks>
+    /// The list is ordered by the stream position in the media file.
+    /// </remarks>
     public IList<VideoStream> VideoStreams { get; }
 
     /// <summary>
-    /// Gets the best video stream.
+    /// Gets the best video stream based on resolution, bitrate, frame rate, bit depth and 3D effect. The value is null if media has no video streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The best video stream.
-    /// </value>
-    public VideoStream BestVideoStream { get; private set; }
+    /// <remarks>
+    /// The best video stream is determined by the following criteria (in order of importance):
+    /// 1. Resolution
+    /// 2. Bitrate
+    /// 3. Frame rate
+    /// 4. Bit depth
+    /// 5. 3D effect
+    /// If multiple streams have the same resolution, bitrate, frame rate, bit depth and 3D effect, the first one in the media file is selected as the best stream.
+    /// In case of Blu-Ray media, the best stream is selected based on the highest resolution and bitrate, as Blu-Ray media typically contains multiple video streams with different resolutions and bitrates.
+    /// For example, if a media file contains two video streams with the same resolution and frame rate, but one has a higher bitrate than the other, the stream with the higher bitrate will be selected as the best stream. If both streams have the same bitrate, the first one in the media file will be selected as the best stream.
+    /// In case of 3D media, the stream with the highest resolution and bitrate will be selected as the best stream, regardless of the frame rate and bit depth, as 3D effect is considered more important than frame rate and bit depth for 3D media.
+    /// In case of HDR media, the stream with the highest resolution and bitrate will be selected as the best stream, regardless of the frame rate and bit depth, as HDR effect is considered more important than frame rate and bit depth for HDR media.
+    /// In case of Blu-Ray media with 3D effect, the stream with the highest resolution and bitrate will be selected as the best stream, regardless of the frame rate and bit depth, as 3D effect is considered more important than frame rate and bit depth for Blu-Ray media with 3D effect.
+    /// In case of Blu-Ray media with HDR effect, the stream with the highest resolution and bitrate will be selected as the best stream, regardless of the frame rate and bit depth, as HDR effect is considered more important than frame rate and bit depth for Blu-Ray media with HDR effect.
+    /// In case of Blu-Ray media with 3D and HDR effect, the stream with the highest resolution and bitrate will be selected as the best stream, regardless of the frame rate and bit depth, as 3D and HDR effects are considered more important than frame rate and bit depth for Blu-Ray media with 3D and HDR effect.
+    /// If media has no video streams, the value is null.
+    /// </remarks>
+    public VideoStream? BestVideoStream { get; private set; }
 
     /// <summary>
-    /// Gets the video codec.
+    /// Gets the video codec of the best video stream. The value is empty string if media has no video streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The video codec.
-    /// </value>
-    public string VideoCodec { get; private set; }
+    /// <remarks>
+    /// The video codec is determined based on the <see cref="BestVideoStream">best video stream</see>. If media has no video streams or media was not loaded successfully, the value is an empty string.
+    /// </remarks>
+    public string VideoCodec { get; private set; } = default!;
 
     /// <summary>
-    /// Gets the video frame rate.
+    /// Gets the video frame rate of the best video stream. The value is 0 if media has no video streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The video frame rate.
-    /// </value>
+    /// <remarks>
+    /// The video frame rate is determined based on the <see cref="BestVideoStream">best video stream</see>. If media has no video streams or media was not loaded successfully, the value is 0.
+    /// </remarks>
     public double Framerate { get; private set; }
 
     /// <summary>
-    /// Gets the video width.
+    /// Gets the video width of the best video stream. The value is 0 if media has no video streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The video width.
-    /// </value>
+    /// <remarks>
+    /// The video width is determined based on the <see cref="BestVideoStream">best video stream</see>. If media has no video streams or media was not loaded successfully, the value is 0.
+    /// </remarks>
     public int Width { get; private set; }
 
     /// <summary>
-    /// Gets the video height.
+    /// Gets the video height of the best video stream. The value is 0 if media has no video streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The video height.
-    /// </value>
+    /// <remarks>
+    /// The video height is determined based on the <see cref="BestVideoStream">best video stream</see>. If media has no video streams or media was not loaded successfully, the value is 0.
+    /// </remarks>
     public int Height { get; private set; }
 
     /// <summary>
-    /// Gets the video aspect ratio.
+    /// Gets the video aspect ratio of the best video stream. The value is an empty string if media has no video streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The video aspect ratio.
-    /// </value>
-    public string AspectRatio { get; private set; }
+    /// <remarks>
+    /// The video aspect ratio is determined based on the <see cref="BestVideoStream">best video stream</see>. If media has no video streams or media was not loaded successfully, the value is an empty string.
+    /// </remarks>
+    public string AspectRatio { get; private set; } = default!;
 
     /// <summary>
-    /// Gets the type of the scan.
+    /// Gets the type of the scan. The value is an empty string if media has no video streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The type of the scan.
-    /// </value>
-    public string ScanType { get; private set; }
+    /// <remarks>
+    /// The type of the scan is determined based on the <see cref="BestVideoStream">best video stream</see>. If media has no video streams or media was not loaded successfully, the value is an empty string.
+    /// </remarks>
+    public string ScanType { get; private set; } = default!;
 
     /// <summary>
-    /// Gets a value indicating whether video is interlaced.
+    /// Gets a value indicating whether video is interlaced. The value is <c>false</c> if media has no video streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if video is interlaced; otherwise, <c>false</c>.
-    /// </value>
+    /// <remarks>
+    /// The interlaced status is determined based on the <see cref="BestVideoStream">best video stream</see>. If media has no video streams or media was not loaded successfully, the value is <c>false</c>.
+    /// </remarks>
     public bool IsInterlaced { get; private set; }
 
     /// <summary>
-    /// Gets the video resolution.
+    /// Gets the video resolution of the best video stream. The value is an empty string if media has no video streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The video resolution.
-    /// </value>
-    public string VideoResolution { get; private set; }
+    /// <remarks>
+    /// The video resolution is determined based on the <see cref="BestVideoStream">best video stream</see>. If media has no video streams or media was not loaded successfully, the value is an empty string.
+    /// </remarks>
+    public string VideoResolution { get; private set; } = default!;
 
     /// <summary>
-    /// Gets the video bitrate.
+    /// Gets the video bitrate. The value is 0 if media has no video streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The video bitrate.
-    /// </value>
+    /// <remarks>
+    /// The video bitrate is determined based on the <see cref="BestVideoStream">best video stream</see>. If media has no video streams or media was not loaded successfully, the value is 0.
+    /// </remarks>
     public int VideoRate { get; private set; }
 
 #endregion
@@ -958,87 +1014,88 @@ namespace MediaInfo
 #region public audio related properties
 
     /// <summary>
-    /// Gets the audio streams.
+    /// Gets the list of audio streams. The list is empty if media has no audio streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The audio streams.
-    /// </value>
+    /// <remarks>
+    /// The audio streams are determined based on the media file. If media has no audio streams or media was not loaded successfully, the value is an empty list.
+    /// </remarks>
     public IList<AudioStream> AudioStreams { get; }
 
     /// <summary>
-    /// Gets the best audio stream.
+    /// Gets the best audio stream. The value is <c>null</c> if media has no audio streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The best audio stream.
-    /// </value>
-    public AudioStream BestAudioStream { get; private set; }
+    /// <remarks>
+    /// The best audio stream is determined based on the media file. If media has no audio streams or media was not loaded successfully, the value is <c>null</c>.
+    /// </remarks>
+    public AudioStream? BestAudioStream { get; private set; }
+
 
     /// <summary>
-    /// Gets the audio codec.
+    /// Gets the audio codec. The value is an empty string if media has no audio streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The audio codec.
-    /// </value>
-    public string AudioCodec { get; private set; }
+    /// <remarks>
+    /// The audio codec is determined based on the <see cref="BestAudioStream">best audio stream</see>. If media has no audio streams or media was not loaded successfully, the value is an empty string.
+    /// </remarks>
+    public string AudioCodec { get; private set; } = default!;
 
     /// <summary>
-    /// Gets the audio bitrate.
+    /// Gets the audio bitrate. The value is 0 if media has no audio streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The audio bitrate.
-    /// </value>
+    /// <remarks>
+    /// The audio bitrate is determined based on the <see cref="BestAudioStream">best audio stream</see>. If media has no audio streams or media was not loaded successfully, the value is 0.
+    /// </remarks>
     public int AudioRate { get; private set; }
 
     /// <summary>
-    /// Gets the audio sample rate.
+    /// Gets the audio sample rate. The value is 0 if media has no audio streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The audio sample rate.
-    /// </value>
+    /// <remarks>
+    /// The audio sample rate is determined based on the <see cref="BestAudioStream">best audio stream</see>. If media has no audio streams or media was not loaded successfully, the value is 0.
+    /// </remarks>
     public int AudioSampleRate { get; private set; }
 
     /// <summary>
-    /// Gets the count of audio channels.
+    /// Gets the count of audio channels. The value is 0 if media has no audio streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The count of audio channels.
-    /// </value>
+    /// <remarks>
+    /// The count of audio channels is determined based on the <see cref="BestAudioStream">best audio stream</see>. If media has no audio streams or media was not loaded successfully, the value is 0.
+    /// </remarks>
     public int AudioChannels { get; private set; }
 
     /// <summary>
-    /// Gets the audio channels friendly name.
+    /// Gets the audio channels friendly name. The value is an empty string if media has no audio streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The audio channels friendly name.
-    /// </value>
-    public string AudioChannelsFriendly { get; private set; }
+    /// <remarks>
+    /// The audio channels friendly name is determined based on the <see cref="BestAudioStream">best audio stream</see>. If media has no audio streams or media was not loaded successfully, the value is an empty string.
+    /// </remarks>
+    public string AudioChannelsFriendly { get; private set; } = default!;
 
 #endregion
 
 #region public subtitles related properties
 
     /// <summary>
-    /// Gets the list of media subtitles.
+    /// Gets the list of media subtitles. The list is empty if media has no subtitles or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The media subtitles.
-    /// </value>
+    /// <remarks>
+    /// The media subtitles are determined based on the media file. If media has no subtitles or media was not loaded successfully, the value is an empty list.
+    /// </remarks>
     public IList<SubtitleStream> Subtitles { get; }
 
     /// <summary>
-    /// Gets a value indicating whether media has internal or external subtitles.
+    /// A value indicating whether media has subtitles. The value is <c>false</c> if media was not loaded successfully.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if media has subtitles; otherwise, <c>false</c>.
-    /// </value>
+    /// <remarks>
+    /// The media has subtitles if it has at least one subtitle stream or at least one external subtitle file. If media was not loaded successfully, the value is <c>false</c>.
+    /// </remarks>
     public bool HasSubtitles => HasExternalSubtitles || Subtitles.Count > 0;
 
     /// <summary>
-    /// Gets a value indicating whether this instance has external subtitles.
+    /// A value indicating whether media has external subtitles. The value is <c>false</c> if media was not loaded successfully.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if this instance has external subtitles; otherwise, <c>false</c>.
-    /// </value>
+    /// <remarks>
+    /// The instance has external subtitles if it has at least one external subtitle file. If media was not loaded successfully, the value is <c>false</c>.
+    /// </remarks>
     public bool HasExternalSubtitles { get; }
 
 #endregion
@@ -1046,19 +1103,19 @@ namespace MediaInfo
 #region public chapters related properties
 
     /// <summary>
-    /// Gets the media chapters.
+    /// Gets the media chapters. The list is empty if media has no chapters or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The media chapters.
-    /// </value>
+    /// <remarks>
+    /// The media chapters are determined based on the media file. If media has no chapters or media was not loaded successfully, the value is an empty list.
+    /// </remarks>
     public IList<ChapterStream> Chapters { get; }
 
     /// <summary>
-    /// Gets a value indicating whether media has chapters.
+    /// Gets a value indicating whether media has chapters. The value is <c>false</c> if media was not loaded successfully.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if media has chapters; otherwise, <c>false</c>.
-    /// </value>
+    /// <remarks>
+    /// The media has chapters if it has at least one chapter stream. If media was not loaded successfully, the value is <c>false</c>.
+    /// </remarks>
     public bool HasChapters => Chapters.Count > 0;
 
 #endregion
@@ -1066,19 +1123,19 @@ namespace MediaInfo
 #region public menu related properties
 
     /// <summary>
-    /// Gets the menu streams from media.
+    /// Gets the menu streams from media. The list is empty if media has no menu streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The menu streams.
-    /// </value>
+    /// <remarks>
+    /// The menu streams are determined based on the media file. If media has no menu streams or media was not loaded successfully, the value is an empty list.
+    /// </remarks>
     public IList<MenuStream> MenuStreams { get; }
 
     /// <summary>
-    /// Gets a value indicating whether media has menu.
+    /// A value indicating whether media has menu. The value is <c>false</c> if media was not loaded successfully.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if media has menu; otherwise, <c>false</c>.
-    /// </value>
+    /// <remarks>
+    /// The media has menu if it has at least one menu stream. If media was not loaded successfully, the value is <c>false</c>.
+    /// </remarks>
     public bool HasMenu => MenuStreams.Count > 0;
 
 #endregion
@@ -1086,128 +1143,157 @@ namespace MediaInfo
 #region public common properties
 
     /// <summary>
-    /// Gets a value indicating whether media is DVD.
+    /// A value indicating whether media is DVD. The value is <c>false</c> if media was not loaded successfully.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if media is DVD; otherwise, <c>false</c>.
-    /// </value>
+    /// <remarks>
+    /// The media is DVD if it has a DVD structure. If media was not loaded successfully, the value is <c>false</c>.
+    /// </remarks>
     public bool IsDvd { get; private set; }
 
     /// <summary>
-    /// Gets the media (container) format.
+    /// Gets the media (container) format. The value is an empty string if media was not loaded successfully.
     /// </summary>
-    /// <value>The media (container) format.</value>
-    public string Format { get; private set; }
+    /// <remarks>
+    /// The media (container) format is determined based on the media file. If media was not loaded successfully, the value is an empty string.
+    /// </remarks>
+    public string Format { get; private set; } = default!;
 
     /// <summary>
-    /// Gets a value indicating whether media is streamable.
+    /// A value indicating whether media is streamable. The value is <c>false</c> if media was not loaded successfully.
     /// </summary>
-    /// <value><c>true</c> if media is streamable; otherwise, <c>false</c>.</value>
+    /// <remarks>
+    /// The media is streamable if it can be played over a network. If media was not loaded successfully, the value is <c>false</c>.
+    /// </remarks>
     public bool IsStreamable { get; private set; }
 
     /// <summary>
-    /// Gets the writing media application.
+    /// Gets the writing media application. The value is an empty string if media was not loaded successfully.
     /// </summary>
-    /// <value>The writing media application.</value>
-    public string WritingApplication { get; private set; }
+    /// <remarks>
+    /// The writing media application is determined based on the media file. If media was not loaded successfully, the value is an empty string.
+    /// </remarks>
+    public string WritingApplication { get; private set; } = default!;
 
     /// <summary>
-    /// Gets the writing media application.
+    /// Gets the writing media library. The value is an empty string if media was not loaded successfully.
     /// </summary>
-    /// <value>The writing media application.</value>
-    public string WritingLibrary { get; private set; }
+    /// <remarks>
+    /// The writing media library is determined based on the media file. If media was not loaded successfully, the value is an empty string.
+    /// </remarks>
+    public string WritingLibrary { get; private set; } = default!;
 
     /// <summary>
-    /// Gets the media attachments.
+    /// Gets the media attachments. The value is an empty string if media was not loaded successfully.
     /// </summary>
-    /// <value>The media attachments.</value>
-    public string Attachments { get; private set; }
+    /// <remarks>
+    /// The media attachments are determined based on the media file. If media was not loaded successfully, the value is an empty string.
+    /// </remarks>
+    public string Attachments { get; private set; } = default!;
 
     /// <summary>
-    /// Gets the media (container) format version.
+    /// Gets the media (container) format version. The value is an empty string if media was not loaded successfully.
     /// </summary>
-    /// <value>The media (container) format version.</value>
-    public string FormatVersion { get; private set; }
+    /// <remarks>
+    /// The media (container) format version is determined based on the media file. If media was not loaded successfully, the value is an empty string.
+    /// </remarks>
+    public string FormatVersion { get; private set; } = default!;
 
     /// <summary>
-    /// Gets the media (container) format profile.
+    /// Gets the media (container) format profile. The value is an empty string if media was not loaded successfully.
     /// </summary>
-    /// <value>The media (container) format profile.</value>
-    public string Profile { get; private set; }
+    /// <remarks>
+    /// The media (container) format profile is determined based on the media file. If media was not loaded successfully, the value is an empty string.
+    /// </remarks>
+    public string Profile { get; private set; } = default!;
 
     /// <summary>
-    /// Gets the media (container) codec.
+    /// Gets the media (container) codec. The value is an empty string if media was not loaded successfully.
     /// </summary>
-    /// <value>The media (container) codec.</value>
-    public string Codec { get; private set; }
+    /// <remarks>
+    /// The media (container) codec is determined based on the media file. If media was not loaded successfully, the value is an empty string.
+    /// </remarks>
+    public string Codec { get; private set; } = default!;
 
     /// <summary>
-    /// Gets a value indicating whether media is BluRay.
+    /// A value indicating whether media is BluRay. The value is <c>false</c> if media was not loaded successfully.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if media is BluRay; otherwise, <c>false</c>.
-    /// </value>
+    /// <remarks>
+    /// The media is BluRay if it has a BluRay structure. If media was not loaded successfully, the value is <c>false</c>.
+    /// </remarks>
     public bool IsBluRay { get; }
 
     /// <summary>
-    /// Gets a value indicating whether media information was not loaded.
+    /// A value indicating whether media information was loaded successfully. The value is <c>false</c> if media information was not loaded successfully.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if media information was not loaded; otherwise, <c>false</c>.
-    /// </value>
+    /// <remarks>
+    /// The value is <c>true</c> if media information was loaded successfully; otherwise, <c>false</c>.
+    /// </remarks>
     public bool Success { get; private set; }
 
     /// <summary>
-    /// Gets the duration of the media.
+    /// Gets the duration of the media in seconds. The value is 0 if media has no video and audio streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The duration of the media.
-    /// </value>
+    /// <remarks>
+    /// The media duration is determined based on the video and audio streams. If media has no video and audio streams or media was not loaded successfully, the value is 0.
+    /// </remarks>
     public int Duration { get; private set; }
 
     /// <summary>
-    /// Gets the mediainfo.dll version.
+    /// Gets the version of the mediainfo.dll library. The value is <c>null</c> if mediainfo.dll was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The mediainfo.dll version.
-    /// </value>
-    public string Version { get; private set; }
+    /// <remarks>
+    /// The mediainfo.dll version is determined based on the loaded mediainfo.dll. If mediainfo.dll was not loaded successfully, the value is <c>null</c>.
+    /// </remarks>
+    public string? Version { get; private set; }
 
     /// <summary>
-    /// Gets the media size.
+    /// Gets the media size in bytes. The value is 0 if media has no video and audio streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The media size.
-    /// </value>
+    /// <remarks>
+    /// The media size is determined based on the video and audio streams. If media has no video and audio streams or media was not loaded successfully, the value is 0.
+    /// </remarks>
     public long Size { get; private set; }
 
     /// <summary>
-    /// Gets the tags.
+    /// Gets the media audio tags. The value is an empty string if media has no audio streams or media was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The tags.
-    /// </value>
-    public AudioTags Tags { get; private set; }
+    /// <remarks>
+    /// The media audio tags are determined based on the media file. If media was not loaded successfully, the value is an empty string.
+    /// </remarks>
+    public AudioTags Tags { get; private set; } = default!;
 
 #endregion
 
     /// <summary>
     /// Occurs when properties initialized.
     /// </summary>
-    public event EventHandler PropertiesInitialized;
+    public event EventHandler? PropertiesInitialized;
 
     /// <summary>
-    /// Gets the text representation of the media information.
+    /// Gets the text representation of the media information. The value is an empty string if media information was not loaded successfully.
     /// </summary>
-    /// <value>
-    /// The media information text.
-    /// </value>
-    public string Text { get; private set; }
+    /// <remarks>
+    /// The text representation of the media information is determined based on the loaded media information. If media information was not loaded successfully, the value is an empty string.
+    /// </remarks>
+    public string Text { get; private set; } = default!;
   }
 
 #if NET40 || NET45
   internal static class PathExtensions
   {
+    /// <summary>
+    /// Returns the source path if it is not null or empty; otherwise, checks the another path for mediaInfo.dll file and returns it if the file exists; otherwise, returns null.
+    /// </summary>
+    /// <param name="sourcePath">The source path to check.</param>
+    /// <param name="anotherPath">The another path to check if the source path is
+    /// null or empty.</param>
+    /// <param name="logger">The logger to log the information about the paths checking.</param>
+    /// <returns>
+    /// The source path if it is not null or empty; otherwise, the another path if mediaInfo.dll file exists in it; otherwise, null.
+    /// </returns>
+    /// <remarks>
+    /// This method is used to check the paths for mediaInfo.dll file. It first checks the source path and returns it if it is not null or empty. If the source path is null or empty, it checks the another path for mediaInfo.dll file and returns it if the file exists; otherwise, it returns null.
+    /// </remarks>
     public static string IfExistsPath(this string sourcePath, string anotherPath, ILogger logger)
     {
       if (!string.IsNullOrEmpty(sourcePath))
@@ -1232,10 +1318,14 @@ namespace MediaInfo
     }
 
     /// <summary>
-    /// Checks if mediaInfo.dll file exist.
+    /// Checks the specified path for mediaInfo.dll file and returns <b>true</b> if the file exists; otherwise, returns <b>false</b>.
     /// </summary>
-    /// <param name="pathToDll">The path to mediaInfo.dll</param>
-    /// <returns>Returns <b>true</b> if mediaInfo.dll is exists; elsewhere <b>false</b>.</returns>
+    /// <param name="pathToDll">The path to check for mediaInfo.dll file. The path should not contain the mediaInfo.dll file name, but only the directory path.</param>
+    /// <returns>
+    /// <b>true</b> if the mediaInfo.dll file exists in the specified path; otherwise, <b>false</b>.</returns>
+    /// <remarks>
+    /// This method is used to check if the mediaInfo.dll file exists in the specified path. The path should not include the mediaInfo.dll file name, only the directory path.
+    /// </remarks>
     public static bool MediaInfoExist(this string pathToDll) =>
       File.Exists(Path.Combine(pathToDll, "MediaInfo.dll"));
   }

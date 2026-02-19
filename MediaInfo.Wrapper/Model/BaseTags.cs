@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+﻿#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
@@ -31,7 +31,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The title of the media.
     /// </value>
-    public string Title => GeneralTags.TryGetValue(NativeMethods.General.General_Title, out var result) ? (string)result : null;
+    public string? Title => GeneralTags.TryGetValue(NativeMethods.General.General_Title, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets a short description of the contents, such as "Two birds flying".
@@ -39,7 +39,7 @@ namespace MediaInfo.Model
     /// <value>
     /// A short description of the contents, such as "Two birds flying".
     /// </value>
-    public string Description => GeneralTags.TryGetValue(NativeMethods.General.General_Description, out var result) ? (string)result : null;
+    public string? Description => GeneralTags.TryGetValue(NativeMethods.General.General_Description, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the keywords to the item separated by a comma, used for searching.
@@ -47,7 +47,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The keywords to the item separated by a comma, used for searching.
     /// </value>
-    public string[] Keywords => GeneralTags.TryGetValue(NativeMethods.General.General_Keywords, out var result) ? ((string)result).Split(new[]  { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray() : null;
+    public string[]? Keywords => GeneralTags.TryGetValue(NativeMethods.General.General_Keywords, out var result) ? ((string)result).Split(new[]  { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray() : null;
 
     /// <summary>
     /// Gets the country.
@@ -55,7 +55,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The country.
     /// </value>
-    public string Country => GeneralTags.TryGetValue(NativeMethods.General.General_Country, out var result) ? (string)result : null;
+    public string? Country => GeneralTags.TryGetValue(NativeMethods.General.General_Country, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the time that the item was originally released.
@@ -87,7 +87,7 @@ namespace MediaInfo.Model
     /// <value>
     /// Any comment related to the content.
     /// </value>
-    public string Comment => GeneralTags.TryGetValue(NativeMethods.General.General_Comment, out var result) ? (string)result : null;
+    public string? Comment => GeneralTags.TryGetValue(NativeMethods.General.General_Comment, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets a numeric value defining how much a person likes the song/movie. The number is between 0 and 5 with decimal values possible (e.g. 2.7), 5(.0) being the highest possible rating.
@@ -103,7 +103,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The copyright attribution.
     /// </value>
-    public string Copyright => GeneralTags.TryGetValue(NativeMethods.General.General_Copyright, out var result) ? (string)result : null;
+    public string? Copyright => GeneralTags.TryGetValue(NativeMethods.General.General_Copyright, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the name of the organization producing the track (i.e. the 'record label').
@@ -111,7 +111,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The name of the organization producing the track (i.e. the 'record label').
     /// </value>
-    public string Publisher => GeneralTags.TryGetValue(NativeMethods.General.General_Publisher, out var result) ? (string)result : null;
+    public string? Publisher => GeneralTags.TryGetValue(NativeMethods.General.General_Publisher, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the publishers official web page.
@@ -119,7 +119,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The publishers official web page.
     /// </value>
-    public string PublisherUrl => GeneralTags.TryGetValue(NativeMethods.General.General_Publisher_URL, out var result) ? (string)result : null;
+    public string? PublisherUrl => GeneralTags.TryGetValue(NativeMethods.General.General_Publisher_URL, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the name of the organization distributing track.
@@ -127,7 +127,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The name of the organization distributing track.
     /// </value>
-    public string DistributedBy => GeneralTags.TryGetValue(NativeMethods.General.General_DistributedBy, out var result) ? (string)result : null;
+    public string? DistributedBy => GeneralTags.TryGetValue(NativeMethods.General.General_DistributedBy, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the average number of beats per minute in the complete target.
@@ -143,7 +143,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The cover media.
     /// </value>
-    public IEnumerable<CoverInfo> Covers { get; set; }
+    public IEnumerable<CoverInfo> Covers { get; set; } = [];
   }
 
   /// <summary>
@@ -157,7 +157,7 @@ namespace MediaInfo.Model
     /// <value>
     /// <c>true</c> if exists; otherwise, <c>false</c>.
     /// </value>
-    public bool Exists { get; internal set; }
+    public bool Exists { get; internal init; }
 
     /// <summary>
     /// Gets the description of the cover.
@@ -165,7 +165,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The description of the cover.
     /// </value>
-    public string Description { get; internal set; }
+    public string Description { get; internal init; } = default!;
 
     /// <summary>
     /// Gets the type of the cover.
@@ -173,7 +173,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The type of the cover.
     /// </value>
-    public string Type { get; internal set; }
+    public string Type { get; internal init; } = default!;
 
     /// <summary>
     /// Gets the MIME of the cover.
@@ -181,7 +181,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The MIME of the cover.
     /// </value>
-    public string Mime { get; internal set; }
+    public string Mime { get; init; } = default!;
 
     /// <summary>
     /// Gets the cover data.
@@ -189,6 +189,6 @@ namespace MediaInfo.Model
     /// <value>
     /// The cover data.
     /// </value>
-    public byte[] Data { get; internal set; }
+    public byte[]? Data { get; internal init; }
   }
 }

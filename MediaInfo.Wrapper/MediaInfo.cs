@@ -1,7 +1,7 @@
-#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
@@ -14,17 +14,35 @@ using System.Runtime.InteropServices;
 
 namespace MediaInfo
 {
+  /// <summary>
+  /// Describes options to open file in MediaInfoList
+  /// </summary>
   [Flags]
   public enum InfoFileOptions
   {
+    /// <summary>
+    /// Default value, no options
+    /// </summary>
     Nothing = 0x00,
+
+    /// <summary>
+    /// Do not process directories recursively
+    /// </summary>
     NoRecursive = 0x01,
+
+    /// <summary>
+    /// Close all files
+    /// </summary>
     CloseAll = 0x02,
+
+    /// <summary>
+    /// Maximum value, used for validation
+    /// </summary>
     Max = 0x04
   };
 
   /// <summary>
-  /// Describes kind of streams
+  /// Describes stream kinds
   /// </summary>
   public enum StreamKind
   {
@@ -34,59 +52,114 @@ namespace MediaInfo
     General,
 
     /// <summary>
-    /// The video
+    /// The video stream
     /// </summary>
     Video,
 
     /// <summary>
-    /// The audio
+    /// The audio stream
     /// </summary>
     Audio,
 
     /// <summary>
-    /// The subtitles and text information
+    /// The subtitles and text stream
     /// </summary>
     Text,
 
     /// <summary>
-    /// The other (chapters)
+    /// The other (chapters) stream kind
     /// </summary>
     Other,
 
     /// <summary>
-    /// The image
+    /// The image stream
     /// </summary>
     Image,
 
     /// <summary>
-    /// The menu
+    /// The menu stream
     /// </summary>
     Menu,
   }
 
+  /// <summary>
+  /// Describes kinds of information
+  /// </summary>
   public enum InfoKind
   {
+    /// <summary>
+    /// The name of the parameter
+    /// </summary>
     Name,
+
+    /// <summary>
+    /// The text value of the parameter
+    /// </summary>
     Text,
+
+    /// <summary>
+    /// The measure of the parameter
+    /// </summary>
     Measure,
+
+    /// <summary>
+    /// The options of the parameter
+    /// </summary>
     Options,
+    
+    /// <summary>
+    /// The text of the name of the parameter
+    /// </summary>
     NameText,
+
+    /// <summary>
+    /// The text of the measure of the parameter
+    /// </summary>
     MeasureText,
+
+    /// <summary>
+    /// The information of the parameter
+    /// </summary>
     Info,
+
+    /// <summary>
+    /// The how to of the parameter
+    /// </summary>
     HowTo
   }
 
+  /// <summary>
+  /// Describes kinds of information to search in MediaInfoList
+  /// </summary>
   public enum InfoOptions
   {
+    /// <summary>
+    /// The name of the parameter
+    /// </summary>
     ShowInInform,
+
+    /// <summary>
+    /// The name of the parameter in case it is supported, else empty string
+    /// </summary>
     Support,
+
+    /// <summary>
+    /// The name of the parameter in case it is supported, else the name of the parameter
+    /// </summary>
     ShowInSupported,
+
+    /// <summary>
+    /// The value of the parameter in case it is supported, else empty string
+    /// </summary>
     TypeOfValue
   }
 
   /// <summary>
-  /// Describes low-level functions to access to media information
+  /// Describes low-level function to access to mediaInfo library
   /// </summary>
+  /// <remarks>
+  /// All functions in this class will return empty string if library is not loaded successfully. So, you can check if library is loaded by checking if Inform() method returns empty string or not.
+  /// </remarks>
   /// <seealso cref="IDisposable" />
   public class MediaInfo : IDisposable
   {
@@ -111,7 +184,7 @@ namespace MediaInfo
     /// <summary>
     /// Initializes a new instance of the <see cref="MediaInfo"/> class.
     /// </summary>
-    /// <param name="pathToDll">The path to mediainfo.dll.</param>
+    /// <param name="pathToDll">The path to the directory containing the MediaInfo library.</param>
     public MediaInfo(string pathToDll)
     {
       NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, LibCryptoFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
@@ -154,10 +227,10 @@ namespace MediaInfo
     }
 
     /// <summary>
-    /// Opens the specified file name.
+    /// Opens the specified file name to access to media stream data.
     /// </summary>
-    /// <param name="fileName">Name of the file.</param>
-    /// <returns>Return internal handle to access to low-level functions.</returns>
+    /// <param name="fileName">The path to the media file.</param>
+    /// <returns>Returns internal handle to access to low-level functions.</returns>
     public IntPtr Open(string fileName)
     {
       if (Handle == IntPtr.Zero)
@@ -171,54 +244,56 @@ namespace MediaInfo
     }
 
     /// <summary>
-    /// Gets the library handle.
+    /// Gets the library handle to access to low-level functions.
     /// </summary>
-    /// <value>The library handle.</value>
+    /// <remarks>
+    /// This property is used to access to low-level functions, such as Open_Buffer_Init, Open_Buffer_Continue, Open_Buffer_Finalize, etc. If library is not loaded successfully, this property will return IntPtr.Zero.
+    /// </remarks>
     public IntPtr Handle { get; private set; }
 
     /// <summary>
-    /// Opens the buffer initialize.
+    /// Opens the buffer initialization to inform library about the file size and offset.
     /// </summary>
     /// <param name="fileSize">Size of the file.</param>
     /// <param name="fileOffset">The file offset.</param>
-    /// <returns></returns>
+    /// <returns>Returns internal success code. If library is not loaded successfully, will return IntPtr.Zero.</returns>
     public IntPtr OpenBufferInit(long fileSize, long fileOffset) =>
       Handle == IntPtr.Zero ? IntPtr.Zero : NativeMethods.MediaInfo_Open_Buffer_Init(Handle, fileSize, fileOffset);
 
     /// <summary>
-    /// Opens the buffer continue.
+    /// Opens the buffer continue to inform library about the buffer content.
     /// </summary>
-    /// <param name="buffer">The buffer.</param>
+    /// <param name="buffer">The pointer to the buffer.</param>
     /// <param name="bufferSize">Size of the buffer.</param>
-    /// <returns></returns>
+    /// <returns>Returns internal success code. If library is not loaded successfully, will return IntPtr.Zero.</returns>
     public IntPtr OpenBufferContinue(IntPtr buffer, IntPtr bufferSize) =>
       Handle == IntPtr.Zero ? IntPtr.Zero : NativeMethods.MediaInfo_Open_Buffer_Continue(Handle, buffer, bufferSize);
 
     /// <summary>
-    /// Opens the buffer continue.
+    /// Opens the buffer continue to inform library about the buffer content by unsafe code.
     /// </summary>
-    /// <param name="buffer">The buffer.</param>
+    /// <param name="buffer">The pointer to the buffer.</param>
     /// <param name="bufferSize">Size of the buffer.</param>
-    /// <returns></returns>
+    /// <returns>Returns internal success code. If library is not loaded successfully, will return 0.</returns>
     public unsafe int OpenBufferContinue(byte* buffer, int bufferSize) =>
       Handle == IntPtr.Zero ? 0 : (int) NativeMethods.MediaInfo_Open_Buffer_Continue(Handle, buffer, (IntPtr) bufferSize);
 
     /// <summary>
-    /// Opens the buffer continue go to get.
+    /// Opens the buffer to continue to get the position to go to.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Returns the position to go to. If library is not loaded successfully, will return 0.</returns>
     public long OpenBufferContinueGoToGet() =>
       Handle == IntPtr.Zero ? 0 : NativeMethods.MediaInfo_Open_Buffer_Continue_GoTo_Get(Handle);
 
     /// <summary>
     /// Opens the buffer finalize.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Returns internal success code. If library is not loaded successfully, will return IntPtr.Zero.</returns>
     public IntPtr OpenBufferFinalize() =>
       Handle == IntPtr.Zero ? IntPtr.Zero : NativeMethods.MediaInfo_Open_Buffer_Finalize(Handle);
 
     /// <summary>
-    /// Closes this instance.
+    /// Closes this instance and releases library resources.
     /// </summary>
     public void Close()
     {
@@ -230,35 +305,39 @@ namespace MediaInfo
     }
 
     /// <summary>
-    /// Informs media stream data.
+    /// Informs media stream data in the file. If library is not loaded successfully, will return empty string.
     /// </summary>
-    /// <returns>Returns media informs in case library loaded successfully; elsewhere will return Unable to load MediaInfo library.</returns>
+    /// <returns>
+    /// Returns media informs in case library loaded successfully; elsewhere will return empty string.
+    /// </returns>
     public string Inform()
     {
       if (Handle == IntPtr.Zero)
       {
-        return "Unable to load MediaInfo library";
+        return string.Empty;
       }
 
       return _mustUseAnsi ?
-               Marshal.PtrToStringAnsi(NativeMethods.MediaInfoA_Inform(Handle, IntPtr.Zero)) :
-               Marshal.PtrToStringUni(NativeMethods.MediaInfo_Inform(Handle, IntPtr.Zero));
+               Marshal.PtrToStringAnsi(NativeMethods.MediaInfoA_Inform(Handle, IntPtr.Zero))! :
+               Marshal.PtrToStringUni(NativeMethods.MediaInfo_Inform(Handle, IntPtr.Zero))!;
     }
 
     /// <summary>
-    /// Gets property value by specified stream kind and name.
+    /// Gets the specified parameter value in the stream by parameter name and kind of information to return. If library is not loaded successfully, will return empty string.
     /// </summary>
     /// <param name="streamKind">Kind of the stream.</param>
     /// <param name="streamNumber">The stream number.</param>
     /// <param name="parameter">The parameter.</param>
     /// <param name="kindOfInfo">The kind of information.</param>
     /// <param name="kindOfSearch">The kind of search.</param>
-    /// <returns>Returns property value</returns>
+    /// <returns>
+    /// Returns the specified parameter value in the stream in case library loaded successfully; elsewhere will return empty string.
+    /// </returns>
     public string Get(StreamKind streamKind, int streamNumber, string parameter, InfoKind kindOfInfo, InfoKind kindOfSearch)
     {
       if (Handle == IntPtr.Zero)
       {
-        return "Unable to load MediaInfo library";
+        return string.Empty;
       }
 
       return _mustUseAnsi ?
@@ -269,7 +348,7 @@ namespace MediaInfo
             (IntPtr)streamNumber,
             parameter,
             (IntPtr)kindOfInfo,
-            (IntPtr)kindOfSearch)) :
+            (IntPtr)kindOfSearch))! :
         Marshal.PtrToStringUni(
           NativeMethods.MediaInfo_Get(
             Handle,
@@ -277,76 +356,105 @@ namespace MediaInfo
             (IntPtr)streamNumber,
             parameter,
             (IntPtr)kindOfInfo,
-            (IntPtr)kindOfSearch));
+            (IntPtr)kindOfSearch))!;
     }
 
+    /// <summary>
+    /// Gets the specified parameter value in the stream by parameter index and kind of information to return. If library is not loaded successfully, will return empty string.
+    /// </summary>
+    /// <param name="streamKind">Kind of the stream.</param>
+    /// <param name="streamNumber">The stream number.</param>
+    /// <param name="parameter">The parameter index.</param>
+    /// <param name="kindOfInfo">The kind of information.</param>
+     /// <returns>
+     /// Returns the specified parameter value in the stream in case library loaded successfully; elsewhere will return empty string.
+     /// </returns>
     public string Get(StreamKind streamKind, int streamNumber, int parameter, InfoKind kindOfInfo)
     {
       if (Handle == IntPtr.Zero)
       {
-        return "Unable to load MediaInfo library";
+        return string.Empty;
       }
 
       return _mustUseAnsi ?
-        Marshal.PtrToStringAnsi(NativeMethods.MediaInfoA_GetI(Handle, (IntPtr)streamKind, (IntPtr)streamNumber, (IntPtr)parameter, (IntPtr)kindOfInfo)) :
-        Marshal.PtrToStringUni(NativeMethods.MediaInfo_GetI(Handle, (IntPtr)streamKind, (IntPtr)streamNumber, (IntPtr)parameter, (IntPtr)kindOfInfo));
+        Marshal.PtrToStringAnsi(NativeMethods.MediaInfoA_GetI(Handle, (IntPtr)streamKind, (IntPtr)streamNumber, (IntPtr)parameter, (IntPtr)kindOfInfo))! :
+        Marshal.PtrToStringUni(NativeMethods.MediaInfo_GetI(Handle, (IntPtr)streamKind, (IntPtr)streamNumber, (IntPtr)parameter, (IntPtr)kindOfInfo))!;
     }
 
     /// <summary>
-    /// Sets value to specified option name.
+    /// Gets options value by the specified option name and value. If library is not loaded successfully, will return empty string.
     /// </summary>
     /// <param name="option">The option name.</param>
     /// <param name="value">The option value.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the specified option value in case library loaded successfully; elsewhere will return empty string.
+    /// </returns>
     public string Option(string option, string value)
     {
       if (Handle == IntPtr.Zero)
       {
-        return "Unable to load MediaInfo library";
+        return string.Empty;
       }
 
       return _mustUseAnsi ?
-               Marshal.PtrToStringAnsi(NativeMethods.MediaInfoA_Option(Handle, option, value)) :
-               Marshal.PtrToStringUni(NativeMethods.MediaInfo_Option(Handle, option, value));
+               Marshal.PtrToStringAnsi(NativeMethods.MediaInfoA_Option(Handle, option, value))! :
+               Marshal.PtrToStringUni(NativeMethods.MediaInfo_Option(Handle, option, value))!;
     }
 
     /// <summary>
-    /// Gets the state.
+    /// Gets current state. If library is not loaded successfully, will return IntPtr.Zero.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the current state in case library loaded successfully; elsewhere will return IntPtr.Zero.
+    /// </returns>
     public IntPtr StateGet() =>
       Handle == IntPtr.Zero ? IntPtr.Zero : NativeMethods.MediaInfo_State_Get(Handle);
 
     /// <summary>
-    /// Gets count items of the specified stream.
+    /// Gets count of items in stream by stream kind and stream number. If library is not loaded successfully, will return 0.
     /// </summary>
     /// <param name="streamKind">Kind of the stream.</param>
     /// <param name="streamNumber">The stream number.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the count of items in case library loaded successfully; elsewhere will return 0.
+    /// </returns>
     public int CountGet(StreamKind streamKind, int streamNumber) =>
       Handle == IntPtr.Zero ? 0 : (int)NativeMethods.MediaInfo_Count_Get(Handle, (IntPtr)streamKind, (IntPtr)streamNumber);
 
-    //Default values, if you know how to set default values in C#, say me
+    /// <summary>
+    /// Gets the specified parameter value in the stream by parameter name and kind of information to return. If library is not loaded successfully, will return empty string.
+    /// </summary>
+    /// <param name="streamKind">Kind of the stream.</param>
+    /// <param name="streamNumber">The stream number.</param>
+    /// <param name="parameter">The parameter.</param>
+    /// <param name="kindOfInfo">The kind of information.</param>
+    /// <returns>
+    /// Returns the specified parameter value in the stream in case library loaded successfully; elsewhere will return empty string.
+    /// </returns>
     public string Get(StreamKind streamKind, int streamNumber, string parameter, InfoKind kindOfInfo) =>
       Get(streamKind, streamNumber, parameter, kindOfInfo, InfoKind.Name);
 
     /// <summary>
-    /// Gets the specified parameter value in the stream by parameter name.
+    /// Gets the specified parameter value in the stream by parameter name. If library is not loaded successfully, will return empty string.
     /// </summary>
     /// <param name="streamKind">Kind of the stream.</param>
     /// <param name="streamNumber">The stream number.</param>
     /// <param name="parameter">The parameter.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the specified parameter value in the stream in case library loaded successfully; elsewhere will return empty string.
+    /// </returns>
     public string Get(StreamKind streamKind, int streamNumber, string parameter) =>
       Get(streamKind, streamNumber, parameter, InfoKind.Text, InfoKind.Name);
 
     /// <summary>
-    /// Gets the specified parameter value in the stream by parameter index.
+    /// Gets the specified parameter value in the stream by parameter index. If library is not loaded successfully, will return empty string.
     /// </summary>
     /// <param name="streamKind">Kind of the stream.</param>
     /// <param name="streamNumber">The stream number.</param>
     /// <param name="parameter">The parameter.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the specified parameter value in the stream in case library loaded successfully; elsewhere will return empty string.
+    /// </returns>
     public string Get(StreamKind streamKind, int streamNumber, int parameter) =>
       Get(streamKind, streamNumber, parameter, InfoKind.Text);
 
@@ -354,15 +462,19 @@ namespace MediaInfo
     /// Gets options value by the specified option name.
     /// </summary>
     /// <param name="option">The option.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the options value in case library loaded successfully; elsewhere will return empty string.
+    /// </returns>
     public string Option(string option) =>
       Option(option, string.Empty);
 
     /// <summary>
-    /// Gets count of specified kind of streams.
+    /// Gets count of specified kind of stream in the file. If library is not loaded successfully, will return 0.
     /// </summary>
     /// <param name="streamKind">Kind of the streams.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the count of specified kind of streams in case library loaded successfully; elsewhere will return 0.
+    /// </returns>
     public int CountGet(StreamKind streamKind) =>
       CountGet(streamKind, -1);
 
@@ -374,8 +486,9 @@ namespace MediaInfo
     }
 
     /// <summary>
-    /// Releases unmanaged and - optionally - managed resources.
+    /// Releases unmanaged resources.
     /// </summary>
+    /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
     protected virtual void Dispose(bool disposing)
     {
       Close();
@@ -390,7 +503,7 @@ namespace MediaInfo
   }
 
   /// <summary>
-  /// Describes low-level function to access to mediaInfo lists
+  /// Describes low-level function to access to mediaInfo lists. If library is not loaded successfully, will return empty string.
   /// </summary>
   /// <seealso cref="IDisposable" />
   public class MediaInfoList : IDisposable
@@ -401,6 +514,7 @@ namespace MediaInfo
     /// <summary>
     /// Initializes a new instance of the <see cref="MediaInfoList"/> class.
     /// </summary>
+    /// <param name="useAnsiStrings">if set to <c>true</c> will use ANSI strings; otherwise, Unicode strings will be used.</param>
     public MediaInfoList(bool useAnsiStrings)
     {
       _useAnsiStrings = useAnsiStrings;
@@ -416,20 +530,22 @@ namespace MediaInfo
     }
 
     /// <summary>
-    /// Opens the specified file name.
+    /// Opens the specified file name to access to media stream data in the list. If library is not loaded successfully, will return -1.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="options">The options.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the file position in case library loaded successfully; elsewhere will return -1.
+    /// </returns>
     public int Open(string fileName, InfoFileOptions options) =>
       _useAnsiStrings ?
         (int)NativeMethods.MediaInfoListA_Open(_handle, fileName, (IntPtr)options) :
         (int)NativeMethods.MediaInfoList_Open(_handle, fileName, (IntPtr)options);
 
     /// <summary>
-    /// Closes the specified file position.
+    /// Closes the specified file position in the list. If library is not loaded successfully, will do nothing.
     /// </summary>
-    /// <param name="filePos">The file position.</param>
+    /// <param name="filePos">The file position to close. If filePos is -1, all file positions will be closed.</param>
     public void Close(int filePos) =>
       NativeMethods.MediaInfoList_Close(_handle, (IntPtr)filePos);
 
@@ -437,11 +553,13 @@ namespace MediaInfo
     /// Informs the specified file position.
     /// </summary>
     /// <param name="filePos">The file position.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the information in case library loaded successfully; elsewhere will return empty string.
+    /// </returns>
     public string Inform(int filePos) =>
       _useAnsiStrings ?
-        Marshal.PtrToStringAnsi(NativeMethods.MediaInfoListA_Inform(_handle, (IntPtr)filePos, IntPtr.Zero)) :
-        Marshal.PtrToStringUni(NativeMethods.MediaInfoList_Inform(_handle, (IntPtr)filePos, IntPtr.Zero));
+        Marshal.PtrToStringAnsi(NativeMethods.MediaInfoListA_Inform(_handle, (IntPtr)filePos, IntPtr.Zero))! :
+        Marshal.PtrToStringUni(NativeMethods.MediaInfoList_Inform(_handle, (IntPtr)filePos, IntPtr.Zero))!;
 
     /// <summary>
     /// Gets the property value in specified file position by stream and property name.
@@ -452,11 +570,13 @@ namespace MediaInfo
     /// <param name="parameter">The property name.</param>
     /// <param name="kindOfInfo">The kind of information.</param>
     /// <param name="kindOfSearch">The kind of search.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the specified property value in the stream in case library loaded successfully; elsewhere will return empty string.
+    /// </returns>
     public string Get(int filePos, StreamKind streamKind, int streamNumber, string parameter, InfoKind kindOfInfo, InfoKind kindOfSearch) =>
       _useAnsiStrings ?
-        Marshal.PtrToStringAnsi(NativeMethods.MediaInfoListA_Get(_handle, (IntPtr)filePos, (IntPtr)streamKind, (IntPtr)streamNumber, parameter, (IntPtr)kindOfInfo, (IntPtr)kindOfSearch)) :
-        Marshal.PtrToStringUni(NativeMethods.MediaInfoList_Get(_handle, (IntPtr)filePos, (IntPtr)streamKind, (IntPtr)streamNumber, parameter, (IntPtr)kindOfInfo, (IntPtr)kindOfSearch));
+        Marshal.PtrToStringAnsi(NativeMethods.MediaInfoListA_Get(_handle, (IntPtr)filePos, (IntPtr)streamKind, (IntPtr)streamNumber, parameter, (IntPtr)kindOfInfo, (IntPtr)kindOfSearch))! :
+        Marshal.PtrToStringUni(NativeMethods.MediaInfoList_Get(_handle, (IntPtr)filePos, (IntPtr)streamKind, (IntPtr)streamNumber, parameter, (IntPtr)kindOfInfo, (IntPtr)kindOfSearch))!;
 
     /// <summary>
     /// Gets the property value in specified file position by stream and property index.
@@ -466,27 +586,33 @@ namespace MediaInfo
     /// <param name="streamNumber">The stream number.</param>
     /// <param name="parameter">The property index.</param>
     /// <param name="kindOfInfo">The kind of information.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the specified property value in the stream in case library loaded successfully; elsewhere will return empty string.
+    /// </returns>
     public string Get(int filePos, StreamKind streamKind, int streamNumber, int parameter, InfoKind kindOfInfo) =>
       _useAnsiStrings ?
-        Marshal.PtrToStringAnsi(NativeMethods.MediaInfoListA_GetI(_handle, (IntPtr)filePos, (IntPtr)streamKind, (IntPtr)streamNumber, (IntPtr)parameter, (IntPtr)kindOfInfo)) :
-        Marshal.PtrToStringUni(NativeMethods.MediaInfoList_GetI(_handle, (IntPtr)filePos, (IntPtr)streamKind, (IntPtr)streamNumber, (IntPtr)parameter, (IntPtr)kindOfInfo));
+        Marshal.PtrToStringAnsi(NativeMethods.MediaInfoListA_GetI(_handle, (IntPtr)filePos, (IntPtr)streamKind, (IntPtr)streamNumber, (IntPtr)parameter, (IntPtr)kindOfInfo))! :
+        Marshal.PtrToStringUni(NativeMethods.MediaInfoList_GetI(_handle, (IntPtr)filePos, (IntPtr)streamKind, (IntPtr)streamNumber, (IntPtr)parameter, (IntPtr)kindOfInfo))!;
 
     /// <summary>
     /// Sets options value by the specified option name.
     /// </summary>
     /// <param name="option">The option name.</param>
     /// <param name="value">The option value.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the specified option value in case library loaded successfully; elsewhere will return empty string.
+    /// </returns>
     public string Option(string option, string value) =>
       _useAnsiStrings ?
-        Marshal.PtrToStringAnsi(NativeMethods.MediaInfoListA_Option(_handle, option, value)) :
-        Marshal.PtrToStringUni(NativeMethods.MediaInfoList_Option(_handle, option, value));
+        Marshal.PtrToStringAnsi(NativeMethods.MediaInfoListA_Option(_handle, option, value))! :
+        Marshal.PtrToStringUni(NativeMethods.MediaInfoList_Option(_handle, option, value))!;
 
     /// <summary>
     /// Gets current state.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the current state in case library loaded successfully; elsewhere will return IntPtr.Zero.
+    /// </returns>
     public int StateGet() =>
       (int)NativeMethods.MediaInfoList_State_Get(_handle);
 
@@ -496,32 +622,36 @@ namespace MediaInfo
     /// <param name="filePos">The file position.</param>
     /// <param name="streamKind">Kind of the stream.</param>
     /// <param name="streamNumber">The stream number.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the count of items in the specified file position and stream in case library loaded successfully; elsewhere will return 0.
+    /// </returns>
     public int CountGet(int filePos, StreamKind streamKind, int streamNumber) =>
       (int)NativeMethods.MediaInfoList_Count_Get(_handle, (IntPtr)filePos, (IntPtr)streamKind, (IntPtr)streamNumber);
 
     /// <summary>
-    /// Opens the specified file name.
+    /// Opens the specified file name to access to media stream data in the list with default options (InfoFileOptions.Nothing).
     /// </summary>
-    /// <param name="fileName">Name of the file.</param>
+    /// <param name="fileName">The name of the file.</param>
     public void Open(string fileName) =>
       Open(fileName, 0);
 
     /// <summary>
-    /// Closes this instance.
+    /// Closes the specified file position in the list with default value -1, which means all file positions will be closed.
     /// </summary>
     public void Close() =>
       Close(-1);
 
     /// <summary>
-    /// Gets the specified file position.
+    /// Informs the specified file position with default value 0.
     /// </summary>
     /// <param name="filePos">The file position.</param>
     /// <param name="streamKind">Kind of the stream.</param>
     /// <param name="streamNumber">The stream number.</param>
     /// <param name="parameter">The parameter.</param>
     /// <param name="kindOfInfo">The kind of information.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the specified property value in the stream in case library loaded successfully; elsewhere will return empty string.
+    /// </returns>
     public string Get(int filePos, StreamKind streamKind, int streamNumber, string parameter, InfoKind kindOfInfo) =>
       Get(filePos, streamKind, streamNumber, parameter, kindOfInfo, InfoKind.Name);
 
@@ -532,7 +662,9 @@ namespace MediaInfo
     /// <param name="streamKind">Kind of the stream.</param>
     /// <param name="streamNumber">The stream number.</param>
     /// <param name="parameter">The parameter.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the specified property value in the stream in case library loaded successfully; elsewhere will return empty string.
+    /// </returns>
     public string Get(int filePos, StreamKind streamKind, int streamNumber, string parameter) =>
       Get(filePos, streamKind, streamNumber, parameter, InfoKind.Text, InfoKind.Name);
 
@@ -543,7 +675,9 @@ namespace MediaInfo
     /// <param name="streamKind">Kind of the stream.</param>
     /// <param name="streamNumber">The stream number.</param>
     /// <param name="parameter">The parameter.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the specified property value in the stream in case library loaded successfully; elsewhere will return empty string.
+    /// </returns>
     public string Get(int filePos, StreamKind streamKind, int streamNumber, int parameter) =>
       Get(filePos, streamKind, streamNumber, parameter, InfoKind.Text);
 
@@ -551,7 +685,9 @@ namespace MediaInfo
     /// Gets options value by the specified option name.
     /// </summary>
     /// <param name="option">The option name.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the specified option value in case library loaded successfully; elsewhere will return empty string.
+    /// </returns>
     public string Option(string option) =>
       Option(option, string.Empty);
 
@@ -560,7 +696,9 @@ namespace MediaInfo
     /// </summary>
     /// <param name="filePos">The file position.</param>
     /// <param name="streamKind">Kind of the streams.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns the count of items in the specified file position and stream in case library loaded successfully; elsewhere will return 0.
+    /// </returns>
     public int CountGet(int filePos, StreamKind streamKind) =>
       CountGet(filePos, streamKind, -1);
 
@@ -572,8 +710,9 @@ namespace MediaInfo
     }
 
     /// <summary>
-    /// Releases unmanaged and - optionally - managed resources.
+    /// Releases unmanaged resources.
     /// </summary>
+    /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
     protected virtual void Dispose(bool disposing)
     {
       if (_handle != IntPtr.Zero)

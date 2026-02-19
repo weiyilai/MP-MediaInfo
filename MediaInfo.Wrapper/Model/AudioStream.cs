@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+﻿#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
@@ -21,7 +21,7 @@ namespace MediaInfo.Model
   {
     #region matching dictionaries
 
-    private static readonly Dictionary<AudioCodec, string> CodecFrendlyNames = new Dictionary<AudioCodec, string>
+    private static readonly Dictionary<AudioCodec, string> CodecFriendlyNames = new()
     {
       { AudioCodec.Undefined, "" },
       { AudioCodec.MpegLayer1, "MPEG Layer 1" },
@@ -34,8 +34,12 @@ namespace MediaInfo.Model
       { AudioCodec.Ac3Atmos, "Dolby Atmos" },
       { AudioCodec.Ac3Bsid9, "DolbyNet" },
       { AudioCodec.Ac3Bsid10, "DolbyNet" },
+      { AudioCodec.Ac4, "Dolby AC-4" },
       { AudioCodec.Dts, "DTS" },
       { AudioCodec.DtsHd, "DTS-HD" },
+      { AudioCodec.DtsHdMa, "DTS-HD MA" },
+      { AudioCodec.DtsX, "DTS:X" },
+      { AudioCodec.DolbyE, "Dolby E" },
       { AudioCodec.Eac3, "Dolby Digital Plus" },
       { AudioCodec.Eac3Atmos, "Dolby Atmos" },
       { AudioCodec.Flac, "FLAC" },
@@ -118,7 +122,7 @@ namespace MediaInfo.Model
     /// </value>
     public string CodecFriendly
     {
-      get => CodecFrendlyNames.TryGetValue(Codec, out var result) ? result : string.Empty;
+      get => CodecFriendlyNames.TryGetValue(Codec, out var result) ? result : string.Empty;
     }
 
     /// <summary>
@@ -176,7 +180,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The audio format.
     /// </value>
-    public string Format { get; set; }
+    public string Format { get; set; } = default!;
 
     /// <summary>
     /// Gets the audio codec name.
@@ -184,7 +188,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The audio codec name.
     /// </value>
-    public string CodecName { get; set; }
+    public string CodecName { get; set; } = default!;
 
     /// <summary>
     /// Gets the audio codec description.
@@ -192,7 +196,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The audio codec description.
     /// </value>
-    public string CodecDescription { get; set; }
+    public string CodecDescription { get; set; } = default!;
 
     /// <summary>
     /// Gets the audio channels friendly.
