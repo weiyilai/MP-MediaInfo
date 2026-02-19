@@ -35,11 +35,11 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net4.0'">
-    <PackageReference Include="microsoft.netframework.referenceassemblies.net40" Version="1.0.2" PrivateAssets="All" />
+    <PackageReference Include="microsoft.netframework.referenceassemblies.net40" Version="1.0.3" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net4.5'">
-    <PackageReference Include="microsoft.netframework.referenceassemblies.net45" Version="1.0.2" PrivateAssets="All" />
+    <PackageReference Include="microsoft.netframework.referenceassemblies.net45" Version="1.0.3" PrivateAssets="All" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
   </ItemGroup>
 

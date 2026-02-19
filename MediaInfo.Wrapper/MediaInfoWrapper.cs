@@ -123,7 +123,7 @@ namespace MediaInfo
     /// <param name="inputStream">The source media stream.</param>
     /// <param name="logger">The logger instance. Optional.</param>
     public MediaInfoWrapper(Stream inputStream, ILogger? logger = null)
-#if NET40 || NET45
+#if NETFRAMEWORK
       : this(inputStream, Environment.Is64BitProcess ? ".\\x64" : ".\\x86", logger)
     {
     }
@@ -140,14 +140,14 @@ namespace MediaInfo
     {
       try
       {
-#if NET40 || NET45
+#if NETFRAMEWORK
         var realPathToDll = GetPathToMediaInfo(pathToDll, logger);
         if (string.IsNullOrEmpty(realPathToDll))
         {
-          logger.LogError("MediaInfo.dll was not found");
+          LogError(logger, "MediaInfo.dll was not found");
           return;
         }
-        ParseMedia(inputStream, realPathToDll);
+        ParseMedia(inputStream, realPathToDll!);
 #else
         ParseMedia(inputStream);
 #endif
@@ -171,7 +171,7 @@ namespace MediaInfo
     /// <param name="filePath">The path to the media file.</param>
     /// <param name="logger">The logger instance. Optional.</param>
     public MediaInfoWrapper(string filePath, ILogger? logger = null)
-#if NET40 || NET45
+#if NETFRAMEWORK
       : this (filePath, Environment.Is64BitProcess ? @".\x64" : @".\x86", logger)
     {
     }
@@ -194,7 +194,7 @@ namespace MediaInfo
         return;
       }
 
-#if NET40 || NET45
+#if NETFRAMEWORK
       var realPathToDll = GetPathToMediaInfo(pathToDll, logger);
       if (string.IsNullOrEmpty(realPathToDll))
       {
@@ -241,8 +241,8 @@ namespace MediaInfo
           if (filePath.EndsWith(".ifo", StringComparison.OrdinalIgnoreCase))
           {
             LogDebug(_logger, "Detects DVD. Processing DVD information");
-#if NET40 || NET45
-            filePath = ProcessDvd(filePath, realPathToDll);
+#if NETFRAMEWORK
+            filePath = ProcessDvd(filePath, realPathToDll!);
 #else
             filePath = ProcessDvd(filePath);
 #endif
@@ -266,8 +266,8 @@ namespace MediaInfo
           }
         }
 
-#if NET40 || NET45
-        ParseMedia(filePath, realPathToDll);
+#if NETFRAMEWORK
+        ParseMedia(filePath, realPathToDll!);
 #else
         ParseMedia(filePath!);
 #endif
@@ -374,12 +374,18 @@ namespace MediaInfo
       int byteRead;
       bool shouldContinue;
       var buffer = new byte[BufferSize];
+#if !NETFRAMEWORK
       var bufferSpan = buffer.AsSpan();
+#endif
       fixed (byte* pBuffer = buffer)
       {
         do
         {
+#if !NETFRAMEWORK
           byteRead = stream.Read(bufferSpan);
+#else
+          byteRead = stream.Read(buffer, 0, BufferSize);
+#endif
           shouldContinue = byteRead > 0 && (mediaInfo.OpenBufferContinue(pBuffer, byteRead) & 8) != 8;
         }
         while (shouldContinue);
@@ -401,7 +407,9 @@ namespace MediaInfo
       }
 
       var buffer = new byte[BufferSize];
+#if !NETFRAMEWORK
       var bufferSpan = buffer.AsSpan();
+#endif
       mediaInfo.OpenBufferInit(stream.Length, 0L);
       int byteRead;
       fixed (byte* pBuffer = buffer)
@@ -409,7 +417,11 @@ namespace MediaInfo
         bool mediaProcessed;
         do
         {
+#if !NETFRAMEWORK
           byteRead = stream.Read(bufferSpan);
+#else
+          byteRead = stream.Read(buffer, 0, BufferSize);
+#endif
           mediaProcessed = (mediaInfo.OpenBufferContinue(pBuffer, byteRead) & 8) != 8;
 
           if (mediaProcessed)
@@ -426,8 +438,8 @@ namespace MediaInfo
       }
     }
 
-#if NET40 || NET45
-    private static string GetPathToMediaInfo(string path, ILogger logger) =>
+#if NETFRAMEWORK
+    private static string? GetPathToMediaInfo(string path, ILogger? logger) =>
       default(string)
         .IfExistsPath("./", logger)
         .IfExistsPath(path, logger)
@@ -453,7 +465,7 @@ namespace MediaInfo
       return result;
     }
 
-#if NET40 || NET45
+#if NETFRAMEWORK
     private string ProcessDvd(string filePath, string pathToDll)
 #else
     private string ProcessDvd(string filePath)
@@ -467,7 +479,7 @@ namespace MediaInfo
       LogDebug(_logger, "DVD directory size {size}", Size);
       var programBlocks = bups
         .Select(x => 
-#if NET40 || NET45
+#if NETFRAMEWORK
         ProcessBupFile(x, pathToDll)
 #else
         ProcessBupFile(x)
@@ -487,14 +499,14 @@ namespace MediaInfo
       return filePath;
     }
 
-#if NET40 || NET45
+#if NETFRAMEWORK
 
     private (string? FileName, int Duration) ProcessBupFile(string file, string pathToDll)
 #else
     private (string? FileName, int Duration) ProcessBupFile(string file)
 #endif
     {
-#if NET40 || NET45
+#if NETFRAMEWORK
       using var mi = new MediaInfo(pathToDll);
 #else
       using var mi = new MediaInfo();
@@ -522,13 +534,13 @@ namespace MediaInfo
       return (null, 0);
     }
 
-#if NET40 || NET45
+#if NETFRAMEWORK
     private void ParseMedia(Stream stream, string pathToDll)
 #else
     private void ParseMedia(Stream stream)
 #endif
     {
-#if NET40 || NET45
+#if NETFRAMEWORK
       using var mediaInfo = new MediaInfo(pathToDll);
 #else
       using var mediaInfo = new MediaInfo();
@@ -554,13 +566,13 @@ namespace MediaInfo
       ParseMedia(mediaInfo);
     }
 
-#if NET40 || NET45
+#if NETFRAMEWORK
     private void ParseMedia(string filePath, string pathToDll)
 #else
     private void ParseMedia(string filePath)
 #endif
     {
-#if NET40 || NET45
+#if NETFRAMEWORK
       using var mediaInfo = new MediaInfo(pathToDll);
 #else
       using var mediaInfo = new MediaInfo();
@@ -1278,7 +1290,7 @@ namespace MediaInfo
     public string Text { get; private set; } = default!;
   }
 
-#if NET40 || NET45
+#if NETFRAMEWORK
   internal static class PathExtensions
   {
     /// <summary>
@@ -1294,7 +1306,7 @@ namespace MediaInfo
     /// <remarks>
     /// This method is used to check the paths for mediaInfo.dll file. It first checks the source path and returns it if it is not null or empty. If the source path is null or empty, it checks the another path for mediaInfo.dll file and returns it if the file exists; otherwise, it returns null.
     /// </remarks>
-    public static string IfExistsPath(this string sourcePath, string anotherPath, ILogger logger)
+    public static string? IfExistsPath(this string? sourcePath, string? anotherPath, ILogger? logger)
     {
       if (!string.IsNullOrEmpty(sourcePath))
       {
@@ -1306,14 +1318,14 @@ namespace MediaInfo
         return null;
       }
 
-      logger.LogDebug("Check MediaInfo.dll from {0}.", anotherPath);
-      if (!anotherPath.MediaInfoExist())
+      logger?.LogDebug("Check MediaInfo.dll from {0}.", anotherPath!);
+      if (!anotherPath!.MediaInfoExist())
       {
-        logger.LogWarning($"Library MediaInfo.dll was not found at {anotherPath}");
+        logger?.LogWarning($"Library MediaInfo.dll was not found at {anotherPath}");
         return null;
       }
 
-      logger.LogInformation($"Library MediaInfo.dll was found at {anotherPath}");
+      logger?.LogInformation($"Library MediaInfo.dll was found at {anotherPath}");
       return anotherPath;
     }
 

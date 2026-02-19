@@ -36,6 +36,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
     <PackageDescription>MediaInfo(Lib) is a convenient unified display of the most relevant technical and tag data for video and audio files.
 MediaInfo .NET wrapper with support network AV streams.</PackageDescription>
     <PackageIconValue>MediaInfo_90x90.png</PackageIconValue>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
 </Project>

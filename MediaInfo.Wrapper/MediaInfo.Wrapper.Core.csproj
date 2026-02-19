@@ -24,7 +24,6 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

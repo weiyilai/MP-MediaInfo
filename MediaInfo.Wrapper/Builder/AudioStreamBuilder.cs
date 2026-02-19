@@ -20,7 +20,7 @@ namespace MediaInfo.Builder
   {
     #region matching dictionaries
 
-    private static readonly Dictionary<string, AudioCodec> CodecIds = new Dictionary<string, AudioCodec>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, AudioCodec> CodecIds = new(StringComparer.OrdinalIgnoreCase)
     {
       { "A_MPEG/L1", AudioCodec.MpegLayer1 },
       { "A_MPEG/L2", AudioCodec.MpegLayer2 },
@@ -70,7 +70,7 @@ namespace MediaInfo.Builder
       { "MAC6", AudioCodec.Mac6 },
     };
 
-    private static readonly Dictionary<string, AudioCodec> Codecs = new Dictionary<string, AudioCodec>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, AudioCodec> Codecs = new(StringComparer.OrdinalIgnoreCase)
     {
       { "MPA1L1", AudioCodec.MpegLayer1 },
       { "MPA1L2", AudioCodec.MpegLayer2 },
@@ -161,7 +161,7 @@ namespace MediaInfo.Builder
       { "Dolby E-8", AudioCodec.DolbyE },
     };
 
-    private static readonly Dictionary<string, AudioCodec> MlpCodecsAdditionalFeatures = new Dictionary<string, AudioCodec>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, AudioCodec> MlpCodecsAdditionalFeatures = new(StringComparer.OrdinalIgnoreCase)
     {
       { "MLP FBA 16-ch", AudioCodec.TruehdAtmos },
       { "MLP FBA AC-3 16-ch", AudioCodec.TruehdAtmos },
