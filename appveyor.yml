@@ -1,4 +1,4 @@
-version: '21.9.{build}'
+version: '26.1.{build}'
 
 image: Visual Studio 2022
 configuration: Release
@@ -26,11 +26,11 @@ install:
 
 before_build:
 - cmd: >-
-    dotnet restore %solution_name%
+    dotnet restore %SolutionName%
 
 # to run your custom scripts instead of automatic MSBuild
 build_script:
-  - cmd: msbuild %solution_name% /verbosity:minimal /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  - cmd: msbuild %SolutionName% /verbosity:minimal /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
 test_script:
 - cmd: >-
