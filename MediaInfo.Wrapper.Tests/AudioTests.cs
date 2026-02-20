@@ -20,7 +20,7 @@ namespace MediaInfo.Wrapper.Tests
   public class AudioTests
   {
     private readonly ILogger _logger;
-    private MediaInfoWrapper _mediaInfoWrapper;
+    private MediaInfoWrapper? _mediaInfoWrapper;
 
     public AudioTests(ITestOutputHelper testOutputHelper)
     {

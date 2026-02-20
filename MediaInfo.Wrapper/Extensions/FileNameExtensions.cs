@@ -9,6 +9,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+#if !NETFRAMEWORK
+using System.Runtime.CompilerServices;
+#endif
 using System.Text.RegularExpressions;
 
 namespace MediaInfo

@@ -19,7 +19,7 @@ namespace MediaInfo.Wrapper.Tests
   /// <summary>A video tests.</summary>
   public class VideoTests
   {
-    private MediaInfoWrapper _mediaInfoWrapper;
+    private MediaInfoWrapper _mediaInfoWrapper = null!;
     private readonly ILogger _logger;
 
     public VideoTests(ITestOutputHelper testOutputHelper)
