@@ -259,7 +259,7 @@ namespace MediaInfo
             Size = new FileInfo(filePath).Length;
           }
 
-          HasExternalSubtitles = !string.IsNullOrEmpty(filePath) && CheckHasExternalSubtitles(filePath);
+          HasExternalSubtitles = !string.IsNullOrEmpty(filePath) && CheckHasExternalSubtitles(filePath, _logger);
           if (HasExternalSubtitles)
           {
             LogDebug(_logger, "Found external subtitles");
@@ -824,11 +824,8 @@ namespace MediaInfo
                    ? mediaInfo.Get(StreamKind.Video, BestVideoStream.StreamPosition, "ScanType").ToLowerInvariant()
                    : string.Empty;
       AspectRatio = BestVideoStream is not null
-                      ? mediaInfo.Get(StreamKind.Video, BestVideoStream.StreamPosition, "DisplayAspectRatio")
-                      : string.Empty;
-      AspectRatio = BestVideoStream is not null ?
-          GetAspectRatioText(AspectRatio) :
-          string.Empty;
+          ? GetAspectRatioText(mediaInfo.Get(StreamKind.Video, BestVideoStream.StreamPosition, "DisplayAspectRatio"))
+          : string.Empty;
 
       BestAudioStream = AudioStreams.OrderByDescending(x => (x.Channel * 10000000) + x.Bitrate).FirstOrDefault();
       AudioCodec = BestAudioStream?.CodecName ?? string.Empty;
@@ -843,6 +840,13 @@ namespace MediaInfo
         ratio switch
         {
           "4:3" or "1.333" => "fullscreen",
+          "3:2" or "1.5" => "classic widescreen",
+          "1:1" or "1.0" or "1" or "2.0" => "square",
+          "5:4" or "1.25" => "classic",
+          "4:5" or "0.8" or "9:16" => "vertical",
+          "1.90:1" or "1.9" or "1.90" or "1.89" => "cinema",
+          "2.39:1" or "2.39" or "2.40:1" or "2.40" or "2.35:1" or "2.35" => "scope",
+          "2.76:1" or "2.76" or "2.40:1" or "2.40" => "ultra widescreen",
           _ => "widescreen"
         };
     }
@@ -860,6 +864,9 @@ namespace MediaInfo
     private static void LogWarning(ILogger? logger, string message, params object[] args) =>
       logger?.LogWarning(message, args);
 
+    private static void LogWarning(ILogger? logger, Exception? exception, string message, params object[] args) =>
+      logger?.LogWarning(exception, message, args);
+
     private static void LogError(ILogger? logger, string message, params object[] args) =>
       logger?.LogError(message, args);
 
@@ -872,7 +879,7 @@ namespace MediaInfo
     private static void LogCritical(ILogger? logger, Exception? exception, string message, params object[] args) =>
       logger?.LogCritical(exception, message, args);
 
-    private static bool CheckHasExternalSubtitles(string strFile)
+    private static bool CheckHasExternalSubtitles(string strFile, ILogger? logger)
     {
       if (string.IsNullOrEmpty(strFile))
       {
@@ -885,8 +892,9 @@ namespace MediaInfo
         return Directory.GetFiles(Path.GetDirectoryName(strFile) ?? string.Empty, filenameNoExt + "*")
           .Any(x => SubTitleExtensions.ContainsKey(Path.GetExtension(x)));
       }
-      catch
+      catch (Exception ex)
       {
+        LogWarning(logger, ex, "Error while checking for external subtitles. Path: {path}", strFile);
         return false;
       }
     }
@@ -1321,11 +1329,11 @@ namespace MediaInfo
       logger?.LogDebug("Check MediaInfo.dll from {0}.", anotherPath!);
       if (!anotherPath!.MediaInfoExist())
       {
-        logger?.LogWarning($"Library MediaInfo.dll was not found at {anotherPath}");
+        logger?.LogWarning("Library MediaInfo.dll was not found at {path}", anotherPath);
         return null;
       }
 
-      logger?.LogInformation($"Library MediaInfo.dll was found at {anotherPath}");
+      logger?.LogInformation("Library MediaInfo.dll was found at {path}", anotherPath);
       return anotherPath;
     }
 
