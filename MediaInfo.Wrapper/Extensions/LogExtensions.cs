@@ -42,6 +42,30 @@ namespace MediaInfo
     public static void LogWarning(this ILogger logger, string message, params object[] parameters) =>
       logger.Log(LogLevel.Warning, message, parameters);
 
+    /// <summary>This method logs a warning message with an exception details.</summary>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="exception">The source exception object.</param>
+    /// <param name="message">The <paramref name="message"/> to which the exception details will be appended.</param>
+    /// <param name="parameters">A variable-length parameters list containing message parameters.</param>
+    public static void LogWarning(this ILogger logger, Exception? exception, string message, params object[] parameters)
+    {
+      var warningMessage = string.Format(message, parameters);
+      if (exception is not null)
+      {
+        var msg = new StringBuilder()
+          .AppendFormat(message, parameters)
+          .AppendLine()
+          .Append("Exception: ")
+          .AppendLine(exception.Message)
+          .AppendLine("Callstack:")
+          .Append(exception.StackTrace);
+
+        warningMessage = msg.ToString();
+      }
+
+      logger.Log(LogLevel.Warning, warningMessage, parameters);
+    }
+
     /// <summary>Logs a error message.</summary>
     /// <param name="logger">The logger instance.</param>
     /// <param name="message">The message.</param>

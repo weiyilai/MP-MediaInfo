@@ -1329,11 +1329,11 @@ namespace MediaInfo
       logger?.LogDebug("Check MediaInfo.dll from {0}.", anotherPath!);
       if (!anotherPath!.MediaInfoExist())
       {
-        logger?.LogWarning("Library MediaInfo.dll was not found at {path}", anotherPath);
+        logger?.LogWarning("Library MediaInfo.dll was not found at {path}", anotherPath!);
         return null;
       }
 
-      logger?.LogInformation("Library MediaInfo.dll was found at {path}", anotherPath);
+      logger?.LogInformation("Library MediaInfo.dll was found at {path}", anotherPath!);
       return anotherPath;
     }
 

@@ -404,7 +404,11 @@ namespace MediaInfo.Builder
       StereoModes.TryGetValue(layout, out result);
 
     private static bool GetInterlaced(string source) =>
-      source?.Contains("interlaced", StringComparison.OrdinalIgnoreCase) ?? false;
+#if NETFRAMEWORK
+      source.IndexOf("interlaced", StringComparison.OrdinalIgnoreCase) >= 0;
+#else
+      source.Contains("interlaced", StringComparison.OrdinalIgnoreCase);
+#endif
 
     private static bool TryGetAspectRatio(string source, out AspectRatio result) =>
       Ratios.TryGetValue(source, out result);
