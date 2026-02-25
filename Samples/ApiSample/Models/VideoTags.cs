@@ -239,7 +239,6 @@ public class VideoTags : BaseTags
     /// <example>1992-03-06</example>
     [DataMember(Name = "writtenDate")]
     [JsonPropertyName("writtenDate")]
-    [JsonConverter(typeof(JsonMicrosoftDateTimeConverter))]
     public DateTime? WrittenDate { get; set; }
 
     /// <summary>

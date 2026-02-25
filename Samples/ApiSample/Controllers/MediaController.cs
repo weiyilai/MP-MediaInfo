@@ -12,7 +12,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Net.Mime;
 using ApiSample.Infrastructure.Filters;
 using ApiSample.Models;
-using AutoMapper;
+using MapsterMapper;
 using MediaInfo;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

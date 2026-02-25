@@ -9,12 +9,13 @@
 using System;
 using System.Text.Json.Serialization;
 using ApiSample.Infrastructure;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace ApiSample;
 
@@ -35,13 +36,20 @@ public static class Startup
             .AddControllers()
                 .AddJsonOptions(options => options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
 
+        var config = TypeAdapterConfig.GlobalSettings;
+        config.Scan(typeof(Startup).Assembly);
+        config.Compile();
+
+        services
+            .AddSingleton(config)
+            .AddScoped<IMapper, ServiceMapper>();
+
         services
             .AddFilters()
-            .AddAutoMapper(MapperExtensions.ConfigureMapper)
             .AddSwaggerGen(options =>
             {
-                options.MapType<TimeSpan>(() => new OpenApiSchema { Type = "string", Format = "duration", Default = new OpenApiString("00:01:00"), Example = new OpenApiString("00:01:00") });
-                options.MapType<TimeSpan?>(() => new OpenApiSchema { Type = "string", Format = "duration", Default = new OpenApiString("00:01:00"), Example = new OpenApiString("00:01:00") });
+                options.MapType<TimeSpan>(() => new OpenApiSchema { Type = JsonSchemaType.String, Format = "duration", Default = "00:01:00", Example = "00:01:00" });
+                options.MapType<TimeSpan?>(() => new OpenApiSchema { Type = JsonSchemaType.String, Format = "duration", Default = "00:01:00", Example = "00:01:00" });
                 options
                     .IncludeApplicationXmlComments("ApiSample.xml")
                     .EnableAnnotations();

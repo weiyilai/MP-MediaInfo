@@ -10,14 +10,13 @@
     <Net6x>6.0.*</Net6x>
     <Net8x>8.0.*</Net8x>
     <Net10x>10.0.*</Net10x>
-    <AzureContainer>1.17.0</AzureContainer>
+    <AzureContainer>1.23.0</AzureContainer>
     <FluentAssertions>8.8.0</FluentAssertions>
-    <AutoMapperLib>11.0.1</AutoMapperLib>
-    <AutoMapperDILib>11.0.0</AutoMapperDILib>
+    <MapsterLib>7.4.0</MapsterLib>
+    <MapsterDILib>1.0.1</MapsterDILib>
     <xUnitRunner>3.1.5</xUnitRunner>
     <xUnit>2.9.1</xUnit>
-    <Swashbuckle>6.4.0</Swashbuckle>
-    <MacrossJson>3.0.0</MacrossJson>
+    <Swashbuckle>10.1.4</Swashbuckle>
     <MediaInfoVersion>26.2.0</MediaInfoVersion>
     <MediaInfoFileVersion>26.2.0.0</MediaInfoFileVersion>
     <PackageAuthor>yartat</PackageAuthor>

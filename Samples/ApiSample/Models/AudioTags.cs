@@ -193,7 +193,6 @@ public class AudioTags : BaseTags
     /// </summary>
     [DataMember(Name = "recordedDate")]
     [JsonPropertyName("recordedDate")]
-    [JsonConverter(typeof(JsonMicrosoftDateTimeConverter))]
     public DateTime? RecordedDate { get; set; }
 
     /// <summary>
