@@ -281,7 +281,15 @@ namespace MediaInfo.Builder
       { "HEVC", VideoCodec.MpeghIsoHevc },
       { "AV01", VideoCodec.Av1 },
       { "AV1", VideoCodec.Av1 },
+      { "AV2", VideoCodec.Av2 },
+      { "AV1x", VideoCodec.HuffYUV },
+      { "AVin", VideoCodec.Mpeg4IsoAvc },
+      { "AVdv", VideoCodec.Dv },
       { "JPEG", VideoCodec.Mjpg },
+      { "CDA1", VideoCodec.Cda1 },
+      { "CDA2", VideoCodec.Cda2 },
+      { "DNL2", VideoCodec.Cda2 },
+      { "CNGA", VideoCodec.Cda1 },
       { "Default (H.263)", VideoCodec.H263 },
     };
 

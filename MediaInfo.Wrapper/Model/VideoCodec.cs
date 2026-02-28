@@ -324,13 +324,28 @@ namespace MediaInfo.Model
     BinkVideo,
 
     /// <summary>
-    /// AV1
+    /// AOMedia Video 1
     /// </summary>
     Av1,
+
+    /// <summary>
+    /// AOMedia Video 2
+    /// </summary>
+    Av2,
 
     /// <summary>
     /// HuffYUV
     /// </summary>
     HuffYUV,
-  }
+ 
+    /// <summary>
+    /// Cinegy Daniel 1
+    /// </summary>
+    Cda1,
+
+    /// <summary>
+    /// Cinegy Daniel 2
+    /// </summary>
+    Cda2,
+ }
 }
