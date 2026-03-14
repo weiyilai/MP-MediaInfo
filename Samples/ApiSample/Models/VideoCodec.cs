@@ -453,11 +453,18 @@ public enum VideoCodec
     BinkVideo,
 
     /// <summary>
-    /// AV1
+    /// AOMedia Video 1
     /// </summary>
     [EnumMember(Value = "av1")]
     [JsonStringEnumMemberName("av1")]
     Av1,
+
+    /// <summary>
+    /// AOMedia Video 2
+    /// </summary>
+    [EnumMember(Value = "av2")]
+    [JsonStringEnumMemberName("av2")]
+    Av2,
 
     /// <summary>
     /// HuffYUV
