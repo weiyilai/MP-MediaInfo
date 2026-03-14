@@ -9,7 +9,7 @@
 namespace MediaInfo.Model
 {
   /// <summary>
-  /// Describes 3D stereo mode
+  /// Defines the stereoscopic layout used by a 3D video stream.
   /// </summary>
   public enum StereoMode
   {

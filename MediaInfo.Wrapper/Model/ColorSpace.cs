@@ -9,7 +9,7 @@
 namespace MediaInfo.Model
 {
   /// <summary>
-  /// Describes video color space
+  /// Defines the video colour primaries or colour space reported by MediaInfo.
   /// </summary>
   public enum ColorSpace
   {

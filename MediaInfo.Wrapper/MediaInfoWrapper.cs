@@ -617,6 +617,10 @@ namespace MediaInfo
       Profile = mediaInfo.Get(StreamKind.General, 0, "Format_Profile");
       FormatVersion = mediaInfo.Get(StreamKind.General, 0, "Format_Version");
       Codec = mediaInfo.Get(StreamKind.General, 0, "CodecID");
+      int audioChannelsTotal;
+      AudioChannelsTotal = mediaInfo.Get(StreamKind.General, 0, "Audio_Channels_Total").TryGetInt(out audioChannelsTotal)
+        ? audioChannelsTotal
+        : 0;
       LogDebug(_logger, "Format=({format}, version={version}), Profile={profile}, Codec={Codec}", Format, FormatVersion, Profile, Codec);
       LogDebug(_logger, "Retrieving audio tags from stream position 0");
       Tags = new AudioTagBuilder(mediaInfo, 0).Build();
@@ -790,6 +794,7 @@ namespace MediaInfo
       ScanType = string.Empty;
       AspectRatio = string.Empty;
       AudioCodec = string.Empty;
+      AudioChannelsTotal = 0;
       AudioChannelsFriendly = string.Empty;
 
       OnSetupProperties(null);
@@ -832,6 +837,10 @@ namespace MediaInfo
       AudioRate = (int?)BestAudioStream?.Bitrate ?? 0;
       AudioSampleRate = (int?)BestAudioStream?.SamplingRate ?? 0;
       AudioChannels = BestAudioStream?.Channel ?? 0;
+      if (AudioChannelsTotal == 0)
+      {
+        AudioChannelsTotal = AudioStreams.Sum(x => x.Channel);
+      }
       AudioChannelsFriendly = BestAudioStream?.AudioChannelsFriendly ?? string.Empty;
 
       OnSetupProperties(mediaInfo);
@@ -1081,6 +1090,14 @@ namespace MediaInfo
     /// The count of audio channels is determined based on the <see cref="BestAudioStream">best audio stream</see>. If media has no audio streams or media was not loaded successfully, the value is 0.
     /// </remarks>
     public int AudioChannels { get; private set; }
+
+    /// <summary>
+    /// Gets the total count of audio channels across all audio streams.
+    /// </summary>
+    /// <remarks>
+    /// The total audio channel count is taken from the general MediaInfo field when available, otherwise it is computed from detected audio streams.
+    /// </remarks>
+    public int AudioChannelsTotal { get; private set; }
 
     /// <summary>
     /// Gets the audio channels friendly name. The value is an empty string if media has no audio streams or media was not loaded successfully.

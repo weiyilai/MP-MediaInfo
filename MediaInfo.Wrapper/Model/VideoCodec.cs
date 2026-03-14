@@ -9,8 +9,11 @@
 namespace MediaInfo.Model
 {
   /// <summary>
-  /// Describes type of video codecs
+  /// Defines the normalized video codec values exposed by the wrapper.
   /// </summary>
+  /// <remarks>
+  /// These values map raw MediaInfo format and codec identifiers to a stable .NET enumeration.
+  /// </remarks>
   public enum VideoCodec
   {
     /// <summary>
@@ -324,9 +327,24 @@ namespace MediaInfo.Model
     BinkVideo,
 
     /// <summary>
-    /// AV1
+    /// AOMedia Video 1 (AV1).
     /// </summary>
     Av1,
+
+    /// <summary>
+    /// AOMedia Video 2 (AV2).
+    /// </summary>
+    Av2,
+
+    /// <summary>
+    /// AVS3 video codec.
+    /// </summary>
+    Avs3V,
+
+    /// <summary>
+    /// Versatile Video Coding (VVC / H.266).
+    /// </summary>
+    Vvc,
 
     /// <summary>
     /// HuffYUV

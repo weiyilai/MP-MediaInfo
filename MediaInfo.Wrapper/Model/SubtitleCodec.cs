@@ -9,7 +9,7 @@
 namespace MediaInfo.Model
 {
     /// <summary>
-    /// Defines constants for different kind of subtitles.
+    /// Defines the normalized subtitle and text codec values exposed by the wrapper.
     /// </summary>
     public enum SubtitleCodec
   {
@@ -77,6 +77,26 @@ namespace MediaInfo.Model
     /// <summary>
     /// The HDMV Text Subtitle Format subtitles
     /// </summary>
-    HdmvTextst
+    HdmvTextst,
+
+    /// <summary>
+    /// The N19/STL subtitles.
+    /// </summary>
+    N19,
+
+    /// <summary>
+    /// The PAC subtitles.
+    /// </summary>
+    Pac,
+
+    /// <summary>
+    /// The Timed Text Markup Language subtitles, including TTML and IMSC based tracks.
+    /// </summary>
+    Ttml,
+
+    /// <summary>
+    /// The WebVTT subtitle format.
+    /// </summary>
+    WebVtt
   }
 }

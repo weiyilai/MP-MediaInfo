@@ -19,12 +19,15 @@ namespace MediaInfo.Builder
   internal abstract class MediaStreamBuilder<TStream> : IMediaBuilder<TStream> where TStream : MediaStream, new()
   {
     /// <summary>
-    /// Converts the string representation of a value to specified type
+    /// Represents a method that attempts to parse a string into a value of the specified type.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="source">The source value.</param>
-    /// <param name="result">The result.</param>
-    /// <returns><b>true</b> if s was converted successfully; otherwise, <b>false</b>.</returns>
+    /// <remarks>This delegate follows the common .NET TryParse pattern, allowing parsing operations without
+    /// throwing exceptions on failure.</remarks>
+    /// <typeparam name="T">The type of the value to parse from the input string.</typeparam>
+    /// <param name="source">The string to parse.</param>
+    /// <param name="result">When this method returns, contains the parsed value if the conversion succeeded, or the default value of
+    /// <typeparamref name="T"/> if it failed. This parameter is passed uninitialized.</param>
+    /// <returns><see langword="true"/> if the string was successfully parsed; otherwise, <see langword="false"/>.</returns>
     protected delegate bool ParseDelegate<T>(string source, out T result);
 
     /// <summary>

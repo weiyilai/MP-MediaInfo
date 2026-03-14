@@ -6,46 +6,46 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaInfo.Model;
 
 namespace MediaInfo.Builder
 {
   /// <summary>
-  /// Describes base methods to build subtitle stream.
+  /// Builds a subtitle stream by extracting and mapping subtitle-specific metadata from the provided media information.
   /// </summary>
-  internal class SubtitleStreamBuilder : LanguageMediaStreamBuilder<SubtitleStream>
+  /// <param name="info">The media information source containing metadata for the subtitle stream. Cannot be null.</param>
+  /// <param name="number">The stream number within the media file used to identify the specific subtitle stream.</param>
+  /// <param name="position">The position of the stream in the media file, used to determine stream ordering.</param>
+  internal class SubtitleStreamBuilder(MediaInfo info, int number, int position) : LanguageMediaStreamBuilder<SubtitleStream>(info, number, position)
   {
     #region match dictionary
 
     private static readonly Dictionary<string, SubtitleCodec> SubtitleCodecs = new Dictionary<string, SubtitleCodec>
     {
         { "S_ASS", SubtitleCodec.Ass },
+        { "ASS", SubtitleCodec.Ass },
         { "S_IMAGE/BMP", SubtitleCodec.ImageBmp },
+        { "N19", SubtitleCodec.N19 },
+        { "PAC", SubtitleCodec.Pac },
         { "S_SSA", SubtitleCodec.Ssa },
+        { "SSA", SubtitleCodec.Ssa },
         { "S_TEXT/ASS", SubtitleCodec.TextAss },
         { "S_TEXT/SSA", SubtitleCodec.TextSsa },
+        { "S_TEXT/TTML", SubtitleCodec.Ttml },
         { "S_TEXT/USF", SubtitleCodec.TextUsf },
         { "S_TEXT/UTF8", SubtitleCodec.TextUtf8 },
+        { "TTML", SubtitleCodec.Ttml },
         { "S_USF", SubtitleCodec.Usf },
         { "S_UTF8", SubtitleCodec.Utf8 },
         { "S_VOBSUB", SubtitleCodec.Vobsub },
         { "S_HDMV/PGS", SubtitleCodec.HdmvPgs },
-        { "S_HDMV/TEXTST", SubtitleCodec.HdmvTextst }
+        { "S_HDMV/TEXTST", SubtitleCodec.HdmvTextst },
+        { "WEBVTT", SubtitleCodec.WebVtt }
     };
 
-    #endregion
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SubtitleStreamBuilder"/> class.
-    /// </summary>
-    /// <param name="info">The media info object.</param>
-    /// <param name="number">The stream number.</param>
-    /// <param name="position">The stream position.</param>
-    public SubtitleStreamBuilder(MediaInfo info, int number, int position)
-      : base(info, number, position)
-    {
-    }
+        #endregion
 
     /// <inheritdoc />
     public override MediaStreamKind Kind => MediaStreamKind.Text;
@@ -58,13 +58,25 @@ namespace MediaInfo.Builder
     {
       var result = base.Build();
       result.Format = Get((int)NativeMethods.Text.Text_Format, InfoKind.Text);
+      result.Duration = TimeSpan.FromMilliseconds(Get<double>((int)NativeMethods.Text.Text_Duration, InfoKind.Text, TagBuilderHelper.TryGetDouble));
+      result.FrameRate = Get<double>((int)NativeMethods.Text.Text_FrameRate, InfoKind.Text, TagBuilderHelper.TryGetDouble);
+      result.FrameRateNumerator = Get<int>((int)NativeMethods.Text.Text_FrameRate_Num, InfoKind.Text, TagBuilderHelper.TryGetInt);
+      result.FrameRateDenominator = Get<int>((int)NativeMethods.Text.Text_FrameRate_Den, InfoKind.Text, TagBuilderHelper.TryGetInt);
+      result.TimeCodeFirstFrame = Get((int)NativeMethods.Text.Text_TimeCode_FirstFrame, InfoKind.Text);
+      result.TimeCodeLastFrame = Get((int)NativeMethods.Text.Text_TimeCode_LastFrame, InfoKind.Text);
+      result.TimeCodeDropFrame = Get<bool>((int)NativeMethods.Text.Text_TimeCode_DropFrame, InfoKind.Text, TagBuilderHelper.TryGetBool);
+      result.TimeCodeSettings = Get((int)NativeMethods.Text.Text_TimeCode_Settings, InfoKind.Text);
+      result.TimeCodeSource = Get((int)NativeMethods.Text.Text_TimeCode_Source, InfoKind.Text);
       result.Codec = Get<SubtitleCodec>((int)NativeMethods.Text.Text_CodecID, InfoKind.Text, TryGetCodec);
+      if (result.Codec == SubtitleCodec.Undefined)
+      {
+        result.Codec = Get<SubtitleCodec>((int)NativeMethods.Text.Text_Format, InfoKind.Text, TryGetCodec);
+      }
+
       return result;
     }
 
-    private static bool TryGetCodec(string source, out SubtitleCodec result)
-    {
-      return SubtitleCodecs.TryGetValue(source.ToUpper(), out result);
-    }
+    private static bool TryGetCodec(string source, out SubtitleCodec result) =>
+      SubtitleCodecs.TryGetValue(source.ToUpper(), out result);
   }
 }

@@ -330,7 +330,8 @@ namespace MediaInfo
         strPath.StartsWith("https:", StringComparison.OrdinalIgnoreCase) ||
         strPath.StartsWith("mms:", StringComparison.OrdinalIgnoreCase) ||
         strPath.StartsWith("udp:", StringComparison.OrdinalIgnoreCase) ||
-        strPath.StartsWith("rtmp:", StringComparison.OrdinalIgnoreCase));
+        strPath.StartsWith("rtmp:", StringComparison.OrdinalIgnoreCase) ||
+        strPath.StartsWith("rtsp:", StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// Determines whether the specified string path is remote URL.

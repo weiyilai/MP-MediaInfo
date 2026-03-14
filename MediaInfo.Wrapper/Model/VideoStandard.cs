@@ -9,17 +9,17 @@
 namespace MediaInfo.Model
 {
   /// <summary>
-  /// Describes video standards
+  /// Defines the video broadcast standards recognized by the wrapper.
   /// </summary>
   public enum VideoStandard
   {
     /// <summary>
-    /// NTSC standard
+    /// National Television System Committee standard.
     /// </summary>
     NTSC,
 
     /// <summary>
-    /// PAL standard
+    /// Phase Alternating Line standard.
     /// </summary>
     PAL
   }
