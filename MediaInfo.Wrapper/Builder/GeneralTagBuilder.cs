@@ -63,6 +63,8 @@ namespace MediaInfo.Builder
       (NativeMethods.General.General_Part_Position_Total, TagBuilderHelper.TryGetInt),
       (NativeMethods.General.General_Album_Performer, TagBuilderHelper.TryGetString),
       (NativeMethods.General.General_Performer, TagBuilderHelper.TryGetString),
+      (NativeMethods.General.General_MusicBy, TagBuilderHelper.TryGetString),
+      (NativeMethods.General.General_RemixedBy, TagBuilderHelper.TryGetString),
       (NativeMethods.General.General_Performer_Sort, TagBuilderHelper.TryGetString),
       (NativeMethods.General.General_Performer_Url, TagBuilderHelper.TryGetString),
       (NativeMethods.General.General_Original_Performer, TagBuilderHelper.TryGetString),
@@ -140,7 +142,7 @@ namespace MediaInfo.Builder
       (NativeMethods.General.General_Cover_Data, TagBuilderHelper.TryGetString),
     };
 
-        #endregion
+    #endregion
 
     /// <summary>
     /// Gets the media information. The <c>MediaInfo</c> instance is used to retrieve tag values.

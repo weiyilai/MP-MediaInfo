@@ -8,7 +8,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
+
 #if !NETFRAMEWORK
 using System.Runtime.CompilerServices;
 #endif
@@ -358,6 +361,68 @@ namespace MediaInfo
       var extensionFile = path.GetExtension();
       return !extensionFile.IsPlayList() && AudioExtensions.ContainsKey(extensionFile);
     }
+
+    /// <summary>
+    /// Determines whether the specified path represents a DVD structure by checking for the presence of an IFO
+    /// file.
+    /// </summary>
+    /// <remarks>If the path is a directory, the method searches all subdirectories for files with the
+    /// ".IFO" extension. If the path is a file with the ".IFO" extension, it is considered a valid DVD structure.
+    /// The search is case-insensitive.</remarks>
+    /// <param name="path">The file or directory path to examine. Can be a path to a directory or an IFO file. May be null.</param>
+    /// <param name="pathToIfoFile">When this method returns, contains the full path to the first IFO file found if the path is identified as a
+    /// DVD structure; otherwise, null. This parameter is passed uninitialized.</param>
+    /// <returns>true if the specified path is a DVD structure or an IFO file; otherwise, false.</returns>
+    public static bool IsDvD(this string? path, [NotNullWhen(true)] out string? pathToIfoFile) =>
+      path.IsComplexStructure(".IFO", out pathToIfoFile);
+
+    /// <summary>
+    /// Determines whether the specified path represents a Blu-ray disc structure and retrieves the path to the BDMV
+    /// file if found.
+    /// </summary>
+    /// <param name="path">The file system path to examine. Can be null.</param>
+    /// <param name="pathToBdmvFile">When this method returns <see langword="true"/>, contains the full path to the BDMV file within the Blu-ray
+    /// structure; otherwise, null.</param>
+    /// <returns><see langword="true"/> if the path represents a valid Blu-ray disc structure and the BDMV file is found;
+    /// otherwise, <see langword="false"/>.</returns>
+    public static bool IsBluRay(this string? path, [NotNullWhen(true)] out string? pathToBdmvFile) =>
+      path.IsComplexStructure(".BDMV", out pathToBdmvFile);
+
+    private static bool IsComplexStructure(this string? path, string pattern, [NotNullWhen(true)] out string? pathToResult)
+    {
+      if (string.IsNullOrEmpty(path))
+      {
+        pathToResult = null;
+        return false;
+      }
+
+      if (!path!.IsDirectory() && path!.EndsWith(pattern, StringComparison.OrdinalIgnoreCase))
+      {
+        pathToResult = path;
+        return true;
+      }
+
+      var files = Directory.GetFiles(path, "*" + pattern, SearchOption.AllDirectories);
+      if (files.Any())
+      {
+        pathToResult = files.First();
+        return true;
+      }
+
+      pathToResult = null;
+      return false;
+    }
+
+    /// <summary>
+    /// Determines whether the specified path refers to an existing directory.
+    /// </summary>
+    /// <remarks>This method throws exceptions if the path is invalid or inaccessible. Use exception
+    /// handling to manage scenarios where the path does not exist or the application lacks sufficient
+    /// permissions.</remarks>
+    /// <param name="path">The file system path to check. This can be either a relative or absolute path.</param>
+    /// <returns>true if the specified path refers to an existing directory; otherwise, false.</returns>
+    public static bool IsDirectory(this string path) =>
+      File.GetAttributes(path).HasFlag(FileAttributes.Directory);
 
     private static bool IsPlayList(this string? extensionFile) =>
       !string.IsNullOrEmpty(extensionFile) && PlaylistExtensions.ContainsKey(extensionFile!);

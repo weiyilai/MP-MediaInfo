@@ -238,21 +238,21 @@ namespace MediaInfo
         // Analyze local file for DVD and BD
         if (!isAvStream)
         {
-          if (filePath.EndsWith(".ifo", StringComparison.OrdinalIgnoreCase))
+          if (filePath.IsDvD(out var resultIfoPath))
           {
             LogDebug(_logger, "Detects DVD. Processing DVD information");
 #if NETFRAMEWORK
-            filePath = ProcessDvd(filePath, realPathToDll!);
+            filePath = ProcessDvd(resultIfoPath, realPathToDll!);
 #else
-            filePath = ProcessDvd(filePath);
+            filePath = ProcessDvd(resultIfoPath);
 #endif
           }
-          else if (filePath.EndsWith(".bdmv", StringComparison.OrdinalIgnoreCase))
+          else if (filePath.IsBluRay(out var resultBdmvPath))
           {
             LogDebug(_logger, "Detects BD.");
             IsBluRay = true;
-            filePath = Path.GetDirectoryName(filePath!)!;
-            Size = GetDirectorySize(filePath!);
+            filePath = Path.GetDirectoryName(resultBdmvPath)!;
+            Size = GetDirectorySize(filePath);
           }
           else
           {

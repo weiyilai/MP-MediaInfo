@@ -17,6 +17,7 @@
     <RepositoryUrl>$(PackageRepository)</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageIcon>$(PackageIconValue)</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <Description>$(PackageDescription)</Description>
     <PackageReleaseNotes>$(PackageNotes)</PackageReleaseNotes>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

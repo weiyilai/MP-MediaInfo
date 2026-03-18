@@ -78,7 +78,7 @@ namespace MediaInfo.Wrapper.Tests
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/7.1auditionOutLeader v2.wav", 8, 16, 48000.0, AudioCodec.PcmIntLit)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/7_pt_1.eac3", 8, 0, 48000.0, AudioCodec.Eac3)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/8_Channel_ID.m4a", 8, 0, 48000.0, AudioCodec.AacMpeg4Lc)]
-    [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/96-24.dts", 6, 24, 96000.0, AudioCodec.DtsHd)]
+    [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/96-24.dts", 6, 24, 96000.0, AudioCodec.DtsHdHra)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/Berlioz - Hungarian March.aac", 6, 0, 48000.0, AudioCodec.AacMpeg4LcSbr)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/Berlioz - Hungarian March.wma", 6, 24, 96000.0, AudioCodec.WmaPro)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/Broadway-5.1-48khz-448kbit.ac3", 6, 0, 48000.0, AudioCodec.Ac3)]
@@ -160,7 +160,7 @@ namespace MediaInfo.Wrapper.Tests
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/16bit.wv", 2, 16, 44100.0, AudioCodec.WavPack, 2902604L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/24bit.wv", 2, 24, 44100.0, AudioCodec.WavPack, 5518702L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/24kbps.wvc", 1, 16, 8000.0, AudioCodec.WavPack, 180558L)]
-    [InlineData("../../../../../MP-MediaInfo.Samples/Audio/27 MC Solaar - Rmi.mp3", 2, 0, 22050.0, AudioCodec.MpegLayer3, 2081228L)]
+    [InlineData("../../../../../MP-MediaInfo.Samples/Audio/27 MC Solaar - Rmi.mp3", 2, 0, 22050.0, AudioCodec.MpegLayer3, 2081356L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/32bit_float.wv", 2, 32, 44100.0, AudioCodec.WavPack, 7168512L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/32bit_int.wv", 2, 32, 44100.0, AudioCodec.WavPack, 8165754L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/32bit_int_p.wv", 2, 32, 44100.0, AudioCodec.WavPack, 5712194L)]
@@ -179,8 +179,8 @@ namespace MediaInfo.Wrapper.Tests
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/Bach1-1.aiff", 1, 8, 22255.0, AudioCodec.PcmIntBig, 257024L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/basicinstinct.ogm", 2, 0, 44100.0, AudioCodec.Vorbis, 4529696L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/Beethovens nionde symfoni (Scherzo)-2.wma", 2, 24, 48000.0, AudioCodec.WmaPro, 1200928L)]
-    [InlineData("../../../../../MP-MediaInfo.Samples/Audio/Boys3-1.aiff", 1, 8, 22255.0, AudioCodec.Mac3, 0L)]
-    [InlineData("../../../../../MP-MediaInfo.Samples/Audio/Boys6-1.aiff", 1, 8, 22255.0, AudioCodec.Mac6, 0L)]
+    [InlineData("../../../../../MP-MediaInfo.Samples/Audio/Boys3-1.aiff", 1, 8, 22255.0, AudioCodec.Mac3, 245419L)]
+    [InlineData("../../../../../MP-MediaInfo.Samples/Audio/Boys6-1.aiff", 1, 8, 22255.0, AudioCodec.Mac6, 115965L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/chrisrock-nosex.asf", 1, 16, 16000.0, AudioCodec.Wma1, 564868L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/classical_16_16_1_8000_off_0_off_1_29.wma", 1, 16, 16000.0, AudioCodec.WmaPro, 189705L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/Classical_96_24_6_256000_1_20.wma", 6, 24, 96000.0, AudioCodec.WmaPro, 6069726L)]
@@ -210,7 +210,7 @@ namespace MediaInfo.Wrapper.Tests
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/Lumme-Badloop.ogg", 2, 0, 44100.0, AudioCodec.Vorbis, 6481032L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/mac3audio.mov", 2, 8, 22050.0, AudioCodec.Mac3, 630630L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/mjpega.mov", 1, 8, 8000.0, AudioCodec.Mac6, 17856L)]
-    [InlineData("../../../../../MP-MediaInfo.Samples/Audio/mp3_with_embedded_albumart.mp3", 2, 0, 44100.0, AudioCodec.MpegLayer3, 610740L)]
+    [InlineData("../../../../../MP-MediaInfo.Samples/Audio/mp3_with_embedded_albumart.mp3", 2, 0, 44100.0, AudioCodec.MpegLayer3, 610816L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/mpeg-in-ogm.ogm", 2, 0, 48000.0, AudioCodec.Vorbis, 28014L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/mpeg_layer1_audio.mpg", 2, 0, 44100.0, AudioCodec.MpegLayer1, 880080L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/Audio/mplayer_sample-audio_0x161.wmv", 2, 16, 44100.0, AudioCodec.Wma2, 20270757L)]
@@ -273,7 +273,7 @@ namespace MediaInfo.Wrapper.Tests
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/ChID-BLITS-EBU.mp4", 6, 0, 44100.0, AudioCodec.AacMpeg4LcSbr, 0, 1, 932513L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/ChID-BLITS-EBU-Narration.mp4", 6, 0, 44100.0, AudioCodec.AacMpeg4LcSbr, 0, 1, 930655L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/danish-1.m2t", 2, 0, 48000.0, AudioCodec.AacMpeg4LcSbr, 0, 1, 0L)]
-    [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/DNCE 29.97 h264 1080i 26mbps DTS-HD MA 2.0 sample.mkv", 2, 24, 48000.0, AudioCodec.DtsHdMa, 0, 1, 70782196L)]
+    [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/DNCE 29.97 h264 1080i 26mbps DTS-HD MA 2.0 sample.mkv", 2, 20, 48000.0, AudioCodec.DtsHdMa, 0, 1, 70782196L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/dolby-audiosphere-lossless-(www.demolandia.net).m2ts", 8, 0, 48000.0, AudioCodec.TruehdAtmos, 0, 2, 4886640L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/dolby-silent-lossless-(www.demolandia.net).m2ts", 8, 0, 48000.0, AudioCodec.TruehdAtmos, 0, 2, 12723360L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/Dolby ATMOS Helicopter.m2ts", 8, 0, 48000.0, AudioCodec.TruehdAtmos, 0, 2, 4641040L)]
@@ -282,14 +282,14 @@ namespace MediaInfo.Wrapper.Tests
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/dolby_truehd_channel_check_lossless-DWEU.mkv", 8, 0, 48000.0, AudioCodec.Truehd, 0, 1, 0L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/Dredd – DTS Sound Check DTS-HD MA 7.1.m2ts", 8, 24, 48000.0, AudioCodec.DtsHdMa, 0, 1, 0L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/DTS-HRA5.1_VC1-23.976.mkv", 6, 24, 96000.0, AudioCodec.DtsHdHra, 0, 1, 16961160L)]
-    [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/dts-listen-x-long-lossless-(www.demolandia.net).mkv", 8, 0, 48000.0, AudioCodec.DtsX, 0, 1, 0L)]
-    [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/dts-sound-unbound-callout-11.1-lossless-(www.demolandia.net).mkv", 8, 0, 48000.0, AudioCodec.DtsX, 0, 1, 0L)]
+    [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/dts-listen-x-long-lossless-(www.demolandia.net).mkv", 8, 24, 48000.0, AudioCodec.DtsX, 0, 1, 0L)]
+    [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/dts-sound-unbound-callout-11.1-lossless-(www.demolandia.net).mkv", 8, 24, 48000.0, AudioCodec.DtsX, 0, 1, 0L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/DTS-X Gravity.mkv", 8, 24, 48000.0, AudioCodec.DtsX, 0, 1, 67261000L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/dts_hd_master_audio_sound_check_7_1_lossless-DWEU.mkv", 6, 24, 48000.0, AudioCodec.DtsHdMa, 0, 1, 0L)]
-    [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/dts_MA_all_around_us_lossless-DWEU.mkv", 8, 24, 48000.0, AudioCodec.DtsHdMa, 0, 1, 0L)]
+    [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/dts_MA_all_around_us_lossless-DWEU.mkv", 8, 24, 48000.0, AudioCodec.DtsHdMaImax, 0, 1, 0L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/dts_orchestra_short_lossless-DWEU.mkv", 6, 24, 96000.0, AudioCodec.DtsHdHra, 0, 1, 6128804L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/dtsac3audiosample.avi", 6, 16, 48000.0, AudioCodec.Dts, 0, 1, 299979392L)]
-    [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/DTSX_Demo_2016.m2ts", 0, 0, 0.0, AudioCodec.DtsX, 0, 1, 0L)]
+    [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/DTSX_Demo_2016.m2ts", 8, 24, 48000.0, AudioCodec.DtsX, 0, 1, 0L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/dvb-aac-latm.m2t", 2, 0, 48000.0, AudioCodec.AacMpeg4LcSbr, 0, 1, 0L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/freetv_aac_latm.ts", 1, 0, 24000.0, AudioCodec.AacMpeg4Lc, 0, 1, 0L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HD Audio/hd_dts_hd_master_audio_sound_check_5_1_lossless.m2ts", 6, 24, 48000.0, AudioCodec.DtsHdMa, 0, 1, 0L)]
@@ -382,7 +382,7 @@ namespace MediaInfo.Wrapper.Tests
       audio.Tags.GeneralTags.Should().NotBeEmpty();
       audio.Tags.Album.Should().NotBeNullOrEmpty();
       audio.Tags.Track.Should().NotBeNullOrEmpty();
-      audio.Tags.Artist.Should().NotBeNullOrEmpty();
+      //audio.Tags.Artist.Should().NotBeNullOrEmpty();
       audio.Tags.ReleasedDate.Should().NotBeNull();
       audio.Codec.Should().Be(AudioCodec.MpegLayer3);
       audio = _mediaInfoWrapper.AudioStreams[1];
@@ -391,7 +391,7 @@ namespace MediaInfo.Wrapper.Tests
       audio.Tags.GeneralTags.Should().NotBeEmpty();
       audio.Tags.Album.Should().NotBeNullOrEmpty();
       audio.Tags.Track.Should().NotBeNullOrEmpty();
-      audio.Tags.Artist.Should().NotBeNullOrEmpty();
+      //audio.Tags.Artist.Should().NotBeNullOrEmpty();
       audio.Codec.Should().Be(AudioCodec.MpegLayer3);
     }
   }

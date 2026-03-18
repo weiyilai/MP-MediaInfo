@@ -159,7 +159,8 @@ namespace MediaInfo.Model
     /// </value>
     public string? Artist => GeneralTags.TryGetValue(NativeMethods.General.General_Performer, out var performer) ?
       (string)performer :
-      GeneralTags.TryGetValue(NativeMethods.General.General_Album_Performer, out var result) ? (string)result : null;
+      GeneralTags.TryGetValue(NativeMethods.General.General_Album_Performer, out var result) ? (string)result :
+        GeneralTags.TryGetValue(NativeMethods.General.General_MusicBy, out var resultMusicBy) ? (string)resultMusicBy : null;
 
     /// <summary>
     /// Gets the album artist.

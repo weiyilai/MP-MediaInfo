@@ -257,29 +257,31 @@ namespace MediaInfo.Wrapper.Tests
 #else
     [Theory(Skip = "Test in development environment only")]
 #endif
-    [InlineData("//192.168.50.31/Video_O/2016 DOLBY ATMOS DEMO DISC/BDMV/index.bdmv")]
-    public void LoadBluRayWithMenuAndDolbyAtmos(string fileName)
+    [InlineData("../../../../../MP-MediaInfo.Samples/BD")]
+    public void LoadBluRayWithMenuAndMainStream(string fileName)
     {
       _mediaInfoWrapper = new MediaInfoWrapper(fileName, _logger);
       _mediaInfoWrapper.Success.Should().BeTrue("InfoWrapper should be loaded");
-      _mediaInfoWrapper.Size.Should().Be(24716230397L);
+      _mediaInfoWrapper.Size.Should().Be(1592116024L);
       _mediaInfoWrapper.HasVideo.Should().BeTrue("Video stream must be detected");
-      _mediaInfoWrapper.VideoRate.Should().Be(32173617);
+      _mediaInfoWrapper.VideoRate.Should().Be(13000000);
       _mediaInfoWrapper.IsBluRay.Should().BeTrue("Is BluRay disk");
       _mediaInfoWrapper.IsDvd.Should().BeFalse("Is not DVD disk");
       _mediaInfoWrapper.IsInterlaced.Should().BeFalse("Video stream is progressive");
       _mediaInfoWrapper.Is3D.Should().BeFalse("Video stream is not 3D");
-      _mediaInfoWrapper.AudioStreams.Count.Should().Be(22);
+      _mediaInfoWrapper.AudioStreams.Count.Should().Be(1);
       _mediaInfoWrapper.Text.Should().NotBeNullOrEmpty();
       var atmos = _mediaInfoWrapper.AudioStreams[0];
-      atmos.Codec.Should().Be(AudioCodec.TruehdAtmos);
-      atmos.Channel.Should().Be(8);
+      atmos.Codec.Should().Be(AudioCodec.Ac3);
+      atmos.Channel.Should().Be(6);
       var video = _mediaInfoWrapper.VideoStreams[0];
       video.Hdr.Should().Be(Hdr.None);
       video.Codec.Should().Be(VideoCodec.Mpeg4IsoAvc);
       video.ColorSpace.Should().Be(ColorSpace.BT709);
       video.SubSampling.Should().Be(ChromaSubSampling.Sampling420);
-      video.StreamSize.Should().Be(423954426L);
+      video.StreamSize.Should().Be(1454825077L);
+      _mediaInfoWrapper.Chapters.Should().NotBeNull();
+      _mediaInfoWrapper.Chapters.Should().BeEmpty();
       _mediaInfoWrapper.MenuStreams.Count.Should().Be(1);
       _mediaInfoWrapper.Tags.GeneralTags.Should().NotBeNull();
       _mediaInfoWrapper.Tags.GeneralTags.Should().BeEmpty();
@@ -292,13 +294,13 @@ namespace MediaInfo.Wrapper.Tests
 #endif
     [InlineData("../../../../../MP-MediaInfo.Samples/HDR/PE2_Leopard_4K.mkv", VideoCodec.MpeghIsoHevc, Hdr.HDR10, ColorSpace.BT2020, ChromaSubSampling.Sampling420, AudioCodec.DtsHdMa, 6, 23358403L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HDR/LaLaLand_cafe_4K.mkv", VideoCodec.MpeghIsoHevc, Hdr.HDR10, ColorSpace.BT2020, ChromaSubSampling.Sampling420, AudioCodec.TruehdAtmos, 8, 427862660L)]
-    [InlineData("../../../../../MP-MediaInfo.Samples/HDR/The Redwoods.mkv", VideoCodec.Vp9, Hdr.HDR10, ColorSpace.BT2020, ChromaSubSampling.Sampling332, AudioCodec.Vorbis, 2, 352373663L)]
-    [InlineData("../../../../../MP-MediaInfo.Samples/HDR/The World in HDR.mkv", VideoCodec.Vp9, Hdr.HDR10, ColorSpace.BT2020, ChromaSubSampling.Sampling332, AudioCodec.Vorbis, 2, 351675124L)]
+    [InlineData("../../../../../MP-MediaInfo.Samples/HDR/The Redwoods.mkv", VideoCodec.Vp9, Hdr.HDR10, ColorSpace.BT2020, ChromaSubSampling.Sampling420, AudioCodec.Vorbis, 2, 352373663L)]
+    [InlineData("../../../../../MP-MediaInfo.Samples/HDR/The World in HDR.mkv", VideoCodec.Vp9, Hdr.HDR10, ColorSpace.BT2020, ChromaSubSampling.Sampling420, AudioCodec.Vorbis, 2, 351675124L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HDR/LG Demo DolbyVision Comparison.mkv", VideoCodec.MpeghIsoHevc, Hdr.DolbyVision, ColorSpace.Generic, ChromaSubSampling.Sampling420, AudioCodec.Eac3, 6, 281969991L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HDR/LG Demo DolbyVision Trailer.mkv", VideoCodec.MpeghIsoHevc, Hdr.DolbyVision, ColorSpace.Generic, ChromaSubSampling.Sampling420, AudioCodec.Eac3, 6, 295907864L)]
-    [InlineData("../../../../../MP-MediaInfo.Samples/HDR/LG Amaze Dolby Vision UHD 4K Demo.ts", VideoCodec.MpeghIsoHevc, Hdr.DolbyVision, ColorSpace.Generic, ChromaSubSampling.Sampling420, AudioCodec.Eac3Atmos, 6, 194690298L)]
+    [InlineData("../../../../../MP-MediaInfo.Samples/HDR/LG Amaze Dolby Vision UHD 4K Demo.ts", VideoCodec.MpeghIsoHevc, Hdr.DolbyVision, ColorSpace.BT2020, ChromaSubSampling.Sampling420, AudioCodec.Eac3Atmos, 6, 194690298L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HDR/LG Daylight 4K Demo.ts", VideoCodec.MpeghIsoHevc, Hdr.HDR10, ColorSpace.BT2020, ChromaSubSampling.Sampling420, AudioCodec.AacMpeg4Lc, 2, 0L)]
-    [InlineData("../../../../../MP-MediaInfo.Samples/HDR/LG Earth Dolby Vision UHD 4K Demo.ts", VideoCodec.MpeghIsoHevc, Hdr.DolbyVision, ColorSpace.Generic, ChromaSubSampling.Sampling420, AudioCodec.Eac3, 2, 236589530L)]
+    [InlineData("../../../../../MP-MediaInfo.Samples/HDR/LG Earth Dolby Vision UHD 4K Demo.ts", VideoCodec.MpeghIsoHevc, Hdr.DolbyVision, ColorSpace.BT2020, ChromaSubSampling.Sampling420, AudioCodec.Eac3, 2, 236589530L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HDR/LG New York HDR UHD 4K Demo.ts", VideoCodec.MpeghIsoHevc, Hdr.HDR10, ColorSpace.BT2020, ChromaSubSampling.Sampling420, AudioCodec.AacMpeg4Lc, 2, 0L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HDR/Life Untouched 4K Demo.mp4", VideoCodec.MpeghIsoHevc, Hdr.HDR10, ColorSpace.BT2020, ChromaSubSampling.Sampling420, AudioCodec.AacMpeg4Lc, 2, 467882368L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/HDR/Sony Camp 4K Demo.mp4", VideoCodec.MpeghIsoHevc, Hdr.HDR10, ColorSpace.BT709, ChromaSubSampling.Sampling420, AudioCodec.AacMpeg4Lc, 2, 1254444952L)]
@@ -341,7 +343,7 @@ namespace MediaInfo.Wrapper.Tests
 #endif
     [InlineData("../../../../../MP-MediaInfo.Samples/UHD/(HEVC 10-bit 25fps) Astra DVB Sample.ts", VideoCodec.MpeghIsoHevc, 2160, ColorSpace.Generic, ChromaSubSampling.Sampling420, 1070986515L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/UHD/4K HEVC 59.940 Broadcast Capture Sample.mkv", VideoCodec.MpeghIsoHevc, 2160, ColorSpace.Generic, ChromaSubSampling.Sampling420, 187427353L)]
-    [InlineData("../../../../../MP-MediaInfo.Samples/UHD/4K youtube.webm", VideoCodec.Vp9, 2160, ColorSpace.BT709, ChromaSubSampling.Sampling332, 503064736L)]
+    [InlineData("../../../../../MP-MediaInfo.Samples/UHD/4K youtube.webm", VideoCodec.Vp9, 2160, ColorSpace.BT709, ChromaSubSampling.Sampling420, 503064736L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/UHD/8K youtube.mp4", VideoCodec.Av1, 4320, ColorSpace.BT709, ChromaSubSampling.Sampling420, 497122531L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/UHD/iphone6s_4k.mov", VideoCodec.Mpeg4IsoAvc, 2160, ColorSpace.BT709, ChromaSubSampling.Sampling420, 118512869L)]
     [InlineData("../../../../../MP-MediaInfo.Samples/UHD/lg-uhd-spain-and-patagonia-(www.demolandia.net).mkv", VideoCodec.Mpeg4IsoAvc, 2160, ColorSpace.BT709, ChromaSubSampling.Sampling420, 379530039L)]

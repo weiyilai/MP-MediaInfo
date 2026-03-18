@@ -102,9 +102,19 @@ namespace MediaInfo.Model
     DtsX,
 
     /// <summary>
+    /// IMAX DTS:X
+    /// </summary>
+    DtsXImax,
+
+    /// <summary>
     /// DTS-HD MA
     /// </summary>
     DtsHdMa,
+
+    /// <summary>
+    /// DTS-HD MA + IMAX Enhanced
+    /// </summary>
+    DtsHdMaImax,
 
     /// <summary>
     /// DTS Express
