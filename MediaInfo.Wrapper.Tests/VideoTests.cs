@@ -28,12 +28,12 @@ namespace MediaInfo.Wrapper.Tests
     }
 
 #if DEBUG
-    [Theory]
+    [Theory(Skip = "MediaInfo has not supported RTSP yet")]
 #else
     [Theory(Skip = "Test in development environment only")]
 #endif
-    [InlineData("rtsp://azcl6ASKTuOwvdnEgcbduj3IbnZtyJ7Z:x7Xd-CGJ6JifP9BopffXt@test.rtsp.stream/pattern")]
-    public void LoadSteamVideo(string fileName)
+    [InlineData("rtsp://localhost:8554/test_8")]
+    public void LoadRtspVideo(string fileName)
     {
       _mediaInfoWrapper = new MediaInfoWrapper(fileName, _logger);
       _mediaInfoWrapper.Success.Should().BeTrue("InfoWrapper should be loaded");
@@ -65,9 +65,12 @@ namespace MediaInfo.Wrapper.Tests
 #else
     [Theory(Skip = "Test in development environment only")]
 #endif
-    [InlineData("http://localhost/video/test_8.mp4", 2296357L, 117340, 1, VideoCodec.Mpeg4IsoAvc, ChromaSubSampling.Sampling420, 845642L)]
-    [InlineData("http://localhost/video/Sisvel3DTile.ts", 50320644, 0, 1, VideoCodec.Mpeg4IsoAvc, ChromaSubSampling.Sampling420, 0L)]
-    [InlineData("http://localhost/video/iphone6s_4k.mov", 118742364L, 51105477, 1, VideoCodec.Mpeg4IsoAvc, ChromaSubSampling.Sampling420, 118512869L)]
+    [InlineData("http://localhost:8080/videos/test_8.mp4", 2296357L, 117340, 1, VideoCodec.Mpeg4IsoAvc, ChromaSubSampling.Sampling420, 845642L)]
+    [InlineData("https://localhost:8443/videos/test_8.mp4", 2296357L, 117340, 1, VideoCodec.Mpeg4IsoAvc, ChromaSubSampling.Sampling420, 845642L)]
+    [InlineData("http://localhost:8080/videos/Sisvel3DTile.ts", 50320644, 0, 1, VideoCodec.Mpeg4IsoAvc, ChromaSubSampling.Sampling420, 0L)]
+    [InlineData("https://localhost:8443/videos/Sisvel3DTile.ts", 50320644, 0, 1, VideoCodec.Mpeg4IsoAvc, ChromaSubSampling.Sampling420, 0L)]
+    [InlineData("http://localhost:8080/videos/iphone6s_4k.mov", 118742364L, 51105477, 1, VideoCodec.Mpeg4IsoAvc, ChromaSubSampling.Sampling420, 118512869L)]
+    [InlineData("https://localhost:8443/videos/iphone6s_4k.mov", 118742364L, 51105477, 1, VideoCodec.Mpeg4IsoAvc, ChromaSubSampling.Sampling420, 118512869L)]
     public void LoadAVSteam(string fileName, long size, int rate, int audioStreams, VideoCodec codec, ChromaSubSampling sampling, long streamSize)
     {
       _mediaInfoWrapper = new MediaInfoWrapper(fileName, _logger);

@@ -168,6 +168,12 @@ namespace MediaInfo
     private const string LibCurlFileName = "libcurl.dll";
     private const string LibCryptoFileName = "libcrypto-3.dll";
     private const string LibSslFileName = "libssl-3.dll";
+    private const string LibCryptoFileName64Bit = "libcrypto-3-x64.dll";
+    private const string LibSslFileName64Bit = "libssl-3-x64.dll";
+    private const string LibSshFileName = "libssh2.dll";
+    private const string BrotliCommonFileName = "brotlicommon.dll";
+    private const string BrotliDecFileName = "brotlidec.dll";
+    private const string BrotliEncFileName = "brotlienc.dll";
     private IntPtr _module;
 #endif
     private readonly bool _mustUseAnsi;
@@ -187,8 +193,12 @@ namespace MediaInfo
     /// <param name="pathToDll">The path to the directory containing the MediaInfo library.</param>
     public MediaInfo(string pathToDll)
     {
-      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, LibCryptoFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
-      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, LibSslFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
+      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, BrotliCommonFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
+      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, BrotliDecFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
+      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, BrotliEncFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
+      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, Environment.Is64BitProcess ? LibCryptoFileName64Bit : LibCryptoFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
+      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, Environment.Is64BitProcess ? LibSslFileName64Bit : LibSslFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
+      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, LibSshFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
       NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, LibCurlFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
       _module = NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, MediaInfoFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
       try

@@ -8,7 +8,7 @@
 
 using MediaInfo.Builder;
 using MediaInfo.Model;
-#if NETSTANDARD2_0_OR_GREATER || NET5_0_OR_GREATER
+#if !NETFRAMEWORK
 using Microsoft.Extensions.Logging;
 #endif
 using System;

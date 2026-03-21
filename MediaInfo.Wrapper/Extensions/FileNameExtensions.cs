@@ -402,11 +402,14 @@ namespace MediaInfo
         return true;
       }
 
-      var files = Directory.GetFiles(path, "*" + pattern, SearchOption.AllDirectories);
-      if (files.Any())
+      if (path!.IsDirectory())
       {
-        pathToResult = files.First();
-        return true;
+        var files = Directory.GetFiles(path, "*" + pattern, SearchOption.AllDirectories);
+        if (files.Any())
+        {
+          pathToResult = files.First();
+          return true;
+        }
       }
 
       pathToResult = null;
