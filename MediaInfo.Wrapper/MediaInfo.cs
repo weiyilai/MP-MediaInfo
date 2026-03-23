@@ -163,7 +163,7 @@ namespace MediaInfo
   /// <seealso cref="IDisposable" />
   public class MediaInfo : IDisposable
   {
-#if (NET40 || NET45)
+#if NETFRAMEWORK
     private const string MediaInfoFileName = "MediaInfo.dll";
     private const string LibCurlFileName = "libcurl.dll";
     private const string LibCryptoFileName = "libcrypto-3.dll";
@@ -175,7 +175,16 @@ namespace MediaInfo
     private const string BrotliDecFileName = "brotlidec.dll";
     private const string BrotliEncFileName = "brotlienc.dll";
     private IntPtr _module;
+#else
+    private const string LibCurlFileName = "libcurl";
+    private const string BrotliCommonFileName = "brotlicommon";
+    private const string BrotliDecFileName = "brotlidec";
+    private const string BrotliEncFileName = "brotlienc";
+    private const string LibSshFileName = "libssh2";
+    private const string LibCryptoFileName = "libcrypto";
+    private const string LibSslFileName = "libssl";
 #endif
+
     private readonly bool _mustUseAnsi;
 
     /// <summary>
@@ -215,6 +224,16 @@ namespace MediaInfo
 #else
     public MediaInfo()
     {
+#if NET6_0_OR_GREATER
+      var currentAssembly = typeof(MediaInfo).Assembly;
+      NativeLibrary.TryLoad(BrotliCommonFileName, currentAssembly, null, out var library);
+      NativeLibrary.TryLoad(BrotliDecFileName, currentAssembly, null, out library);
+      NativeLibrary.TryLoad(BrotliEncFileName, currentAssembly, null, out library);
+      NativeLibrary.TryLoad(LibCryptoFileName, currentAssembly, null, out library);
+      NativeLibrary.TryLoad(LibSslFileName, currentAssembly, null, out library);
+      NativeLibrary.TryLoad(LibSshFileName, currentAssembly, null, out library);
+      NativeLibrary.TryLoad(LibCurlFileName, currentAssembly, null, out library);
+#endif
       try
       {
         Handle = NativeMethods.MediaInfo_New();

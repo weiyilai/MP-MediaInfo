@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <GitHub>8.0.0</GitHub>
-    <CoreNative>21.9.1</CoreNative>
+    <CoreNative>26.1.0</CoreNative>
     <Native>26.1.0</Native>
     <TestSdk>17.14.1</TestSdk>
     <MoqLib>4.20.72</MoqLib>
