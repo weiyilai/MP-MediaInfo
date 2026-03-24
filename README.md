@@ -1,43 +1,54 @@
 # MP-MediaInfo
 
-MP-MediaInfo is .NET wrapper for [MediaArea MediaInfo](https://github.com/MediaArea/MediaInfo) and use native packages [![NuGet Badge](https://buildstats.info/nuget/MediaInfo.Native)](https://www.nuget.org/packages/MediaInfo.Native) and [![NuGet Badge](https://buildstats.info/nuget/MediaInfo.Core.Native)](https://www.nuget.org/packages/MediaInfo.Core.Native).
+MP-MediaInfo is .NET wrapper for [MediaArea MediaInfo](https://github.com/MediaArea/MediaInfo) and use native packages [![NuGet Badge](https://img.shields.io/nuget/v/MediaInfo.Native.svg)](https://www.nuget.org/packages/MediaInfo.Native) and [![NuGet Badge](https://img.shields.io/nuget/v/MediaInfo.Core.Native.svg)](https://www.nuget.org/packages/MediaInfo.Core.Native).
 
 [![Build status](https://ci.appveyor.com/api/projects/status/67ubhtmijuhyhq6q?svg=true)](https://ci.appveyor.com/project/yartat/mp-mediainfo)
 
 ## Features
 
-* Wraps the MediaInfo library
-* Provides properties for almost all information  available using the MediaInfo library
-* Targets .NET Framework, .NET Standard, .NET 5, .NET 6
+* **Comprehensive Media Analysis**: Wraps the MediaInfo library to provide detailed information about video, audio, subtitle, and metadata streams
+* **Rich Property Access**: Exposes properties for video codecs, bitrates, resolution, frame rates, audio properties, subtitles, chapters, and extensive tag information
+* **Multi-Format Support**: Supports analysis of virtually all video and audio formats supported by MediaInfo (see [Supported Formats](#supported-formats))
+* **Stream Information**: Provides detailed access to individual video streams, audio streams, subtitle streams, chapters, and menu information
+* **Metadata Extraction**: Extract technical tags and general metadata from media files
+* **Cross-Platform**: Targets .NET Framework 4.0+, .NET Standard 2.1, .NET 6.0, .NET 8.0, and .NET 10.0
+* **Optional Logging**: Built-in support for custom logging to track analysis operations
 
 ## Available packages
 
 | Framework | Package |
 |-----------|---------|
-| .NET Framework 4.0 | [![NuGet Badge](https://buildstats.info/nuget/MediaInfo.Wrapper)](https://www.nuget.org/packages/MediaInfo.Wrapper) |
-| .NET Framework 4.5 | [![NuGet Badge](https://buildstats.info/nuget/MediaInfo.Wrapper)](https://www.nuget.org/packages/MediaInfo.Wrapper) |
-| .NET Standard 2.0 | [![NuGet Badge](https://buildstats.info/nuget/MediaInfo.Wrapper.Core)](https://www.nuget.org/packages/MediaInfo.Wrapper.Core) |
-| .NET Standard 2.1 | [![NuGet Badge](https://buildstats.info/nuget/MediaInfo.Wrapper.Core)](https://www.nuget.org/packages/MediaInfo.Wrapper.Core) |
-| .NET 5.0 | [![NuGet Badge](https://buildstats.info/nuget/MediaInfo.Wrapper.Core)](https://www.nuget.org/packages/MediaInfo.Wrapper.Core) |
-| .NET 6.0 | [![NuGet Badge](https://buildstats.info/nuget/MediaInfo.Wrapper.Core)](https://www.nuget.org/packages/MediaInfo.Wrapper.Core) |
+| .NET Framework 4.0 | [![NuGet Badge](https://img.shields.io/nuget/v/MediaInfo.Wrapper.svg)](https://www.nuget.org/packages/MediaInfo.Wrapper) |
+| .NET Framework 4.5 | [![NuGet Badge](https://img.shields.io/nuget/v/MediaInfo.Wrapper.svg)](https://www.nuget.org/packages/MediaInfo.Wrapper) |
+| .NET Standard 2.1 | [![NuGet Badge](https://img.shields.io/nuget/v/MediaInfo.Wrapper.Core.svg)](https://www.nuget.org/packages/MediaInfo.Wrapper.Core) |
+| .NET 6.0 | [![NuGet Badge](https://img.shields.io/nuget/v/MediaInfo.Wrapper.Core.svg)](https://www.nuget.org/packages/MediaInfo.Wrapper.Core) |
+| .NET 8.0 | [![NuGet Badge](https://img.shields.io/nuget/v/MediaInfo.Wrapper.Core.svg)](https://www.nuget.org/packages/MediaInfo.Wrapper.Core) |
+| .NET 10.0 | [![NuGet Badge](https://img.shields.io/nuget/v/MediaInfo.Wrapper.Core.svg)](https://www.nuget.org/packages/MediaInfo.Wrapper.Core) |
 
 ## Installation
 
-There are 2 packages for .NET Core and .NET Framework. If your project is designed to run only on Windows and you are not using .NET Core, use the .NET Framework package. .NET Core package is designed for ASP.NET Core services only.
+Two packages are available:
+
+- **MediaInfo.Wrapper.Core** - For .NET Standard 2.1, .NET 6.0+. Recommended for modern applications, cross-platform projects, and ASP.NET Core services
+- **MediaInfo.Wrapper** - For .NET Framework 4.0+. Use this if you're on Windows only with .NET Framework
+
+Choose based on your target framework:
 
 ### .NET Core
 
 ```Shell{:copy}
-dotnet add package MediaInfo.Wrapper.Core --version 21.9.3
+dotnet add package MediaInfo.Wrapper.Core --version 26.2.0
 ```
 
 ### .NET Framework
 
 ```PowerShell{:copy}
-Install-Package MediaInfo.Wrapper -Version 21.9.3
+Install-Package MediaInfo.Wrapper -Version 26.2.0
 ```
 
 ## Usage
+
+### Basic Setup
 
 Add to usings:
 
@@ -45,31 +56,271 @@ Add to usings:
 using MediaInfo;
 ```
 
-Instantiate an object of class `MediaInfoWrapper`, providing the full path to the media file and logger instance if it is required.
+Instantiate a `MediaInfoWrapper` with the path to your media file:
 
 ```csharp
-var media = new MediaInfoWrapper(mediaFileLocation);
+var media = new MediaInfoWrapper("path/to/media/file.mp4");
 ```
 
-Check successfully parsing of the parameters of the media file.
+### Checking Analysis Success
+
+Always verify the file was successfully analyzed:
 
 ```csharp
 if (media.Success)
 {
-    ...
+    // File analyzed successfully
+}
+else
+{
+    // Handle analysis failure
+    Console.WriteLine("Failed to analyze media file");
 }
 ```
 
-Retrieve technical and tag data from the video or audio file:
+### General Information
+
+Access basic media information:
 
 ```csharp
-var containerFormat = media.Format;
-var mediaHasVideo = media.HasVideo;
-var videoBitRate = media.VideoRate;
-foreach (var stream in media.AudioStreams)
+var containerFormat = media.Format;              // e.g., "MPEG-4"
+var duration = media.Duration;                  // Duration in milliseconds
+var overallBitRate = media.OverallBitRate;     // Combined bitrate of all streams
+var isScanningNeeded = media.ScanningNeeded;   // Whether file needs deeper analysis
+```
+
+### Video Stream Analysis
+
+Extract detailed video information:
+
+```csharp
+if (media.HasVideo)
 {
-    var codec = stream.Codec;
+    var videoStream = media.VideoStreams.FirstOrDefault();
+    if (videoStream != null)
+    {
+        var width = videoStream.Width;                          // Resolution width
+        var height = videoStream.Height;                        // Resolution height
+        var codec = videoStream.Codec;                          // e.g., "AVC"
+        var frameRate = videoStream.FrameRate;                  // Frames per second
+        var frameRateMode = videoStream.FrameRateMode;         // e.g., CFR, VFR
+        var bitRate = videoStream.BitRate;                     // Video stream bitrate
+        var standard = videoStream.Standard;                   // e.g., "NTSC", "PAL"
+        var aspectRatio = videoStream.AspectRatio;             // e.g., "16:9"
+        var chromaSubSampling = videoStream.ChromaSubSampling; // e.g., "4:2:0"
+        var colorSpace = videoStream.ColorSpace;               // e.g., "YUV"
+        var hdrFormat = videoStream.Hdr;                       // e.g., "HDR10", "Dolby Vision"
+        var profile = videoStream.Profile;                     // Codec profile
+        var level = videoStream.Level;                         // Profile level
+    }
 }
+```
+
+### Audio Stream Analysis
+
+Access audio track information:
+
+```csharp
+foreach (var audioStream in media.AudioStreams)
+{
+    var language = audioStream.Language;                    // ISO 639-2 language code
+    var codec = audioStream.Codec;                          // e.g., "AAC", "AC-3"
+    var bitRate = audioStream.BitRate;                     // Audio bitrate
+    var channels = audioStream.Channels;                   // Number of audio channels
+    var channelLayout = audioStream.ChannelLayout;         // e.g., "L R C LFE Ls Rs"
+    var samplingRate = audioStream.SamplingRate;           // Sample rate in Hz
+    var bitDepth = audioStream.BitDepth;                   // Bits per sample
+    var bitrateMode = audioStream.BitrateMode;             // CBR, VBR, etc.
+    var title = audioStream.Title;                         // Track title if available
+}
+```
+
+### Subtitle Stream Analysis
+
+Retrieve subtitle information:
+
+```csharp
+foreach (var subtitleStream in media.SubtitleStreams)
+{
+    var codec = subtitleStream.Codec;              // e.g., "PGS", "ASS"
+    var language = subtitleStream.Language;        // ISO 639-2 language code
+    var title = subtitleStream.Title;              // Subtitle track name
+}
+```
+
+### Audio and Video Tags
+
+Extract metadata:
+
+```csharp
+var audioTags = media.AudioTags;       // Audio metadata (album, artist, etc.)
+var videoTags = media.VideoTags;       // Video metadata (title, description, etc.)
+var generalInfo = media.GeneralTags;   // File-level metadata
+
+if (audioTags != null)
+{
+    var artist = audioTags.Performer;
+    var album = audioTags.Album;
+    var title = audioTags.Title;
+}
+```
+
+### Chapter Information
+
+Access chapter/menu information:
+
+```csharp
+foreach (var chapter in media.ChapterStreams)
+{
+    var startTime = chapter.StartTime;  // Chapter start timestamp
+    // Chapter stream information available
+}
+```
+
+### Using a Logger
+
+Optionally provide a logger to track analysis:
+
+```csharp
+public class ConsoleLogger : ILogger
+{
+    public void Log(string message) => Console.WriteLine(message);
+}
+
+var logger = new ConsoleLogger();
+var media = new MediaInfoWrapper("path/to/file.mp4", logger);
+```
+
+## Supported Formats
+
+MP-MediaInfo supports analysis of virtually all media formats supported by the underlying MediaInfo library, including:
+
+**Video Formats**: MP4, MKV, AVI, MOV, FLV, WebM, WMV, 3GP, and many more
+
+**Audio Codecs**: H.264/AVC, H.265/HEVC, MPEG-4, VP8, VP9, AV1, Theora, and others
+
+**Audio Formats**: MP3, AAC, FLAC, Opus, Vorbis, AC-3, DTS, TrueHD, Atmos, and more
+
+**Subtitle Formats**: PGS, ASS/SSA, SRT, SUBRIP, DVB, and other subtitle types
+
+For a complete and detailed list, refer to the [MediaInfo documentation](https://github.com/MediaArea/MediaInfo).
+
+## Advanced Usage
+
+### Error Handling
+
+Handle potential errors gracefully:
+
+```csharp
+try
+{
+    var media = new MediaInfoWrapper(filePath);
+    
+    if (!media.Success)
+    {
+        Console.WriteLine("Analysis was not successful");
+        return;
+    }
+    
+    // Process media information
+}
+catch (FileNotFoundException)
+{
+    Console.WriteLine("Media file not found");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Error analyzing media: {ex.Message}");
+}
+```
+
+### Batch Processing Multiple Files
+
+Analyze multiple files efficiently:
+
+```csharp
+var mediaFiles = Directory.GetFiles("mediaFolder", "*.mp4");
+
+foreach (var file in mediaFiles)
+{
+    try
+    {
+        var media = new MediaInfoWrapper(file);
+        if (media.Success)
+        {
+            Console.WriteLine($"{Path.GetFileName(file)}: {media.Format}");
+            // Process each file
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error processing {file}: {ex.Message}");
+    }
+}
+```
+
+### Checking Specific Media Characteristics
+
+```csharp
+var media = new MediaInfoWrapper(filePath);
+
+// Check if file has video
+if (media.HasVideo)
+{
+    var videoStream = media.VideoStreams.FirstOrDefault();
+    if (videoStream?.Hdr != null)
+    {
+        Console.WriteLine($"HDR Format: {videoStream.Hdr}");
+    }
+}
+
+// Check number of audio tracks
+Console.WriteLine($"Audio tracks: {media.AudioStreams.Count}");
+
+// Find specific audio codec
+var ac3Tracks = media.AudioStreams
+    .Where(s => s.Codec?.Contains("AC-3") ?? false)
+    .ToList();
+```
+
+## Troubleshooting
+
+### Analysis Returns False (media.Success == false)
+
+- Verify the file path is correct and the file exists
+- Ensure the file is not corrupted
+- Check that the media format is supported
+- On Linux/macOS, verify all dependencies (libzen, zlib) are installed
+- Try enabling logging to see detailed error messages
+
+### Missing Native Libraries
+
+**Windows**: The native MediaInfo libraries are included in the NuGet package. No additional installation needed.
+
+**Linux/macOS**: Install system dependencies as described in the [Dependencies](#dependencies) section.
+
+### Incomplete Information
+
+Some media files may require deeper scanning. Check `media.ScanningNeeded`:
+
+```csharp
+if (media.ScanningNeeded)
+{
+    Console.WriteLine("File may benefit from deeper analysis");
+    // Files with streaming headers might have incomplete information
+}
+```
+
+### Out of Memory Issues
+
+When processing very large files or many files in parallel, be mindful of memory usage. Consider disposing of MediaInfoWrapper objects when done:
+
+```csharp
+using (var media = new MediaInfoWrapper(filePath))
+{
+    // Use media
+}
+// Disposed automatically
 ```
 
 ## Demo application
@@ -195,16 +446,23 @@ FROM mcr.microsoft.com/dotnet/aspnet:3.1
 RUN apt-get update && apt-get install -y libzen0v5 libmms0 openssl zlib1g zlibc libnghttp2-14 librtmp1 curl libcurl4-gnutls-dev libglib2.0
 ```
 
-#### .NET 5.0
-
-```Dockerfile{:copy}
-FROM mcr.microsoft.com/dotnet/aspnet:5.0
-RUN apt-get update && apt-get install -y libzen0v5 libmms0 openssl zlib1g zlibc libnghttp2-14 librtmp1 curl libcurl4-gnutls-dev libglib2.0
-```
-
 #### .NET 6.0
 
 ```Dockerfile{:copy}
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
+RUN apt-get update && apt-get install -y libzen0v5 libmms0 openssl zlib1g zlibc libnghttp2-14 librtmp1 curl libcurl4-gnutls-dev libglib2.0
+```
+
+#### .NET 8.0
+
+```Dockerfile{:copy}
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+RUN apt-get update && apt-get install -y libzen0v5 libmms0 openssl zlib1g zlibc libnghttp2-14 librtmp1 curl libcurl4-gnutls-dev libglib2.0
+```
+
+#### .NET 10.0
+
+```Dockerfile{:copy}
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 RUN apt-get update && apt-get install -y libzen0v5 libmms0 openssl zlib1g zlibc libnghttp2-14 librtmp1 curl libcurl4-gnutls-dev libglib2.0
 ```

@@ -24,6 +24,14 @@ namespace MediaInfo.Model
     public string Language { get; set; } = default!;
 
     /// <summary>
+    /// Gets the media stream language tag in IETF BCP 47 format.
+    /// </summary>
+    /// <value>
+    /// The media stream language tag.
+    /// </value>
+    public string LanguageIetf { get; set; } = default!;
+
+    /// <summary>
     /// Gets the media stream LCID.
     /// </summary>
     /// <value>

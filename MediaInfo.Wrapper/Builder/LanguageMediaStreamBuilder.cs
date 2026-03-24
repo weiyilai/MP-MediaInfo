@@ -11,9 +11,14 @@ using MediaInfo.Model;
 namespace MediaInfo.Builder
 {
   /// <summary>
-  /// Describes base methods to build media stream with language
+  /// Provides a base class for building language-specific media streams with additional language metadata.
   /// </summary>
-  /// <typeparam name="TStream">The type of the stream.</typeparam>
+  /// <remarks>
+  /// This class extends <see cref="MediaStreamBuilder{TStream}"/> to support streams that include language information, such
+  /// as audio or subtitle tracks. It populates language-related properties on the resulting stream instance during the
+  /// build process.
+  /// </remarks>
+  /// <typeparam name="TStream">The type of media stream to build. Must inherit from <see cref="LanguageMediaStream"/> and have a parameterless constructor.</typeparam>
   internal abstract class LanguageMediaStreamBuilder<TStream> : MediaStreamBuilder<TStream> where TStream : LanguageMediaStream, new()
   {
     /// <summary>
@@ -33,6 +38,7 @@ namespace MediaInfo.Builder
       var result = base.Build();
       var language = Get("Language").ToLower();
       result.Language = LanguageHelper.GetLanguageByShortName(language);
+      result.LanguageIetf = Get("LanguageIETF");
       result.Default = Get<bool>("Default", TagBuilderHelper.TryGetBool);
       result.Forced = Get<bool>("Forced", TagBuilderHelper.TryGetBool);
       result.Lcid = LanguageHelper.GetLcidByShortName(language);

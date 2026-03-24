@@ -9,7 +9,7 @@
 namespace MediaInfo.Model
 {
   /// <summary>
-  /// Describes video chroma sub sampling
+  /// Defines the chroma subsampling layout reported for a video stream.
   /// </summary>
   public enum ChromaSubSampling
   {

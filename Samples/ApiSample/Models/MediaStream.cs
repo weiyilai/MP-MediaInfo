@@ -15,37 +15,42 @@ namespace ApiSample.Models;
 /// Defines constants for media stream kinds.
 /// </summary>
 [DataContract]
-[JsonConverter(typeof(JsonStringEnumMemberConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter<MediaStreamKind>))]
 public enum MediaStreamKind
 {
     /// <summary>
     /// The video stream
     /// </summary>
     [EnumMember(Value = "video")]
+    [JsonStringEnumMemberName("video")]
     Video,
 
     /// <summary>
     /// The audio stream
     /// </summary>
     [EnumMember(Value = "audio")]
+    [JsonStringEnumMemberName("audio")]
     Audio,
 
     /// <summary>
     /// The subtitle stream
     /// </summary>
     [EnumMember(Value = "text")]
+    [JsonStringEnumMemberName("text")]
     Text,
 
     /// <summary>
     /// The image stream
     /// </summary>
     [EnumMember(Value = "image")]
+    [JsonStringEnumMemberName("image")]
     Image,
 
     /// <summary>
     /// Menu
     /// </summary>
     [EnumMember(Value = "menu")]
+    [JsonStringEnumMemberName("menu")]
     Menu
 }
 
@@ -68,7 +73,7 @@ public abstract class MediaStream
     /// </summary>
     [DataMember(Name = "name")]
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     /// A kind of media stream.

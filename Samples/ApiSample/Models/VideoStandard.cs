@@ -15,18 +15,20 @@ namespace ApiSample.Models;
 /// Describes video standards
 /// </summary>
 [DataContract]
-[JsonConverter(typeof(JsonStringEnumMemberConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter<VideoStandard>))]
 public enum VideoStandard
 {
     /// <summary>
     /// NTSC standard
     /// </summary>
     [EnumMember(Value = "ntsc")]
+    [JsonStringEnumMemberName("ntsc")]
     NTSC,
 
     /// <summary>
     /// PAL standard
     /// </summary>
     [EnumMember(Value = "pal")]
+    [JsonStringEnumMemberName("pal")]
     PAL
 }

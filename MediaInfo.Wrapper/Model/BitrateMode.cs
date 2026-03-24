@@ -9,22 +9,22 @@
 namespace MediaInfo.Model
 {
   /// <summary>
-  /// Describes bitrate possible modes
+  /// Defines the bitrate control mode used by an encoded stream.
   /// </summary>
   public enum BitrateMode : byte
   {
     /// <summary>
-    /// Constant quality mode
+    /// Constant quality encoding mode.
     /// </summary>
     Cq,
 
     /// <summary>
-    /// Constant bitrate mode
+    /// Constant bitrate encoding mode.
     /// </summary>
     Cbr,
 
     /// <summary>
-    /// Variable bitrate mode
+    /// Variable bitrate encoding mode.
     /// </summary>
     Vbr
   }

@@ -11,15 +11,15 @@ using MediaInfo.Model;
 namespace MediaInfo.Builder
 {
   /// <summary>
-  /// Describes media builder interface
+  /// Defines an interface for building and returning a parsed media stream of a specified type.
   /// </summary>
-  /// <typeparam name="TStream">The type of the stream.</typeparam>
+  /// <typeparam name="TStream">The type of media stream to be built. Must inherit from MediaStream.</typeparam>
   internal interface IMediaBuilder<out TStream> where TStream : MediaStream
   {
     /// <summary>
-    /// Builds media stream.
+    /// Builds and returns a configured stream instance of type <typeparamref name="TStream"/>.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A stream instance of type <typeparamref name="TStream"/> that has been configured according to the builder's settings.</returns>
     TStream Build();
   }
 }

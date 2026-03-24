@@ -17,6 +17,7 @@
     <RepositoryUrl>$(PackageRepository)</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageIcon>$(PackageIconValue)</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <Description>$(PackageDescription)</Description>
     <PackageReleaseNotes>$(PackageNotes)</PackageReleaseNotes>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -24,7 +25,6 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -52,9 +52,10 @@
 
   <ItemGroup>
     <None Include="images/$(PackageIconValue)" Pack="true" PackagePath="" />
+    <Compile Remove="ILogger.cs" />
+    <Compile Remove="Extensions\LogExtensions.cs" />
     <None Include="..\LICENSE" Pack="true" PackagePath="" />
-	  <Compile Remove="ILogger.cs" />
-	  <Compile Remove="Extensions\LogExtensions.cs" />
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>

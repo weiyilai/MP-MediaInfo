@@ -12,15 +12,14 @@ using MediaInfo.Model;
 namespace MediaInfo.Builder
 {
   /// <summary>
-  /// Describes method to build menu stream.
+  /// Builds a menu stream representation from the provided media information, including associated chapters and their
+  /// positions.
   /// </summary>
-  internal class MenuStreamBuilder : MediaStreamBuilder<MenuStream>
+  /// <param name="info">The media information source used to extract menu stream data.</param>
+  /// <param name="number">The stream number identifying the specific menu stream within the media information.</param>
+  /// <param name="position">The position index of the stream within the media information.</param>
+  internal class MenuStreamBuilder(MediaInfo info, int number, int position) : MediaStreamBuilder<MenuStream>(info, number, position)
   {
-    public MenuStreamBuilder(MediaInfo info, int number, int position)
-      : base(info, number, position)
-    {
-    }
-
     /// <inheritdoc />
     public override MediaStreamKind Kind => MediaStreamKind.Menu;
 

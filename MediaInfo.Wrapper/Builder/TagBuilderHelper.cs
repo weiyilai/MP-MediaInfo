@@ -32,7 +32,8 @@ namespace MediaInfo.Builder
       "dd.MM.yyyy HH:mm:ss.fffff", "MM/dd/yyyy", "M/dd/yyyy", "MM/d/yyyy", "M/d/yyyy",
       "UTC MM/dd/yyyy HH:mm:ss", "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy HH:mm:ss.f",
       "dd.MM.yyyy HH:mm:ss.ff", "dd.MM.yyyy HH:mm:ss.fff", "dd.MM.yyyy HH:mm:ss.ffff",
-      "dd.MM.yyyy HH:mm:ss.fffff", "MM/dd/yyyy HH:mm:ss"
+      "dd.MM.yyyy HH:mm:ss.fffff", "MM/dd/yyyy HH:mm:ss", "yyyy-MM-dd HH:mm:ss UTC",
+      "yyyy-MM-dd HH:mm:ssZ"
     };
 
     private static readonly Dictionary<string, bool> BooleanValues = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase)

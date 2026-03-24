@@ -14,15 +14,31 @@ using MediaInfo.Model;
 namespace MediaInfo.Builder
 {
   /// <summary>
-  /// Converts the string representation of a value to specified type
+  /// Converts the string representation of a value to specified type. The method returns a boolean value that
+  /// indicates whether the conversion succeeded or failed. The converted value is returned through an output parameter.
   /// </summary>
-  /// <typeparam name="T">The type of the tag</typeparam>
-  /// <param name="source">The source value.</param>
-  /// <param name="result">The result.</param>
-  /// <returns><b>true</b> if s was converted successfully; otherwise, <b>false</b>.</returns>
+  /// <remarks>Implementations of this delegate should attempt to convert the input string to the specified type <typeparamref name="T"/>.
+  /// If the conversion is successful, the method should return <b>true</b> and set the output parameter to the converted value.
+  /// If the conversion fails, the method should return <b>false</b> and set the output parameter to the default value of type <typeparamref name="T"/>.
+  /// </remarks>
+  /// <typeparam name="T">The type of the value to convert.</typeparam>
+  /// <param name="source">The string representation of the value to convert.</param>
+  /// <param name="result">The result of the conversion.</param>
+  /// <returns><b>true</b> if the value was converted successfully; otherwise, <b>false</b>.</returns>
   public delegate bool ParseDelegate<T>(string source, out T result);
 
-  internal class GeneralTagBuilder<T> where T : BaseTags, new()
+  /// <summary>
+  /// Provides functionality to build and populate a tag object of type T with general and audio metadata extracted from
+  /// a media stream.
+  /// </summary>
+  /// <remarks>This class is intended for internal use to aggregate and parse general and audio tag information,
+  /// including cover metadata, from a specified media stream. It supports a wide range of standard and extended tag
+  /// fields. If certain tags are not present in the stream, they will be omitted from the resulting tag object. Cover
+  /// information is parsed and included as a collection, which may be empty if no cover data is found.</remarks>
+  /// <typeparam name="T">The type of tag object to build. Must inherit from BaseTags and have a parameterless constructor.</typeparam>
+  /// <param name="mediaInfo">The MediaInfo instance used to retrieve metadata from the media stream. Cannot be null.</param>
+  /// <param name="streamPosition">The zero-based index of the stream within the media file for which tags are to be extracted.</param>
+  internal class GeneralTagBuilder<T>(MediaInfo mediaInfo, int streamPosition) where T : BaseTags, new()
   {
     #region Tag items
 
@@ -47,6 +63,8 @@ namespace MediaInfo.Builder
       (NativeMethods.General.General_Part_Position_Total, TagBuilderHelper.TryGetInt),
       (NativeMethods.General.General_Album_Performer, TagBuilderHelper.TryGetString),
       (NativeMethods.General.General_Performer, TagBuilderHelper.TryGetString),
+      (NativeMethods.General.General_MusicBy, TagBuilderHelper.TryGetString),
+      (NativeMethods.General.General_RemixedBy, TagBuilderHelper.TryGetString),
       (NativeMethods.General.General_Performer_Sort, TagBuilderHelper.TryGetString),
       (NativeMethods.General.General_Performer_Url, TagBuilderHelper.TryGetString),
       (NativeMethods.General.General_Original_Performer, TagBuilderHelper.TryGetString),
@@ -126,19 +144,28 @@ namespace MediaInfo.Builder
 
     #endregion
 
-    public GeneralTagBuilder(MediaInfo mediaInfo, int streamPosition)
-    {
-      MediaInfo = mediaInfo ?? throw new ArgumentNullException(nameof(mediaInfo));
-      StreamPosition = streamPosition;
-    }
+    /// <summary>
+    /// Gets the media information. The <c>MediaInfo</c> instance is used to retrieve tag values.
+    /// </summary>
+    protected MediaInfo MediaInfo { get; } = mediaInfo ?? throw new ArgumentNullException(nameof(mediaInfo));
 
     /// <summary>
-    /// Gets the media information.
+    /// Stream position to get tags for. For example, if the media file contains 2 audio streams and the <c>streamPosition</c> is set to 1,
+    /// then the tags will be retrieved for the second audio stream.
     /// </summary>
-    protected MediaInfo MediaInfo { get; }
+    protected int StreamPosition { get; } = streamPosition;
 
-    protected int StreamPosition { get; }
-
+    /// <summary>
+    /// Builds and returns a new instance of type T populated with general and audio tag information extracted from the
+    /// media stream.
+    /// </summary>
+    /// <remarks>The returned object includes general tags, audio-specific tags, and cover metadata if
+    /// available. If certain tags are not present in the media stream, they will not be included in the result. Cover
+    /// information is parsed and included as a collection, which may be empty if no cover data is found.
+    /// </remarks>
+    /// <returns>A new instance of type T containing the parsed general tags, audio tags, and cover information from the media
+    /// stream.
+    /// </returns>
     public virtual T Build()
     {
       var result = new T();
@@ -292,6 +319,16 @@ namespace MediaInfo.Builder
 
   internal static class ArrayExtensions
   {
+    /// <summary>
+    /// Attempts to retrieve the element at the specified index in the array, or returns a default value if the index is
+    /// out of range or the array is null.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the array.</typeparam>
+    /// <param name="array">The array from which to retrieve the element. Can be null.</param>
+    /// <param name="index">The zero-based index of the element to retrieve. Must be non-negative.</param>
+    /// <param name="defaultValue">The value to return if the array is null or the index is outside the bounds of the array.</param>
+    /// <returns>The element at the specified index if it exists; otherwise, the specified default value.</returns>
+    /// <exception cref="ArgumentException">Thrown if index is a negative value.</exception>
     public static T TryGet<T>(this T[] array, int index, T defaultValue)
     {
       if (index < 0)

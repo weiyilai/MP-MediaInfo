@@ -12,13 +12,22 @@ using MediaInfo.Model;
 
 namespace MediaInfo.Builder
 {
-  internal class VideoTagBuilder: GeneralTagBuilder<VideoTags>
+  /// <summary>
+  /// Builds video tag metadata by extracting and parsing video stream information from the provided media source.
+  /// </summary>
+  /// <remarks>This class is intended for internal use when constructing video tag data. It processes all
+  /// available video tag fields defined in the native video enumeration and adds them to the resulting tag
+  /// collection.
+  /// </remarks>
+  /// <param name="mediaInfo">The media information source from which video stream data is retrieved. Cannot be null.</param>
+  /// <param name="streamPosition">The zero-based index of the video stream to process within the media source. Must be non-negative.</param>
+  internal class VideoTagBuilder(MediaInfo mediaInfo, int streamPosition) : GeneralTagBuilder<VideoTags>(mediaInfo, streamPosition)
   {
-#region Tag items
+    #region Tag items
 
     private static readonly List<Tuple<NativeMethods.Video, ParseDelegate<object>>> GeneralTagItems;
 
-#endregion
+    #endregion
 
     static VideoTagBuilder()
     {
@@ -30,16 +39,7 @@ namespace MediaInfo.Builder
       }
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="VideoTagBuilder"/> class.
-    /// </summary>
-    /// <param name="mediaInfo">The media information.</param>
-    /// <param name="streamPosition">The stream position.</param>
-    public VideoTagBuilder(MediaInfo mediaInfo, int streamPosition)
-      : base(mediaInfo, streamPosition)
-    {
-    }
-
+    /// <inheritdoc />
     public override VideoTags Build()
     {
       var result = base.Build();

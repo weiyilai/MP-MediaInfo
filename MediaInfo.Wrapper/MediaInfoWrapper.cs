@@ -8,7 +8,7 @@
 
 using MediaInfo.Builder;
 using MediaInfo.Model;
-#if NETSTANDARD2_0_OR_GREATER || NET5_0_OR_GREATER
+#if !NETFRAMEWORK
 using Microsoft.Extensions.Logging;
 #endif
 using System;
@@ -123,7 +123,7 @@ namespace MediaInfo
     /// <param name="inputStream">The source media stream.</param>
     /// <param name="logger">The logger instance. Optional.</param>
     public MediaInfoWrapper(Stream inputStream, ILogger? logger = null)
-#if NET40 || NET45
+#if NETFRAMEWORK
       : this(inputStream, Environment.Is64BitProcess ? ".\\x64" : ".\\x86", logger)
     {
     }
@@ -140,14 +140,14 @@ namespace MediaInfo
     {
       try
       {
-#if NET40 || NET45
+#if NETFRAMEWORK
         var realPathToDll = GetPathToMediaInfo(pathToDll, logger);
         if (string.IsNullOrEmpty(realPathToDll))
         {
-          logger.LogError("MediaInfo.dll was not found");
+          LogError(logger, "MediaInfo.dll was not found");
           return;
         }
-        ParseMedia(inputStream, realPathToDll);
+        ParseMedia(inputStream, realPathToDll!);
 #else
         ParseMedia(inputStream);
 #endif
@@ -171,7 +171,7 @@ namespace MediaInfo
     /// <param name="filePath">The path to the media file.</param>
     /// <param name="logger">The logger instance. Optional.</param>
     public MediaInfoWrapper(string filePath, ILogger? logger = null)
-#if NET40 || NET45
+#if NETFRAMEWORK
       : this (filePath, Environment.Is64BitProcess ? @".\x64" : @".\x86", logger)
     {
     }
@@ -194,7 +194,7 @@ namespace MediaInfo
         return;
       }
 
-#if NET40 || NET45
+#if NETFRAMEWORK
       var realPathToDll = GetPathToMediaInfo(pathToDll, logger);
       if (string.IsNullOrEmpty(realPathToDll))
       {
@@ -238,36 +238,36 @@ namespace MediaInfo
         // Analyze local file for DVD and BD
         if (!isAvStream)
         {
-          if (filePath.EndsWith(".ifo", StringComparison.OrdinalIgnoreCase))
+          if (filePath.IsDvD(out var resultIfoPath))
           {
             LogDebug(_logger, "Detects DVD. Processing DVD information");
-#if NET40 || NET45
-            filePath = ProcessDvd(filePath, realPathToDll);
+#if NETFRAMEWORK
+            filePath = ProcessDvd(resultIfoPath, realPathToDll!);
 #else
-            filePath = ProcessDvd(filePath);
+            filePath = ProcessDvd(resultIfoPath);
 #endif
           }
-          else if (filePath.EndsWith(".bdmv", StringComparison.OrdinalIgnoreCase))
+          else if (filePath.IsBluRay(out var resultBdmvPath))
           {
             LogDebug(_logger, "Detects BD.");
             IsBluRay = true;
-            filePath = Path.GetDirectoryName(filePath!)!;
-            Size = GetDirectorySize(filePath!);
+            filePath = Path.GetDirectoryName(resultBdmvPath)!;
+            Size = GetDirectorySize(filePath);
           }
           else
           {
             Size = new FileInfo(filePath).Length;
           }
 
-          HasExternalSubtitles = !string.IsNullOrEmpty(filePath) && CheckHasExternalSubtitles(filePath);
+          HasExternalSubtitles = !string.IsNullOrEmpty(filePath) && CheckHasExternalSubtitles(filePath, _logger);
           if (HasExternalSubtitles)
           {
             LogDebug(_logger, "Found external subtitles");
           }
         }
 
-#if NET40 || NET45
-        ParseMedia(filePath, realPathToDll);
+#if NETFRAMEWORK
+        ParseMedia(filePath, realPathToDll!);
 #else
         ParseMedia(filePath!);
 #endif
@@ -374,12 +374,18 @@ namespace MediaInfo
       int byteRead;
       bool shouldContinue;
       var buffer = new byte[BufferSize];
+#if !NETFRAMEWORK
       var bufferSpan = buffer.AsSpan();
+#endif
       fixed (byte* pBuffer = buffer)
       {
         do
         {
+#if !NETFRAMEWORK
           byteRead = stream.Read(bufferSpan);
+#else
+          byteRead = stream.Read(buffer, 0, BufferSize);
+#endif
           shouldContinue = byteRead > 0 && (mediaInfo.OpenBufferContinue(pBuffer, byteRead) & 8) != 8;
         }
         while (shouldContinue);
@@ -401,7 +407,9 @@ namespace MediaInfo
       }
 
       var buffer = new byte[BufferSize];
+#if !NETFRAMEWORK
       var bufferSpan = buffer.AsSpan();
+#endif
       mediaInfo.OpenBufferInit(stream.Length, 0L);
       int byteRead;
       fixed (byte* pBuffer = buffer)
@@ -409,7 +417,11 @@ namespace MediaInfo
         bool mediaProcessed;
         do
         {
+#if !NETFRAMEWORK
           byteRead = stream.Read(bufferSpan);
+#else
+          byteRead = stream.Read(buffer, 0, BufferSize);
+#endif
           mediaProcessed = (mediaInfo.OpenBufferContinue(pBuffer, byteRead) & 8) != 8;
 
           if (mediaProcessed)
@@ -426,8 +438,8 @@ namespace MediaInfo
       }
     }
 
-#if NET40 || NET45
-    private static string GetPathToMediaInfo(string path, ILogger logger) =>
+#if NETFRAMEWORK
+    private static string? GetPathToMediaInfo(string path, ILogger? logger) =>
       default(string)
         .IfExistsPath("./", logger)
         .IfExistsPath(path, logger)
@@ -453,7 +465,7 @@ namespace MediaInfo
       return result;
     }
 
-#if NET40 || NET45
+#if NETFRAMEWORK
     private string ProcessDvd(string filePath, string pathToDll)
 #else
     private string ProcessDvd(string filePath)
@@ -467,7 +479,7 @@ namespace MediaInfo
       LogDebug(_logger, "DVD directory size {size}", Size);
       var programBlocks = bups
         .Select(x => 
-#if NET40 || NET45
+#if NETFRAMEWORK
         ProcessBupFile(x, pathToDll)
 #else
         ProcessBupFile(x)
@@ -487,14 +499,14 @@ namespace MediaInfo
       return filePath;
     }
 
-#if NET40 || NET45
+#if NETFRAMEWORK
 
     private (string? FileName, int Duration) ProcessBupFile(string file, string pathToDll)
 #else
     private (string? FileName, int Duration) ProcessBupFile(string file)
 #endif
     {
-#if NET40 || NET45
+#if NETFRAMEWORK
       using var mi = new MediaInfo(pathToDll);
 #else
       using var mi = new MediaInfo();
@@ -522,13 +534,13 @@ namespace MediaInfo
       return (null, 0);
     }
 
-#if NET40 || NET45
+#if NETFRAMEWORK
     private void ParseMedia(Stream stream, string pathToDll)
 #else
     private void ParseMedia(Stream stream)
 #endif
     {
-#if NET40 || NET45
+#if NETFRAMEWORK
       using var mediaInfo = new MediaInfo(pathToDll);
 #else
       using var mediaInfo = new MediaInfo();
@@ -554,13 +566,13 @@ namespace MediaInfo
       ParseMedia(mediaInfo);
     }
 
-#if NET40 || NET45
+#if NETFRAMEWORK
     private void ParseMedia(string filePath, string pathToDll)
 #else
     private void ParseMedia(string filePath)
 #endif
     {
-#if NET40 || NET45
+#if NETFRAMEWORK
       using var mediaInfo = new MediaInfo(pathToDll);
 #else
       using var mediaInfo = new MediaInfo();
@@ -605,6 +617,10 @@ namespace MediaInfo
       Profile = mediaInfo.Get(StreamKind.General, 0, "Format_Profile");
       FormatVersion = mediaInfo.Get(StreamKind.General, 0, "Format_Version");
       Codec = mediaInfo.Get(StreamKind.General, 0, "CodecID");
+      int audioChannelsTotal;
+      AudioChannelsTotal = mediaInfo.Get(StreamKind.General, 0, "Audio_Channels_Total").TryGetInt(out audioChannelsTotal)
+        ? audioChannelsTotal
+        : 0;
       LogDebug(_logger, "Format=({format}, version={version}), Profile={profile}, Codec={Codec}", Format, FormatVersion, Profile, Codec);
       LogDebug(_logger, "Retrieving audio tags from stream position 0");
       Tags = new AudioTagBuilder(mediaInfo, 0).Build();
@@ -778,6 +794,7 @@ namespace MediaInfo
       ScanType = string.Empty;
       AspectRatio = string.Empty;
       AudioCodec = string.Empty;
+      AudioChannelsTotal = 0;
       AudioChannelsFriendly = string.Empty;
 
       OnSetupProperties(null);
@@ -812,17 +829,18 @@ namespace MediaInfo
                    ? mediaInfo.Get(StreamKind.Video, BestVideoStream.StreamPosition, "ScanType").ToLowerInvariant()
                    : string.Empty;
       AspectRatio = BestVideoStream is not null
-                      ? mediaInfo.Get(StreamKind.Video, BestVideoStream.StreamPosition, "DisplayAspectRatio")
-                      : string.Empty;
-      AspectRatio = BestVideoStream is not null ?
-          GetAspectRatioText(AspectRatio) :
-          string.Empty;
+          ? GetAspectRatioText(mediaInfo.Get(StreamKind.Video, BestVideoStream.StreamPosition, "DisplayAspectRatio"))
+          : string.Empty;
 
       BestAudioStream = AudioStreams.OrderByDescending(x => (x.Channel * 10000000) + x.Bitrate).FirstOrDefault();
       AudioCodec = BestAudioStream?.CodecName ?? string.Empty;
       AudioRate = (int?)BestAudioStream?.Bitrate ?? 0;
       AudioSampleRate = (int?)BestAudioStream?.SamplingRate ?? 0;
       AudioChannels = BestAudioStream?.Channel ?? 0;
+      if (AudioChannelsTotal == 0)
+      {
+        AudioChannelsTotal = AudioStreams.Sum(x => x.Channel);
+      }
       AudioChannelsFriendly = BestAudioStream?.AudioChannelsFriendly ?? string.Empty;
 
       OnSetupProperties(mediaInfo);
@@ -831,6 +849,13 @@ namespace MediaInfo
         ratio switch
         {
           "4:3" or "1.333" => "fullscreen",
+          "3:2" or "1.5" => "classic widescreen",
+          "1:1" or "1.0" or "1" or "2.0" => "square",
+          "5:4" or "1.25" => "classic",
+          "4:5" or "0.8" or "9:16" => "vertical",
+          "1.90:1" or "1.9" or "1.90" or "1.89" => "cinema",
+          "2.39:1" or "2.39" or "2.40:1" or "2.40" or "2.35:1" or "2.35" => "scope",
+          "2.76:1" or "2.76" or "2.40:1" or "2.40" => "ultra widescreen",
           _ => "widescreen"
         };
     }
@@ -848,6 +873,9 @@ namespace MediaInfo
     private static void LogWarning(ILogger? logger, string message, params object[] args) =>
       logger?.LogWarning(message, args);
 
+    private static void LogWarning(ILogger? logger, Exception? exception, string message, params object[] args) =>
+      logger?.LogWarning(exception, message, args);
+
     private static void LogError(ILogger? logger, string message, params object[] args) =>
       logger?.LogError(message, args);
 
@@ -860,7 +888,7 @@ namespace MediaInfo
     private static void LogCritical(ILogger? logger, Exception? exception, string message, params object[] args) =>
       logger?.LogCritical(exception, message, args);
 
-    private static bool CheckHasExternalSubtitles(string strFile)
+    private static bool CheckHasExternalSubtitles(string strFile, ILogger? logger)
     {
       if (string.IsNullOrEmpty(strFile))
       {
@@ -873,8 +901,9 @@ namespace MediaInfo
         return Directory.GetFiles(Path.GetDirectoryName(strFile) ?? string.Empty, filenameNoExt + "*")
           .Any(x => SubTitleExtensions.ContainsKey(Path.GetExtension(x)));
       }
-      catch
+      catch (Exception ex)
       {
+        LogWarning(logger, ex, "Error while checking for external subtitles. Path: {path}", strFile);
         return false;
       }
     }
@@ -1061,6 +1090,14 @@ namespace MediaInfo
     /// The count of audio channels is determined based on the <see cref="BestAudioStream">best audio stream</see>. If media has no audio streams or media was not loaded successfully, the value is 0.
     /// </remarks>
     public int AudioChannels { get; private set; }
+
+    /// <summary>
+    /// Gets the total count of audio channels across all audio streams.
+    /// </summary>
+    /// <remarks>
+    /// The total audio channel count is taken from the general MediaInfo field when available, otherwise it is computed from detected audio streams.
+    /// </remarks>
+    public int AudioChannelsTotal { get; private set; }
 
     /// <summary>
     /// Gets the audio channels friendly name. The value is an empty string if media has no audio streams or media was not loaded successfully.
@@ -1278,7 +1315,7 @@ namespace MediaInfo
     public string Text { get; private set; } = default!;
   }
 
-#if NET40 || NET45
+#if NETFRAMEWORK
   internal static class PathExtensions
   {
     /// <summary>
@@ -1294,7 +1331,7 @@ namespace MediaInfo
     /// <remarks>
     /// This method is used to check the paths for mediaInfo.dll file. It first checks the source path and returns it if it is not null or empty. If the source path is null or empty, it checks the another path for mediaInfo.dll file and returns it if the file exists; otherwise, it returns null.
     /// </remarks>
-    public static string IfExistsPath(this string sourcePath, string anotherPath, ILogger logger)
+    public static string? IfExistsPath(this string? sourcePath, string? anotherPath, ILogger? logger)
     {
       if (!string.IsNullOrEmpty(sourcePath))
       {
@@ -1306,14 +1343,14 @@ namespace MediaInfo
         return null;
       }
 
-      logger.LogDebug("Check MediaInfo.dll from {0}.", anotherPath);
-      if (!anotherPath.MediaInfoExist())
+      logger?.LogDebug("Check MediaInfo.dll from {0}.", anotherPath!);
+      if (!anotherPath!.MediaInfoExist())
       {
-        logger.LogWarning($"Library MediaInfo.dll was not found at {anotherPath}");
+        logger?.LogWarning("Library MediaInfo.dll was not found at {path}", anotherPath!);
         return null;
       }
 
-      logger.LogInformation($"Library MediaInfo.dll was found at {anotherPath}");
+      logger?.LogInformation("Library MediaInfo.dll was found at {path}", anotherPath!);
       return anotherPath;
     }
 

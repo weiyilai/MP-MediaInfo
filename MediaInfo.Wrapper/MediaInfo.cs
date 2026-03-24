@@ -163,13 +163,28 @@ namespace MediaInfo
   /// <seealso cref="IDisposable" />
   public class MediaInfo : IDisposable
   {
-#if (NET40 || NET45)
+#if NETFRAMEWORK
     private const string MediaInfoFileName = "MediaInfo.dll";
     private const string LibCurlFileName = "libcurl.dll";
     private const string LibCryptoFileName = "libcrypto-3.dll";
     private const string LibSslFileName = "libssl-3.dll";
+    private const string LibCryptoFileName64Bit = "libcrypto-3-x64.dll";
+    private const string LibSslFileName64Bit = "libssl-3-x64.dll";
+    private const string LibSshFileName = "libssh2.dll";
+    private const string BrotliCommonFileName = "brotlicommon.dll";
+    private const string BrotliDecFileName = "brotlidec.dll";
+    private const string BrotliEncFileName = "brotlienc.dll";
     private IntPtr _module;
+#else
+    private const string LibCurlFileName = "libcurl";
+    private const string BrotliCommonFileName = "brotlicommon";
+    private const string BrotliDecFileName = "brotlidec";
+    private const string BrotliEncFileName = "brotlienc";
+    private const string LibSshFileName = "libssh2";
+    private const string LibCryptoFileName = "libcrypto";
+    private const string LibSslFileName = "libssl";
 #endif
+
     private readonly bool _mustUseAnsi;
 
     /// <summary>
@@ -187,8 +202,12 @@ namespace MediaInfo
     /// <param name="pathToDll">The path to the directory containing the MediaInfo library.</param>
     public MediaInfo(string pathToDll)
     {
-      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, LibCryptoFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
-      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, LibSslFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
+      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, BrotliCommonFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
+      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, BrotliDecFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
+      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, BrotliEncFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
+      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, Environment.Is64BitProcess ? LibCryptoFileName64Bit : LibCryptoFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
+      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, Environment.Is64BitProcess ? LibSslFileName64Bit : LibSslFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
+      NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, LibSshFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
       NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, LibCurlFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
       _module = NativeMethods.LoadLibraryEx(Path.Combine(pathToDll, MediaInfoFileName), IntPtr.Zero, NativeMethods.LoadLibraryFlags.None);
       try
@@ -205,6 +224,18 @@ namespace MediaInfo
 #else
     public MediaInfo()
     {
+#if NETSTANDARD2_1_OR_GREATER
+      // Ensure that libcurl is loaded before MediaInfo library, otherwise MediaInfo library will fail to load due to missing libcurl symbols. 
+      // This is a workaround for the issue in .NET Core 3.1 and .NET 5.0, which do not support native library dependencies in the same way as .NET 6.0 and later.
+      CurlNativeMethods.curl_version();
+#endif
+#if NET6_0_OR_GREATER
+      // .NET 6.0 and later support native library dependencies, so we don't need to load libcurl manually. However, we still need to ensure that libcurl is
+      // loaded before MediaInfo library, otherwise MediaInfo library will fail to load due to missing libcurl symbols. This is a workaround for the issue
+      // in .NET 6.0 and later, which do not support native library dependencies in the same way as .NET Core 3.1 and .NET 5.0.
+      var currentAssembly = typeof(MediaInfo).Assembly;
+      NativeLibrary.TryLoad(LibCurlFileName, currentAssembly, null, out var library);
+#endif
       try
       {
         Handle = NativeMethods.MediaInfo_New();
@@ -218,10 +249,10 @@ namespace MediaInfo
     }
 #endif
 
-    /// <summary>
-    /// Finalizes an instance of the <see cref="MediaInfo"/> class.
-    /// </summary>
-    ~MediaInfo()
+            /// <summary>
+            /// Finalizes an instance of the <see cref="MediaInfo"/> class.
+            /// </summary>
+            ~MediaInfo()
     {
       Dispose(false);
     }
