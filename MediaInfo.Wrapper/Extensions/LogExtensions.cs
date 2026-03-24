@@ -63,7 +63,7 @@ namespace MediaInfo
         warningMessage = msg.ToString();
       }
 
-      logger.Log(LogLevel.Warning, warningMessage, parameters);
+      logger.Log(LogLevel.Warning, warningMessage);
     }
 
     /// <summary>Logs a error message.</summary>
