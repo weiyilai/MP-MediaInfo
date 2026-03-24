@@ -1,7 +1,7 @@
 #region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
 // Copyright (C) 2017-2026 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL.
 // https://mediaarea.net
 
 #endregion
@@ -49,8 +49,8 @@ namespace MediaInfo
   /// allowing users to easily access various properties of media files such as video and audio streams, subtitles,
   /// chapters, and more. It also provides logging capabilities to track the processing of media files and handle any
   /// potential errors that may arise during the extraction of media information. The class is designed to be flexible
-  /// and can be initialized with either a file path or a stream, making it suitable for a wide range of applications 
-  /// that require media information extraction. 
+  /// and can be initialized with either a file path or a stream, making it suitable for a wide range of applications
+  /// that require media information extraction.
   /// </remarks>
   public class MediaInfoWrapper
   {
@@ -478,7 +478,7 @@ namespace MediaInfo
       var bups = Directory.GetFiles(path, "*.BUP", SearchOption.TopDirectoryOnly);
       LogDebug(_logger, "DVD directory size {size}", Size);
       var programBlocks = bups
-        .Select(x => 
+        .Select(x =>
 #if NETFRAMEWORK
         ProcessBupFile(x, pathToDll)
 #else
@@ -855,7 +855,7 @@ namespace MediaInfo
           "4:5" or "0.8" or "9:16" => "vertical",
           "1.90:1" or "1.9" or "1.90" or "1.89" => "cinema",
           "2.39:1" or "2.39" or "2.40:1" or "2.40" or "2.35:1" or "2.35" => "scope",
-          "2.76:1" or "2.76" or "2.40:1" or "2.40" => "ultra widescreen",
+          "2.76:1" or "2.76" => "ultra widescreen",
           _ => "widescreen"
         };
     }
