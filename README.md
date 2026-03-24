@@ -2,7 +2,10 @@
 
 MP-MediaInfo is .NET wrapper for [MediaArea MediaInfo](https://github.com/MediaArea/MediaInfo) and use native packages [![NuGet Badge](https://img.shields.io/nuget/v/MediaInfo.Native.svg)](https://www.nuget.org/packages/MediaInfo.Native) and [![NuGet Badge](https://img.shields.io/nuget/v/MediaInfo.Core.Native.svg)](https://www.nuget.org/packages/MediaInfo.Core.Native).
 
-[![Build status](https://ci.appveyor.com/api/projects/status/67ubhtmijuhyhq6q?svg=true)](https://ci.appveyor.com/project/yartat/mp-mediainfo)
+[![License](https://img.shields.io/badge/License-BSD_2--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
+![Build Core](https://github.com/yartat/MP-MediaInfo/actions/workflows/mp-mediainfo-core.yml/badge.svg)
+![Build](https://github.com/yartat/MP-MediaInfo/actions/workflows/mp-mediainfo.yml/badge.svg)
+
 
 ## Features
 
@@ -37,13 +40,13 @@ Choose based on your target framework:
 ### .NET Core
 
 ```Shell{:copy}
-dotnet add package MediaInfo.Wrapper.Core --version 26.2.0
+dotnet add package MediaInfo.Wrapper.Core --version 26.1.0
 ```
 
 ### .NET Framework
 
 ```PowerShell{:copy}
-Install-Package MediaInfo.Wrapper -Version 26.2.0
+Install-Package MediaInfo.Wrapper -Version 26.1.0
 ```
 
 ## Usage

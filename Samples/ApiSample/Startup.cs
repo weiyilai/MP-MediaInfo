@@ -1,7 +1,8 @@
+using System.Text.Json.Nodes;
 #region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
 // Copyright (C) 2017-2026 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL.
 // https://mediaarea.net
 
 #endregion
@@ -48,8 +49,8 @@ public static class Startup
             .AddFilters()
             .AddSwaggerGen(options =>
             {
-                options.MapType<TimeSpan>(() => new OpenApiSchema { Type = JsonSchemaType.String, Format = "duration", Default = "00:01:00", Example = "00:01:00" });
-                options.MapType<TimeSpan?>(() => new OpenApiSchema { Type = JsonSchemaType.String, Format = "duration", Default = "00:01:00", Example = "00:01:00" });
+                options.MapType<TimeSpan>(() => new OpenApiSchema { Type = JsonSchemaType.String, Format = "duration", Default = JsonValue.Create("00:01:00"), Example = JsonValue.Create("00:01:00") });
+                options.MapType<TimeSpan?>(() => new OpenApiSchema { Type = JsonSchemaType.String, Format = "duration", Default = JsonValue.Create("00:01:00"), Example = JsonValue.Create("00:01:00") });
                 options
                     .IncludeApplicationXmlComments("ApiSample.xml")
                     .EnableAnnotations();
