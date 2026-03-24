@@ -224,15 +224,17 @@ namespace MediaInfo
 #else
     public MediaInfo()
     {
+#if NETSTANDARD2_1_OR_GREATER
+      // Ensure that libcurl is loaded before MediaInfo library, otherwise MediaInfo library will fail to load due to missing libcurl symbols. 
+      // This is a workaround for the issue in .NET Core 3.1 and .NET 5.0, which do not support native library dependencies in the same way as .NET 6.0 and later.
+      CurlNativeMethods.curl_version();
+#endif
 #if NET6_0_OR_GREATER
+      // .NET 6.0 and later support native library dependencies, so we don't need to load libcurl manually. However, we still need to ensure that libcurl is
+      // loaded before MediaInfo library, otherwise MediaInfo library will fail to load due to missing libcurl symbols. This is a workaround for the issue
+      // in .NET 6.0 and later, which do not support native library dependencies in the same way as .NET Core 3.1 and .NET 5.0.
       var currentAssembly = typeof(MediaInfo).Assembly;
-      NativeLibrary.TryLoad(BrotliCommonFileName, currentAssembly, null, out var library);
-      NativeLibrary.TryLoad(BrotliDecFileName, currentAssembly, null, out library);
-      NativeLibrary.TryLoad(BrotliEncFileName, currentAssembly, null, out library);
-      NativeLibrary.TryLoad(LibCryptoFileName, currentAssembly, null, out library);
-      NativeLibrary.TryLoad(LibSslFileName, currentAssembly, null, out library);
-      NativeLibrary.TryLoad(LibSshFileName, currentAssembly, null, out library);
-      NativeLibrary.TryLoad(LibCurlFileName, currentAssembly, null, out library);
+      NativeLibrary.TryLoad(LibCurlFileName, currentAssembly, null, out var library);
 #endif
       try
       {
@@ -247,10 +249,10 @@ namespace MediaInfo
     }
 #endif
 
-    /// <summary>
-    /// Finalizes an instance of the <see cref="MediaInfo"/> class.
-    /// </summary>
-    ~MediaInfo()
+            /// <summary>
+            /// Finalizes an instance of the <see cref="MediaInfo"/> class.
+            /// </summary>
+            ~MediaInfo()
     {
       Dispose(false);
     }

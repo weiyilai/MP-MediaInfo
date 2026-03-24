@@ -11,7 +11,17 @@ using System.Runtime.InteropServices;
 
 namespace MediaInfo
 {
-  internal static class NativeMethods
+#if NETSTANDARD2_1_OR_GREATER
+  // .NET Standard 2.1 and later support native library loading via DllImport, but we need to declare the method to ensure the library is loaded and available for use.
+  internal static class CurlNativeMethods
+  {
+    [DllImport("libcurl", CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.LPStr)]
+    internal static extern IntPtr curl_version();
+  }
+#endif
+
+    internal static class NativeMethods
   {
     #region Native enumerations and structures
 
