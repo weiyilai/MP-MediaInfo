@@ -419,13 +419,14 @@ namespace MediaInfo
     /// <summary>
     /// Determines whether the specified path refers to an existing directory.
     /// </summary>
-    /// <remarks>This method throws exceptions if the path is invalid or inaccessible. Use exception
-    /// handling to manage scenarios where the path does not exist or the application lacks sufficient
-    /// permissions.</remarks>
+    /// <remarks>
+    /// This method uses <see cref="Directory.Exists(string)"/> and returns <see langword="false"/> if the path
+    /// is invalid, does not exist, or is inaccessible due to insufficient permissions.
+    /// </remarks>
     /// <param name="path">The file system path to check. This can be either a relative or absolute path.</param>
-    /// <returns>true if the specified path refers to an existing directory; otherwise, false.</returns>
+    /// <returns><see langword="true"/> if the specified path refers to an existing directory; otherwise, <see langword="false"/>.</returns>
     public static bool IsDirectory(this string path) =>
-      File.GetAttributes(path).HasFlag(FileAttributes.Directory);
+      Directory.Exists(path);
 
     private static bool IsPlayList(this string? extensionFile) =>
       !string.IsNullOrEmpty(extensionFile) && PlaylistExtensions.ContainsKey(extensionFile!);
