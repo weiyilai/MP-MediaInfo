@@ -221,13 +221,13 @@ Handle potential errors gracefully:
 try
 {
     var media = new MediaInfoWrapper(filePath);
-    
+
     if (!media.Success)
     {
         Console.WriteLine("Analysis was not successful");
         return;
     }
-    
+
     // Process media information
 }
 catch (FileNotFoundException)
@@ -320,7 +320,7 @@ Make sure that the following dependencies are installed in the operating system 
 
 | Operation system | Version |
 |-----------|---------|
-| [Alpine](#apline) | 3.17, 3.18, 3.19 and 3.20 |
+| [Alpine](#alpine) | 3.17, 3.18, 3.19 and 3.20 |
 | [MacOS](#macos) | 10.15 and above |
 | [Ubuntu](#ubuntu) | 16.04, 18.04, 20.04, 21.04, 22.04, 24.04 and 25.10 |
 | [CenOS](#centos) | 8 and above |
@@ -328,9 +328,16 @@ Make sure that the following dependencies are installed in the operating system 
 | [OpenSUSE](#opensuse) | 15.4 and above |
 | [RedHat](#redhat) | 7 and above |
 | [Debian](#debian) | 9 and above |
-| [Kali Linux](#kalilinux) | |
+| [Kali Linux](#kali-linux) | |
 | [Windows](#windows) | 7 and above |
 | [Docker](#docker) | buster |
+
+### Alpine
+
+```sh{:copy}
+apk update
+apk add --no-cache libmms-dev libssh openssl curl-dev ca-certificates
+```
 
 ### MacOS
 
@@ -349,22 +356,13 @@ sudo apt-get install libzen0v5 libmms0 zlib1g zlibc libnghttp2-14 librtmp1 curl 
 
 ### CentOS
 
-#### CentOS 7
-
-```Shell{:copy}
-sudo rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-sudo yum -y update
-sudo yum -y install zlib curl libzen bzip2 libcurl
-sudo rpm -ivh https://download1.rpmfusion.org/free/el/updates/7/x86_64/l/libmms-0.6.4-2.el7.x86_64.rpm
-```
-
 #### CentOS 8
 
 ```Shell{:copy}
 sudo rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 sudo yum -y update
 sudo yum -y install zlib curl libzen bzip2 libcurl
-sudo rpm -ivh https://download1.rpmfusion.org/free/el/updates/8/x86_64/l/libmms-0.6.4-8.el8.x86_64.rpm
+sudo rpm -ivh https://www.rpmfind.net/linux/epel/8/Everything/x86_64/Packages/l/libmms-0.6.4-24.el8.x86_64.rpm
 ```
 
 #### CentOS 9
@@ -372,8 +370,16 @@ sudo rpm -ivh https://download1.rpmfusion.org/free/el/updates/8/x86_64/l/libmms-
 ```Shell{:copy}
 sudo rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 sudo yum -y update
-sudo yum -y install zlib curl libzen bzip2 libcurl
-sudo rpm -ivh https://download1.rpmfusion.org/free/el/updates/8/x86_64/l/libmms-0.6.4-8.el8.x86_64.rpm
+sudo yum -y install zlib curl libzen bzip2 libcurl libmms
+sudo rpm -ivh https://www.rpmfind.net/linux/epel/9/Everything/x86_64/Packages/l/libmms-0.6.4-24.el9.x86_64.rpm
+```
+
+#### CentOS 10
+
+```Shell{:copy}
+sudo rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+sudo yum -y update
+sudo yum -y install zlib curl libzen bzip2 libcurl libmms
 ```
 
 ### Fedora
@@ -395,20 +401,13 @@ sudo zypper install -y zlib curl libmms0 openssl libnghttp2-14
 
 #### RedHat 7
 
-```Shell{:copy}
-sudo rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-sudo yum -y update
-sudo yum -y install zlib curl libzen bzip2 libcurl
-sudo rpm -ivh https://download1.rpmfusion.org/free/el/updates/7/x86_64/l/libmms-0.6.4-2.el7.x86_64.rpm
-```
-
 #### RedHat 8
 
 ```Shell{:copy}
 sudo rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 sudo yum -y update
 sudo yum -y install zlib curl libzen bzip2 libcurl
-sudo rpm -ivh https://download1.rpmfusion.org/free/el/updates/8/x86_64/l/libmms-0.6.4-8.el8.x86_64.rpm
+sudo rpm -ivh https://www.rpmfind.net/linux/epel/8/Everything/x86_64/Packages/l/libmms-0.6.4-24.el8.x86_64.rpm
 ```
 
 #### RedHat 9
@@ -417,7 +416,15 @@ sudo rpm -ivh https://download1.rpmfusion.org/free/el/updates/8/x86_64/l/libmms-
 sudo rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 sudo yum -y update
 sudo yum -y install zlib curl libzen bzip2 libcurl
-sudo rpm -ivh https://download1.rpmfusion.org/free/el/updates/8/x86_64/l/libmms-0.6.4-8.el8.x86_64.rpm
+sudo rpm -ivh https://www.rpmfind.net/linux/epel/9/Everything/x86_64/Packages/l/libmms-0.6.4-24.el9.x86_64.rpm
+```
+
+#### RedHat 10
+
+```Shell{:copy}
+sudo rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+sudo yum -y update
+sudo yum -y install zlib curl libzen bzip2 libcurl libmms
 ```
 
 ### Debian
@@ -425,6 +432,13 @@ sudo rpm -ivh https://download1.rpmfusion.org/free/el/updates/8/x86_64/l/libmms-
 ```Shell{:copy}
 sudo apt-get update
 sudo apt-get install libzen0v5 libmms0 openssl zlib1g zlibc libnghttp2-14 librtmp1 curl libcurl4-gnutls-dev libglib2.0
+```
+
+### Kali Linux
+
+```Shell{:copy}
+sudo apt update
+sudo apt install -y zlib1g-dev curl libssh-4 libmms-dev openssl libzen-dev openssl libnghttp2-14 librtmp1 libcurl4-gnutls-dev
 ```
 
 ### Windows

@@ -256,7 +256,15 @@ namespace MediaInfo
           }
           else
           {
-            Size = new FileInfo(filePath).Length;
+            if (File.Exists(filePath))
+            {
+              Size = new FileInfo(filePath).Length;
+            }
+            else
+            {
+              LogWarning(_logger, "Media file {file} does not exist", filePath);
+              return;
+            }
           }
 
           HasExternalSubtitles = !string.IsNullOrEmpty(filePath) && CheckHasExternalSubtitles(filePath, _logger);
