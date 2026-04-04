@@ -160,7 +160,7 @@ Extract metadata:
 
 ```csharp
 var audioTags = media.AudioStreams.Select(x => x.Tags);  // Audio metadata (album, artist, etc.)
-var videoTags = media.VideoStreams.Select(x => x.Tags);; // Video metadata (title, description, etc.)
+var videoTags = media.VideoStreams.Select(x => x.Tags);  // Video metadata (title, description, etc.)
 var generalInfo = media.Tags;                            // File-level metadata
 
 foreach (var audioTag in audioTags)
