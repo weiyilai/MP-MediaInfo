@@ -305,18 +305,6 @@ var ac3Tracks = media.AudioStreams
 
 **Linux/macOS**: Install system dependencies as described in the [Dependencies](#dependencies) section.
 
-### Incomplete Information
-
-Some media files may require deeper scanning. Check `media.ScanningNeeded`:
-
-```csharp
-if (media.ScanningNeeded)
-{
-    Console.WriteLine("File may benefit from deeper analysis");
-    // Files with streaming headers might have incomplete information
-}
-```
-
 ## Demo application
 
 ASP.NET Core demo application is [available](https://github.com/yartat/MP-MediaInfo/tree/master/Samples/ApiSample) which shows the usage of the package, serialization and running from the docker container. Code from this demo should not be used in production code, the code is merely to demonstrate the usage of this package.
@@ -333,7 +321,7 @@ Make sure that the following dependencies are installed in the operating system 
 | Operation system | Version |
 |-----------|---------|
 | [Alpine](#apline) | 3.17, 3.18, 3.19 and 3.20 |
-| [MacOS](#macos) | 10.15 (Catalina), 11 (Big Sur) |
+| [MacOS](#macos) | 10.15 and above |
 | [Ubuntu](#ubuntu) | 16.04, 18.04, 20.04, 21.04, 22.04, 24.04 and 25.10 |
 | [CenOS](#centos) | 8 and above |
 | [Fedora](#fedora) | 32 and above |
