@@ -86,10 +86,13 @@ else
 Access basic media information:
 
 ```csharp
-var containerFormat = media.Format;              // e.g., "MPEG-4"
+var containerCodec = media.Codec;               // e.g., "MPEG-4"
+var containerFormat = media.Format;             // e.g., "MP4"
 var duration = media.Duration;                  // Duration in milliseconds
-var overallBitRate = media.OverallBitRate;     // Combined bitrate of all streams
-var isScanningNeeded = media.ScanningNeeded;   // Whether file needs deeper analysis
+var isMediaBluRay = media.IsBluRay;             // media is Blu-ray or not
+var isMediaDvd = media.IsDvd;                   // media is DVD or not
+var isMediaStreamable = media.IsStreamable;	    // media is streamable or not
+
 ```
 
 ### Video Stream Analysis
@@ -106,15 +109,15 @@ if (media.HasVideo)
         var height = videoStream.Height;                        // Resolution height
         var codec = videoStream.Codec;                          // e.g., "AVC"
         var frameRate = videoStream.FrameRate;                  // Frames per second
-        var frameRateMode = videoStream.FrameRateMode;         // e.g., CFR, VFR
-        var bitRate = videoStream.BitRate;                     // Video stream bitrate
-        var standard = videoStream.Standard;                   // e.g., "NTSC", "PAL"
-        var aspectRatio = videoStream.AspectRatio;             // e.g., "16:9"
-        var chromaSubSampling = videoStream.ChromaSubSampling; // e.g., "4:2:0"
-        var colorSpace = videoStream.ColorSpace;               // e.g., "YUV"
-        var hdrFormat = videoStream.Hdr;                       // e.g., "HDR10", "Dolby Vision"
-        var profile = videoStream.Profile;                     // Codec profile
-        var level = videoStream.Level;                         // Profile level
+        var frameRateMode = videoStream.FrameRateMode;          // e.g., CFR, VFR
+        var bitRate = videoStream.BitRate;                      // Video stream bitrate
+        var standard = videoStream.Standard;                    // e.g., "NTSC", "PAL"
+        var aspectRatio = videoStream.AspectRatio;              // e.g., "16:9"
+        var chromaSubSampling = videoStream.ChromaSubSampling;  // e.g., "4:2:0"
+        var colorSpace = videoStream.ColorSpace;                // e.g., "YUV"
+        var hdrFormat = videoStream.Hdr;                        // e.g., "HDR10", "Dolby Vision"
+        var isInterlaced = videoStream.IsInterlaced;            // true if video is interlaced
+        var stereoscopic = videoStream.Stereoscopic;            // e.g., "2D", "3D SBS", "3D TAB"
     }
 }
 ```
@@ -126,15 +129,15 @@ Access audio track information:
 ```csharp
 foreach (var audioStream in media.AudioStreams)
 {
-    var language = audioStream.Language;                    // ISO 639-2 language code
-    var codec = audioStream.Codec;                          // e.g., "AAC", "AC-3"
-    var bitRate = audioStream.BitRate;                     // Audio bitrate
-    var channels = audioStream.Channels;                   // Number of audio channels
-    var channelLayout = audioStream.ChannelLayout;         // e.g., "L R C LFE Ls Rs"
-    var samplingRate = audioStream.SamplingRate;           // Sample rate in Hz
-    var bitDepth = audioStream.BitDepth;                   // Bits per sample
-    var bitrateMode = audioStream.BitrateMode;             // CBR, VBR, etc.
-    var title = audioStream.Title;                         // Track title if available
+    var language = audioStream.Language;                      // ISO 639-2 language code
+    var codec = audioStream.Codec;                            // e.g., "AAC", "AC-3"
+    var bitRate = audioStream.BitRate;                        // Audio bitrate
+    var channels = audioStream.Channels;                      // Number of audio channels
+    var channelsFriendly = audioStream.AudioChannelsFriendly; // e.g., "5.1", "Stereo"
+    var samplingRate = audioStream.SamplingRate;              // Sample rate in Hz
+    var bitDepth = audioStream.BitDepth;                      // Bits per sample
+    var bitrateMode = audioStream.BitrateMode;                // CBR, VBR, etc.
+    var name = audioStream.Name;                              // Track name if available
 }
 ```
 
@@ -147,7 +150,7 @@ foreach (var subtitleStream in media.SubtitleStreams)
 {
     var codec = subtitleStream.Codec;              // e.g., "PGS", "ASS"
     var language = subtitleStream.Language;        // ISO 639-2 language code
-    var title = subtitleStream.Title;              // Subtitle track name
+    var name = subtitleStream.Name;                // Subtitle track name
 }
 ```
 
@@ -156,15 +159,15 @@ foreach (var subtitleStream in media.SubtitleStreams)
 Extract metadata:
 
 ```csharp
-var audioTags = media.AudioTags;       // Audio metadata (album, artist, etc.)
-var videoTags = media.VideoTags;       // Video metadata (title, description, etc.)
-var generalInfo = media.GeneralTags;   // File-level metadata
+var audioTags = media.AudioStreams.Select(x => x.Tags);  // Audio metadata (album, artist, etc.)
+var videoTags = media.VideoStreams.Select(x => x.Tags);; // Video metadata (title, description, etc.)
+var generalInfo = media.Tags;                            // File-level metadata
 
-if (audioTags != null)
+foreach (var audioTag in audioTags)
 {
-    var artist = audioTags.Performer;
-    var album = audioTags.Album;
-    var title = audioTags.Title;
+    var artist = audioTag.Performer;
+    var album = audioTag.Album;
+    var title = audioTag.Title;
 }
 ```
 
@@ -175,7 +178,7 @@ Access chapter/menu information:
 ```csharp
 foreach (var chapter in media.ChapterStreams)
 {
-    var startTime = chapter.StartTime;  // Chapter start timestamp
+    var startTime = chapter.Offset;  // Chapter start timestamp
     // Chapter stream information available
 }
 ```
@@ -280,9 +283,9 @@ if (media.HasVideo)
 // Check number of audio tracks
 Console.WriteLine($"Audio tracks: {media.AudioStreams.Count}");
 
-// Find specific audio codec
+// Find specific audio Dolby Digital codec
 var ac3Tracks = media.AudioStreams
-    .Where(s => s.Codec?.Contains("AC-3") ?? false)
+    .Where(x => x.Codec == AudioCodec.Ac3)
     .ToList();
 ```
 
@@ -314,18 +317,6 @@ if (media.ScanningNeeded)
 }
 ```
 
-### Out of Memory Issues
-
-When processing very large files or many files in parallel, be mindful of memory usage. Consider disposing of MediaInfoWrapper objects when done:
-
-```csharp
-using (var media = new MediaInfoWrapper(filePath))
-{
-    // Use media
-}
-// Disposed automatically
-```
-
 ## Demo application
 
 ASP.NET Core demo application is [available](https://github.com/yartat/MP-MediaInfo/tree/master/Samples/ApiSample) which shows the usage of the package, serialization and running from the docker container. Code from this demo should not be used in production code, the code is merely to demonstrate the usage of this package.
@@ -341,14 +332,15 @@ Make sure that the following dependencies are installed in the operating system 
 
 | Operation system | Version |
 |-----------|---------|
+| [Alpine](#apline) | 3.17, 3.18, 3.19 and 3.20 |
 | [MacOS](#macos) | 10.15 (Catalina), 11 (Big Sur) |
-| [Ubuntu](#ubuntu) | 16.04, 18.04, 20.04 and 21.04 |
-| [CenOS](#centos) | 7 and above |
+| [Ubuntu](#ubuntu) | 16.04, 18.04, 20.04, 21.04, 22.04, 24.04 and 25.10 |
+| [CenOS](#centos) | 8 and above |
 | [Fedora](#fedora) | 32 and above |
-| [OpenSUSE](#opensuse) | 15.2 and Tumbleweed |
+| [OpenSUSE](#opensuse) | 15.4 and above |
 | [RedHat](#redhat) | 7 and above |
 | [Debian](#debian) | 9 and above |
-| [Arch Linux](#archlinux) | |
+| [Kali Linux](#kalilinux) | |
 | [Windows](#windows) | 7 and above |
 | [Docker](#docker) | buster |
 
@@ -382,6 +374,15 @@ sudo rpm -ivh https://download1.rpmfusion.org/free/el/updates/7/x86_64/l/libmms-
 
 ```Shell{:copy}
 sudo rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+sudo yum -y update
+sudo yum -y install zlib curl libzen bzip2 libcurl
+sudo rpm -ivh https://download1.rpmfusion.org/free/el/updates/8/x86_64/l/libmms-0.6.4-8.el8.x86_64.rpm
+```
+
+#### CentOS 9
+
+```Shell{:copy}
+sudo rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 sudo yum -y update
 sudo yum -y install zlib curl libzen bzip2 libcurl
 sudo rpm -ivh https://download1.rpmfusion.org/free/el/updates/8/x86_64/l/libmms-0.6.4-8.el8.x86_64.rpm
@@ -422,6 +423,15 @@ sudo yum -y install zlib curl libzen bzip2 libcurl
 sudo rpm -ivh https://download1.rpmfusion.org/free/el/updates/8/x86_64/l/libmms-0.6.4-8.el8.x86_64.rpm
 ```
 
+#### RedHat 9
+
+```Shell{:copy}
+sudo rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+sudo yum -y update
+sudo yum -y install zlib curl libzen bzip2 libcurl
+sudo rpm -ivh https://download1.rpmfusion.org/free/el/updates/8/x86_64/l/libmms-0.6.4-8.el8.x86_64.rpm
+```
+
 ### Debian
 
 ```Shell{:copy}
@@ -441,13 +451,6 @@ sudo pacman -S libcurl-gnutls libzen libmms libssh librtmp0
 ```
 
 ### Docker
-
-#### .NET Core 3.1
-
-```Dockerfile{:copy}
-FROM mcr.microsoft.com/dotnet/aspnet:3.1
-RUN apt-get update && apt-get install -y libzen0v5 libmms0 openssl zlib1g zlibc libnghttp2-14 librtmp1 curl libcurl4-gnutls-dev libglib2.0
-```
 
 #### .NET 6.0
 
