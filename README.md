@@ -107,17 +107,17 @@ if (media.HasVideo)
     {
         var width = videoStream.Width;                          // Resolution width
         var height = videoStream.Height;                        // Resolution height
-        var codec = videoStream.Codec;                          // e.g., "AVC"
+        var codec = videoStream.Codec;                          // e.g., AVC, HEVC, VP9, etc.
         var frameRate = videoStream.FrameRate;                  // Frames per second
         var frameRateMode = videoStream.FrameRateMode;          // e.g., CFR, VFR
-        var bitRate = videoStream.BitRate;                      // Video stream bitrate
-        var standard = videoStream.Standard;                    // e.g., "NTSC", "PAL"
-        var aspectRatio = videoStream.AspectRatio;              // e.g., "16:9"
-        var chromaSubSampling = videoStream.ChromaSubSampling;  // e.g., "4:2:0"
-        var colorSpace = videoStream.ColorSpace;                // e.g., "YUV"
-        var hdrFormat = videoStream.Hdr;                        // e.g., "HDR10", "Dolby Vision"
+        var bitRate = videoStream.Bitrate;                      // Video stream bitrate
+        var standard = videoStream.Standard;                    // e.g., NTSC, PAL
+        var aspectRatio = videoStream.AspectRatio;              // e.g., HighEndDataGraphics, Square, etc.
+        var chromaSubSampling = videoStream.SubSampling;        // e.g., Sampling420, Sampling422, Sampling444
+        var colorSpace = videoStream.ColorSpace;                // e.g., BT2020, BT709, NTSC, etc.
+        var hdrFormat = videoStream.Hdr;                        // e.g., HDR10, DolbyVision, HLG, etc.
         var isInterlaced = videoStream.IsInterlaced;            // true if video is interlaced
-        var stereoscopic = videoStream.Stereoscopic;            // e.g., "2D", "3D SBS", "3D TAB"
+        var stereoscopic = videoStream.Stereoscopic;            // e.g., Mono, Stereo, SideBySideLeft, TopBottomRight, etc.
     }
 }
 ```
@@ -130,9 +130,9 @@ Access audio track information:
 foreach (var audioStream in media.AudioStreams)
 {
     var language = audioStream.Language;                      // ISO 639-2 language code
-    var codec = audioStream.Codec;                            // e.g., "AAC", "AC-3"
-    var bitRate = audioStream.BitRate;                        // Audio bitrate
-    var channels = audioStream.Channels;                      // Number of audio channels
+    var codec = audioStream.Codec;                            // e.g., AAC, AC-3, DTS, etc.
+    var bitRate = audioStream.Bitrate;                        // Audio bitrate
+    var channelCount = audioStream.Channel;                   // Number of audio channels
     var channelsFriendly = audioStream.AudioChannelsFriendly; // e.g., "5.1", "Stereo"
     var samplingRate = audioStream.SamplingRate;              // Sample rate in Hz
     var bitDepth = audioStream.BitDepth;                      // Bits per sample
