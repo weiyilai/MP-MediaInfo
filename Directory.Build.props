@@ -17,6 +17,7 @@
     <xUnitRunner>3.1.5</xUnitRunner>
     <xUnit>2.9.1</xUnit>
     <Swashbuckle>10.1.4</Swashbuckle>
+    <CsvHelper>33.1.0</CsvHelper>
     <MediaInfoVersion>26.1.0</MediaInfoVersion>
     <MediaInfoFileVersion>26.1.0.0</MediaInfoFileVersion>
     <PackageAuthor>yartat</PackageAuthor>
