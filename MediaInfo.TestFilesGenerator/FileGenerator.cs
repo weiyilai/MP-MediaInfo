@@ -37,7 +37,10 @@ internal sealed class FileGenerator(string outputDir, string ffmpegPath, int see
 
   public async Task Generate(int count)
   {
-    Directory.CreateDirectory(_outputDir);
+    if (!Directory.Exists(_outputDir))
+    {
+      Directory.CreateDirectory(_outputDir);
+    }
 
     // Step 1 — pre-generate all parameters deterministically (single thread)
     var items = PreGenerate(count);
@@ -57,9 +60,9 @@ internal sealed class FileGenerator(string outputDir, string ffmpegPath, int see
     Parallel.ForEach(
       items,
       new ParallelOptions { MaxDegreeOfParallelism = _parallelism },
-      async item =>
+      item =>
       {
-        var isOk = await RunFfmpeg(item.Params, item.FilePath);
+        var isOk = RunFfmpeg(item.Params, item.FilePath);
         var total = isOk
           ? Interlocked.Increment(ref _succeeded)
           : Interlocked.Increment(ref _failed);
@@ -102,7 +105,7 @@ internal sealed class FileGenerator(string outputDir, string ffmpegPath, int see
   }
 
   // FFmpeg invocation
-  private async Task<bool> RunFfmpeg(AudioParameters p, string outputPath)
+  private bool RunFfmpeg(AudioParameters p, string outputPath)
   {
     var args = _cmdBuilder.BuildArguments(p, outputPath);
     try
@@ -124,8 +127,26 @@ internal sealed class FileGenerator(string outputDir, string ffmpegPath, int see
       }
 
       // Read both streams asynchronously to prevent deadlock
-      var readStdout = proc.StandardOutput.ReadToEndAsync();
-      var readStderr = proc.StandardError.ReadToEndAsync();
+      var readStdout = Task.Run(() =>
+      {
+        var output = proc.StandardOutput.ReadToEnd();
+#if TRACE_FFMPEG
+        if (!string.IsNullOrEmpty(output))
+        {
+          Console.Write(output);
+        }
+#endif
+      });
+      var readStderr = Task.Run(() =>
+      {
+        var output = proc.StandardError.ReadToEnd();
+#if TRACE_FFMPEG
+        if (!string.IsNullOrEmpty(output))
+        {
+          Console.Write(output);
+        }
+#endif
+      });
 
       bool exited = proc.WaitForExit(60_000);
       if (!exited)
@@ -134,7 +155,7 @@ internal sealed class FileGenerator(string outputDir, string ffmpegPath, int see
         return false;
       }
 
-      await Task.WhenAll(readStdout, readStderr);
+      Task.WaitAll(readStdout, readStderr);
       return proc.ExitCode == 0 && File.Exists(outputPath);
     }
     catch (Exception ex)

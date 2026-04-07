@@ -7,47 +7,94 @@
 #endregion
 
 using System;
+using System.CommandLine;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MediaInfo.TestFilesGenerator;
 
 internal static class Program
 {
-  static async Task Main(string[] args)
+  static async Task<int> Main(string[] args)
   {
-    Console.WriteLine("MKA Test File Generator");
-    Console.WriteLine("Usage: generator [outputDir] [seed] [count] [ffmpegPath] [parallelism]");
-    Console.WriteLine("  outputDir   — output folder          (default: ./TestAudio)");
-    Console.WriteLine("  seed        — RNG seed               (default: 42)");
-    Console.WriteLine("  count       — number of files        (default: 3000)");
-    Console.WriteLine("  ffmpegPath  — path to ffmpeg binary  (default: ffmpeg)");
-    Console.WriteLine("  parallelism — parallel workers        (default: CPU count)");
-    Console.WriteLine();
-
-    var outputDir = GetArg(args, 0, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestAudio"));
-    var seed = int.Parse(GetArg(args, 1, "42"));
-    var count = int.Parse(GetArg(args, 2, "3000"));
-    var ffmpegPath = GetArg(args, 3, "ffmpeg");
-    var parallelism = int.Parse(GetArg(args, 4, Environment.ProcessorCount.ToString()));
-
-    Console.WriteLine($"  Output      : {outputDir}");
-    Console.WriteLine($"  Seed        : {seed}");
-    Console.WriteLine($"  Count       : {count}");
-    Console.WriteLine($"  FFmpeg      : {ffmpegPath}");
-    Console.WriteLine($"  Parallelism : {parallelism}");
-    Console.WriteLine();
-
-    if (!CheckFfmpeg(ffmpegPath))
+    var outputDir = new Option<string>("--output", "-o")
     {
-      Console.Error.WriteLine("ERROR: FFmpeg not found or not executable.");
-      Console.Error.WriteLine("       Install FFmpeg and add it to PATH, or pass the full path as argument 4.");
-      Environment.Exit(1);
+      AllowMultipleArgumentsPerToken = false,
+      DefaultValueFactory = (r) => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestAudio"),
+      Description = "Output folder"
+    };
+    var seed = new Option<int>("--seed", "-s")
+    {
+      AllowMultipleArgumentsPerToken = false,
+      DefaultValueFactory = (r) => 42,
+      Description = "RNG seed"
+    };
+    var count = new Option<int>("--count", "-c")
+    {
+      AllowMultipleArgumentsPerToken = false,
+      DefaultValueFactory = (r) => 3000,
+      Description = "Number of files to generate"
+    };
+    var ffmpegPath = new Option<string>("--ffmpeg", "-f")
+    {
+      AllowMultipleArgumentsPerToken = false,
+      Description = "Path to ffmpeg binary including ffmpeg executable (default: ffmpeg, i.e. must be in PATH)",
+      DefaultValueFactory = (r) => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg")
+    };
+    var parallelism = new Option<int>("--parallelism", "-p")
+    {
+      AllowMultipleArgumentsPerToken = false,
+      DefaultValueFactory = (r) => Environment.ProcessorCount,
+      Description = "Number of parallel workers (default: CPU count)"
+    };
+    var rootCommand = new RootCommand("MKA Test File Generator")
+    {
+      outputDir,
+      seed,
+      count,
+      ffmpegPath,
+      parallelism
+    };
+
+    var parseResult = rootCommand.Parse(args);
+    await parseResult.InvokeAsync();
+    if (parseResult.Errors.Count > 0)
+    {
+      return -1;
     }
 
-    await new FileGenerator(outputDir, ffmpegPath, seed, parallelism)
-      .Generate(count);
+    var outputDirValue = parseResult.GetValue<string>(outputDir);
+    var ffmpegPathValue = parseResult.GetValue<string>(ffmpegPath);
+    var parallelismValue = parseResult.GetValue<int>(parallelism);
+    var seedValue = parseResult.GetValue<int>(seed);
+    var countValue = parseResult.GetValue<int>(count);
+
+    Console.WriteLine();
+    var previousForegroundColor = Console.ForegroundColor;
+    Console.ForegroundColor = ConsoleColor.Green;
+    Console.WriteLine($"  Output      : {outputDirValue}");
+    Console.WriteLine($"  Seed        : {seedValue}");
+    Console.WriteLine($"  Count       : {countValue}");
+    Console.WriteLine($"  FFmpeg      : {ffmpegPathValue}");
+    Console.WriteLine($"  Parallelism : {parallelismValue}");
+    Console.WriteLine();
+    Console.ForegroundColor = previousForegroundColor;
+
+    if (!CheckFfmpeg(ffmpegPathValue!))
+    {
+      Console.ForegroundColor = ConsoleColor.Red;
+      Console.Error.WriteLine("ERROR: FFmpeg not found or not executable.");
+      Console.Error.WriteLine("       Install FFmpeg and add it to PATH, or pass the full path as argument --ffmpeg.");
+      Console.ForegroundColor = previousForegroundColor;
+      return 1;
+    }
+
+    await new FileGenerator(outputDirValue!, ffmpegPathValue!, seedValue, parallelismValue)
+      .Generate(countValue);
+
+    return 0;
   }
 
   #region Helpers
@@ -75,9 +122,6 @@ internal static class Program
       return false;
     }
   }
-
-  private static string GetArg(string[] args, int index, string defaultValue) =>
-    args.Length > index ? args[index] : defaultValue;
 
   #endregion
 }

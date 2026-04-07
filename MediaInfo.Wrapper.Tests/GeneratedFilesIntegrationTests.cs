@@ -19,9 +19,6 @@ using Xunit.Abstractions;
 using CsvHelper;
 using System.Text;
 using System.Globalization;
-using MediaInfo.Model;
-using System.Runtime.Remoting.Channels;
-using Microsoft.SqlServer.Server;
 using System.Threading.Tasks;
 
 namespace MediaInfo.Wrapper.Tests
@@ -70,12 +67,7 @@ namespace MediaInfo.Wrapper.Tests
     {
       // Arrange
       var manifestPath = Path.Combine(TestAudioDir, ManifestFileName);
-      if (!File.Exists(manifestPath))
-      {
-        _output.WriteLine($"Manifest not found at '{Path.GetFullPath(manifestPath)}'.");
-        _output.WriteLine("Run MediaInfo.TestFilesGenerator first to generate the test files.");
-        return;
-      }
+      File.Exists(manifestPath).Should().BeTrue($"Manifest not found at '{Path.GetFullPath(manifestPath)}'.\nRun MediaInfo.TestFilesGenerator first to generate the test files.");
 
       var files = await ReadOkFilesFromManifest(manifestPath);
       _output.WriteLine($"Files in manifest (status=OK) : {files.Count}");

@@ -49,7 +49,7 @@ internal sealed class FfmpegCommandBuilder
         sb.Append(" -c:a aac");
         if (p.BitrateMode == BitrateMode.VBR)
         {
-          sb.Append($" -vbr {p.VbrQuality}");
+          sb.Append($" -q:a {p.VbrQuality * 0.4}");
         }
         else
         {

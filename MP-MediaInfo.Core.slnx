@@ -13,6 +13,9 @@
     <File Path="LICENSE" />
     <File Path="README.md" />
   </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="MediaInfo.TestFilesGenerator/MediaInfo.TestFilesGenerator.csproj" />
+  </Folder>
   <Project Path="MediaInfo.Wrapper.Tests/MediaInfo.Wrapper.Core.Tests.csproj" />
   <Project Path="MediaInfo.Wrapper/MediaInfo.Wrapper.Core.csproj" />
 </Solution>
