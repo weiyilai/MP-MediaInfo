@@ -17,4 +17,7 @@
     <Platform Solution="*|x64" Project="x64" />
     <Platform Solution="*|x86" Project="x86" />
   </Project>
+  <Folder Name="/Tools/">
+    <Project Path="MediaInfo.TestFilesGenerator/MediaInfo.TestFilesGenerator.csproj" />
+  </Folder>
 </Solution>
