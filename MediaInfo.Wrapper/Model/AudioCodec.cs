@@ -1,18 +1,19 @@
-﻿#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+﻿#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
 
-using System.Runtime.Serialization;
-
 namespace MediaInfo.Model
 {
   /// <summary>
-  /// Defines constants for different kind of audio codecs.
+  /// Defines the normalized audio codec values exposed by the wrapper.
   /// </summary>
+  /// <remarks>
+  /// These values map raw MediaInfo format and codec identifiers to a stable .NET enumeration.
+  /// </remarks>
   public enum AudioCodec
   {
     /// <summary>
@@ -101,9 +102,19 @@ namespace MediaInfo.Model
     DtsX,
 
     /// <summary>
+    /// IMAX DTS:X
+    /// </summary>
+    DtsXImax,
+
+    /// <summary>
     /// DTS-HD MA
     /// </summary>
     DtsHdMa,
+
+    /// <summary>
+    /// DTS-HD MA + IMAX Enhanced
+    /// </summary>
+    DtsHdMaImax,
 
     /// <summary>
     /// DTS Express
@@ -383,6 +394,11 @@ namespace MediaInfo.Model
     Mpeg3DAudio,
 
     /// <summary>
+    /// Unified Speech and Audio Coding (USAC / MPEG-H 3D Audio profile family).
+    /// </summary>
+    Usac,
+
+    /// <summary>
     /// Nellymoser codec
     /// </summary>
     Nellymoser,
@@ -403,18 +419,38 @@ namespace MediaInfo.Model
     QDesignMusic2,
 
     /// <summary>
-    /// Dolby AC-4
+    /// Dolby AC-4 immersive audio codec.
     /// </summary>
     Ac4,
 
     /// <summary>
-    /// Dolby E codec
+    /// Apple Positional Audio Codec used for spatial audio content.
+    /// </summary>
+    Apac,
+
+    /// <summary>
+    /// Auro-Cx immersive audio codec.
+    /// </summary>
+    AuroCx,
+
+    /// <summary>
+    /// Dolby E professional multichannel contribution codec.
     /// </summary>
     DolbyE,
 
     /// <summary>
-    /// Dolby ED2
+    /// Dolby ED2 professional audio codec.
     /// </summary>
-    DolbyEd2
+    DolbyEd2,
+
+    /// <summary>
+    /// DTS-UHD, also known as a DTS:X Profile 2 bitstream in supported containers.
+    /// </summary>
+    DtsUhd,
+
+    /// <summary>
+    /// aptX100 low-latency audio codec family.
+    /// </summary>
+    Aptx100
   }
 }

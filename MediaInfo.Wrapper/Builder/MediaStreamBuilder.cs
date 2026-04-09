@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+﻿#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
@@ -19,12 +19,15 @@ namespace MediaInfo.Builder
   internal abstract class MediaStreamBuilder<TStream> : IMediaBuilder<TStream> where TStream : MediaStream, new()
   {
     /// <summary>
-    /// Converts the string representation of a value to specified type
+    /// Represents a method that attempts to parse a string into a value of the specified type.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="source">The source value.</param>
-    /// <param name="result">The result.</param>
-    /// <returns><b>true</b> if s was converted successfully; otherwise, <b>false</b>.</returns>
+    /// <remarks>This delegate follows the common .NET TryParse pattern, allowing parsing operations without
+    /// throwing exceptions on failure.</remarks>
+    /// <typeparam name="T">The type of the value to parse from the input string.</typeparam>
+    /// <param name="source">The string to parse.</param>
+    /// <param name="result">When this method returns, contains the parsed value if the conversion succeeded, or the default value of
+    /// <typeparamref name="T"/> if it failed. This parameter is passed uninitialized.</param>
+    /// <returns><see langword="true"/> if the string was successfully parsed; otherwise, <see langword="false"/>.</returns>
     protected delegate bool ParseDelegate<T>(string source, out T result);
 
     /// <summary>
@@ -110,7 +113,7 @@ namespace MediaInfo.Builder
     /// <param name="convert"></param>
     /// <param name="extractResult">The manual extract result function.</param>
     /// <returns>Returns property <typeparamref name="T">value</typeparamref> of specified stream <paramref name="parameter">property name</paramref>.</returns>
-    protected T Get<T>(string parameter, ParseDelegate<T> convert, Func<string, string> extractResult = null)
+    protected T? Get<T>(string parameter, ParseDelegate<T> convert, Func<string?, string>? extractResult = null)
     {
       if (convert is null)
       {
@@ -128,7 +131,7 @@ namespace MediaInfo.Builder
     /// <param name="convert"></param>
     /// <param name="extractResult">The manual extract result function.</param>
     /// <returns>Returns property <typeparamref name="T">value</typeparamref> of specified stream <paramref name="parameter">property index</paramref>.</returns>
-    protected T Get<T>(int parameter, InfoKind infoKind, ParseDelegate<T> convert, Func<string, string> extractResult = null)
+    protected T? Get<T>(int parameter, InfoKind infoKind, ParseDelegate<T>? convert, Func<string, string?>? extractResult = null)
     {
       if (convert is null)
       {
@@ -144,10 +147,10 @@ namespace MediaInfo.Builder
     /// <param name="parameter">The parameter.</param>
     /// <param name="extractResult">The extract result.</param>
     /// <returns>Returns property value by name. If property does not defined will return <see cref="string.Empty"/>.</returns>
-    protected string Get(string parameter, Func<string, string> extractResult = null)
+    protected string Get(string parameter, Func<string?, string>? extractResult = null)
     {
       var result = Info.Get(StreamKind, StreamPosition, parameter);
-      if (extractResult != null)
+      if (extractResult is not null)
       {
         result = extractResult(result) ?? result;
       }
@@ -162,10 +165,10 @@ namespace MediaInfo.Builder
     /// <param name="infoKind">The kind of property value</param>
     /// <param name="extractResult">The extract result.</param>
     /// <returns>Returns property value by name. If property does not defined will return <see cref="string.Empty"/>.</returns>
-    protected string Get(int parameter, InfoKind infoKind, Func<string, string> extractResult = null)
+    protected string Get(int parameter, InfoKind infoKind, Func<string, string?>? extractResult = null)
     {
       var result = Info.Get(StreamKind, StreamPosition, parameter, infoKind);
-      if (extractResult != null)
+      if (extractResult is not null)
       {
         result = extractResult(result) ?? result;
       }

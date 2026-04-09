@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+﻿#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
@@ -14,19 +14,28 @@ using MediaInfo.Model;
 namespace MediaInfo.Builder
 {
   /// <summary>
-  /// Describes base methods to build video stream.
+  /// Provides functionality to construct and populate a video stream object with metadata and technical details
+  /// extracted from media information sources.
   /// </summary>
-  internal class VideoStreamBuilder : LanguageMediaStreamBuilder<VideoStream>
+  /// <remarks>This class specializes the generic language media stream builder for video streams, mapping
+  /// various video-specific metadata fields such as codec, frame rate, aspect ratio, color space, and HDR format. It
+  /// supports a wide range of video standards and codecs, and is intended for use in scenarios where detailed video
+  /// stream analysis or extraction is required.</remarks>
+  /// <param name="info">The media information source containing metadata and technical details for the video stream. Cannot be null.</param>
+  /// <param name="number">The zero-based index of the video stream within the media source. Must be non-negative.</param>
+  /// <param name="position">The position of the stream in the underlying data structure, used to identify and extract stream-specific
+  /// information.</param>
+  internal class VideoStreamBuilder(MediaInfo info, int number, int position) : LanguageMediaStreamBuilder<VideoStream>(info, number, position)
   {
     #region match dictionaries
 
-    private static readonly Dictionary<string, VideoStandard> VideoStandards = new Dictionary<string, VideoStandard>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, VideoStandard> VideoStandards = new(StringComparer.OrdinalIgnoreCase)
     {
       { "NTSC", VideoStandard.NTSC },
       { "PAL", VideoStandard.PAL },
     };
 
-    private static readonly Dictionary<string, ChromaSubSampling> ChromaSubSamplings = new Dictionary<string, ChromaSubSampling>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, ChromaSubSampling> ChromaSubSamplings = new(StringComparer.OrdinalIgnoreCase)
     {
       { "3:3:2", ChromaSubSampling.Sampling332 },
       { "4:1:0", ChromaSubSampling.Sampling410 },
@@ -41,7 +50,7 @@ namespace MediaInfo.Builder
       { "8:8:8", ChromaSubSampling.Sampling888 },
     };
 
-    private static readonly Dictionary<string, ColorSpace> ColorSpaces = new Dictionary<string, ColorSpace>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, ColorSpace> ColorSpaces = new(StringComparer.OrdinalIgnoreCase)
     {
       { "Display P3", ColorSpace.DisplayP3 },
       { "DCI P3", ColorSpace.DCIP3 },
@@ -62,7 +71,7 @@ namespace MediaInfo.Builder
       { "EBU Tech 3213", ColorSpace.EBUTech3213 }
     };
 
-    private static readonly Dictionary<string, TransferCharacteristic> TransferCharacteristics = new Dictionary<string, TransferCharacteristic>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, TransferCharacteristic> TransferCharacteristics = new(StringComparer.OrdinalIgnoreCase)
     {
       { "Printing density", TransferCharacteristic.PrintingDensity },
       { "SMPTE 274M", TransferCharacteristic.SMPTE274M },
@@ -75,7 +84,7 @@ namespace MediaInfo.Builder
       { "Z (depth) - linear", TransferCharacteristic.ZLinear }
     };
 
-    private static readonly Dictionary<string, AspectRatio> Ratios = new Dictionary<string, AspectRatio>
+    private static readonly Dictionary<string, AspectRatio> Ratios = new(StringComparer.Ordinal)
     {
       { "1:1", AspectRatio.Opaque },
       { "5:4", AspectRatio.HighEndDataGraphics },
@@ -94,7 +103,7 @@ namespace MediaInfo.Builder
       { "2.334", AspectRatio.CinemaScope }
     };
 
-    private static readonly Dictionary<string, StereoMode> StereoModes = new Dictionary<string, StereoMode>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, StereoMode> StereoModes = new(StringComparer.OrdinalIgnoreCase)
     {
       { "side-by-side (left eye first)", StereoMode.SideBySideLeft },
       { "top-bottom (right eye first)", StereoMode.TopBottomRight },
@@ -112,7 +121,7 @@ namespace MediaInfo.Builder
       { "both eyes laced in one block (right eye first)", StereoMode.BothEyesLacedRight }
     };
 
-    private static readonly Dictionary<string, Hdr> HdrFormats = new Dictionary<string, Hdr>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, Hdr> HdrFormats = new(StringComparer.OrdinalIgnoreCase)
     {
       { "Dolby Vision", Hdr.DolbyVision },
       { "HDR10", Hdr.HDR10 },
@@ -122,9 +131,11 @@ namespace MediaInfo.Builder
       { "HDR10+", Hdr.HDR10Plus },
       { "SL-HDR", Hdr.SLHDR1 },
       { "HLG", Hdr.HLG },
+      { "HDR Vivid", Hdr.HdrVivid },
+      { "T/UWA 005 (HDR Vivid)", Hdr.HdrVivid },
     };
 
-    private static readonly Dictionary<string, VideoCodec> VideoCodecs = new Dictionary<string, VideoCodec>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, VideoCodec> VideoCodecs = new(StringComparer.OrdinalIgnoreCase)
     {
       { "V_UNCOMPRESSED", VideoCodec.Uncompressed },
       { "V_DIRAC", VideoCodec.Dirac },
@@ -281,28 +292,25 @@ namespace MediaInfo.Builder
       { "HEVC", VideoCodec.MpeghIsoHevc },
       { "AV01", VideoCodec.Av1 },
       { "AV1", VideoCodec.Av1 },
+      { "AV2", VideoCodec.Av2 },
+      { "V_AV2", VideoCodec.Av2 },
+      { "AVS3 VIDEO", VideoCodec.Avs3V },
+      { "AVS3V", VideoCodec.Avs3V },
       { "JPEG", VideoCodec.Mjpg },
+      { "VVC", VideoCodec.Vvc },
+      { "V_MPEGI/ISO/VVC", VideoCodec.Vvc },
+      { "H.266", VideoCodec.Vvc },
+      { "H266", VideoCodec.Vvc },
       { "Default (H.263)", VideoCodec.H263 },
     };
 
-    private static readonly Dictionary<string, FrameRateMode> FrameRateModes = new Dictionary<string, FrameRateMode>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, FrameRateMode> FrameRateModes = new(StringComparer.OrdinalIgnoreCase)
     {
       { "CFR", FrameRateMode.Constant },
       { "VFR", FrameRateMode.Variable }
     };
 
-    #endregion
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="VideoStreamBuilder"/> class.
-    /// </summary>
-    /// <param name="info">The media info object.</param>
-    /// <param name="number">The stream number.</param>
-    /// <param name="position">The stream position.</param>
-    public VideoStreamBuilder(MediaInfo info, int number, int position)
-      : base(info, number, position)
-    {
-    }
+        #endregion
 
     /// <inheritdoc />
     public override MediaStreamKind Kind => MediaStreamKind.Video;
@@ -310,10 +318,13 @@ namespace MediaInfo.Builder
     /// <inheritdoc />
     protected override StreamKind StreamKind => StreamKind.Video;
 
+    /// <inheritdoc />
     public override VideoStream Build()
     {
       var result = base.Build();
       result.FrameRate = Get<double>((int)NativeMethods.Video.Video_FrameRate, InfoKind.Text, TagBuilderHelper.TryGetDouble);
+      result.FrameRateNumerator = Get<int>((int)NativeMethods.Video.Video_FrameRate_Num, InfoKind.Text, TagBuilderHelper.TryGetInt);
+      result.FrameRateDenominator = Get<int>((int)NativeMethods.Video.Video_FrameRate_Den, InfoKind.Text, TagBuilderHelper.TryGetInt);
       result.FrameRateMode = Get<FrameRateMode>((int)NativeMethods.Video.Video_FrameRate_Mode, InfoKind.Text, TryGetFrameRateMode);
       result.Width = Get<int>((int)NativeMethods.Video.Video_Width, InfoKind.Text, TagBuilderHelper.TryGetInt);
       result.Height = Get<int>((int)NativeMethods.Video.Video_Height, InfoKind.Text, TagBuilderHelper.TryGetInt);
@@ -377,6 +388,11 @@ namespace MediaInfo.Builder
 
       result.CodecProfile = Get((int)NativeMethods.Video.Video_Format_Profile, InfoKind.Text);
       result.Duration = TimeSpan.FromMilliseconds(Get<double>((int)NativeMethods.Video.Video_Duration, InfoKind.Text, TagBuilderHelper.TryGetDouble));
+      result.TimeCodeFirstFrame = Get((int)NativeMethods.Video.Video_TimeCode_FirstFrame, InfoKind.Text);
+      result.TimeCodeLastFrame = Get((int)NativeMethods.Video.Video_TimeCode_LastFrame, InfoKind.Text);
+      result.TimeCodeDropFrame = Get<bool>((int)NativeMethods.Video.Video_TimeCode_DropFrame, InfoKind.Text, TagBuilderHelper.TryGetBool);
+      result.TimeCodeSettings = Get((int)NativeMethods.Video.Video_TimeCode_Settings, InfoKind.Text);
+      result.TimeCodeSource = Get((int)NativeMethods.Video.Video_TimeCode_Source, InfoKind.Text);
       result.BitDepth = Get<int>((int)NativeMethods.Video.Video_BitDepth, InfoKind.Text, TagBuilderHelper.TryGetInt);
       result.ColorSpace = Get<ColorSpace>((int)NativeMethods.Video.Video_colour_primaries, InfoKind.Text, TryGetColorSpace);
       result.TransferCharacteristics = Get<TransferCharacteristic>((int)NativeMethods.Video.Video_transfer_characteristics, InfoKind.Text, TryGetTransferCharacteristics);
@@ -386,10 +402,16 @@ namespace MediaInfo.Builder
       result.Hdr = Get<Hdr>((int)NativeMethods.Video.Video_HDR_Format, InfoKind.Text, TryGetHdr);
       if (result.Hdr == Hdr.None)
       {
+        result.Hdr = Get<Hdr>((int)NativeMethods.Video.Video_HDR_Format_Compatibility, InfoKind.Text, TryGetHdr);
+      }
+      if (result.Hdr == Hdr.None)
+      {
         result.Hdr = Get<Hdr>((int)NativeMethods.Video.Video_transfer_characteristics, InfoKind.Text, TryGetHdr);
       }
 
       result.Tags = new VideoTagBuilder(Info, StreamPosition).Build();
+            
+      result.Rotation = Get<double>((int)NativeMethods.Video.Video_Rotation, InfoKind.Text, TagBuilderHelper.TryGetDouble);
 
       return result;
     }
@@ -404,7 +426,11 @@ namespace MediaInfo.Builder
       StereoModes.TryGetValue(layout, out result);
 
     private static bool GetInterlaced(string source) =>
-      source?.ToLower().Contains("interlaced") ?? false;
+#if NETFRAMEWORK
+      source.IndexOf("interlaced", StringComparison.OrdinalIgnoreCase) >= 0;
+#else
+      source.Contains("interlaced", StringComparison.OrdinalIgnoreCase);
+#endif
 
     private static bool TryGetAspectRatio(string source, out AspectRatio result) =>
       Ratios.TryGetValue(source, out result);

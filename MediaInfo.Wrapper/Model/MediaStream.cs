@@ -1,19 +1,17 @@
-﻿#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+﻿#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
 
-using System;
-
 namespace MediaInfo.Model
 {
-    /// <summary>
-    /// Defines constants for media stream kinds.
-    /// </summary>
-    public enum MediaStreamKind
+  /// <summary>
+  /// Defines the kind of media stream.
+  /// </summary>
+  public enum MediaStreamKind
   {
     /// <summary>
     /// The video stream
@@ -42,11 +40,13 @@ namespace MediaInfo.Model
   }
 
   /// <summary>
-  /// Provides basic properties and instance methods for the analyze stream
-  /// and contains information about media stream.
+  /// Represents an abstract base class for a media stream, providing common properties for identifying and describing
+  /// a stream within a media container.
   /// </summary>
-  /// <seealso cref="MarshalByRefObject" />
-  public abstract class MediaStream : MarshalByRefObject
+  /// <remarks>This class serves as the foundation for specific types of media streams, such as audio or
+  /// video streams. It exposes properties for stream identification, naming, and classification. Derived classes
+  /// should implement the abstract members to specify the kind and characteristics of the stream.</remarks>
+  public abstract class MediaStream
   {
     /// <summary>
     /// Gets or sets the media steam id.
@@ -62,7 +62,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The name of stream.
     /// </value>
-    public string Name { get; set; }
+    public string Name { get; set; }  = default!;
 
     /// <summary>
     /// Gets the kind of media stream.

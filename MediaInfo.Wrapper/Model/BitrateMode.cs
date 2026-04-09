@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+﻿#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
@@ -9,22 +9,22 @@
 namespace MediaInfo.Model
 {
   /// <summary>
-  /// Describes bitrate possible modes
+  /// Defines the bitrate control mode used by an encoded stream.
   /// </summary>
   public enum BitrateMode : byte
   {
     /// <summary>
-    /// Constant quality mode
+    /// Constant quality encoding mode.
     /// </summary>
     Cq,
 
     /// <summary>
-    /// Constant bitrate mode
+    /// Constant bitrate encoding mode.
     /// </summary>
     Cbr,
 
     /// <summary>
-    /// Variable bitrate mode
+    /// Variable bitrate encoding mode.
     /// </summary>
     Vbr
   }

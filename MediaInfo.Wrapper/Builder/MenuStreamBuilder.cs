@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+﻿#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
@@ -12,15 +12,14 @@ using MediaInfo.Model;
 namespace MediaInfo.Builder
 {
   /// <summary>
-  /// Describes method to build menu stream.
+  /// Builds a menu stream representation from the provided media information, including associated chapters and their
+  /// positions.
   /// </summary>
-  internal class MenuStreamBuilder : MediaStreamBuilder<MenuStream>
+  /// <param name="info">The media information source used to extract menu stream data.</param>
+  /// <param name="number">The stream number identifying the specific menu stream within the media information.</param>
+  /// <param name="position">The position index of the stream within the media information.</param>
+  internal class MenuStreamBuilder(MediaInfo info, int number, int position) : MediaStreamBuilder<MenuStream>(info, number, position)
   {
-    public MenuStreamBuilder(MediaInfo info, int number, int position)
-      : base(info, number, position)
-    {
-    }
-
     /// <inheritdoc />
     public override MediaStreamKind Kind => MediaStreamKind.Menu;
 

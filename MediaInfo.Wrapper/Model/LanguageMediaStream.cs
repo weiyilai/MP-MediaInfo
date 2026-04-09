@@ -1,19 +1,19 @@
-﻿#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+﻿#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
 
 namespace MediaInfo.Model
 {
-    /// <summary>
-    /// Provides properties and overridden methods for the analyze stream
-    /// and contains information about media stream.
-    /// </summary>
-    /// <seealso cref="MediaStream" />
-    public abstract class LanguageMediaStream : MediaStream
+  /// <summary>
+  /// Provides properties and overridden methods for the analyze stream
+  /// and contains information about media stream.
+  /// </summary>
+  /// <seealso cref="MediaStream" />
+  public abstract class LanguageMediaStream : MediaStream
   {
     /// <summary>
     /// Gets the media stream language.
@@ -21,7 +21,15 @@ namespace MediaInfo.Model
     /// <value>
     /// The media stream language.
     /// </value>
-    public string Language { get; set; }
+    public string Language { get; set; } = default!;
+
+    /// <summary>
+    /// Gets the media stream language tag in IETF BCP 47 format.
+    /// </summary>
+    /// <value>
+    /// The media stream language tag.
+    /// </value>
+    public string LanguageIetf { get; set; } = default!;
 
     /// <summary>
     /// Gets the media stream LCID.

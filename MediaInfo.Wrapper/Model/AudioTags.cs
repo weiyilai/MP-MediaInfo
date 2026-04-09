@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+﻿#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
@@ -32,7 +32,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The title of the album.
     /// </value>
-    public string Album
+    public string? Album
     {
       get
       {
@@ -53,7 +53,7 @@ namespace MediaInfo.Model
             return result;
         }
 
-        var resultItems = result.Split(new[] { " / " }, StringSplitOptions.RemoveEmptyEntries);
+        var resultItems = result!.Split([" / "], StringSplitOptions.RemoveEmptyEntries);
         return resultItems.Length > 1 ? resultItems[1].Trim() : resultItems[0].Trim();
       }
     }
@@ -64,7 +64,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The title of the track.
     /// </value>
-    public string Track
+    public string? Track
     {
       get
       {
@@ -80,7 +80,7 @@ namespace MediaInfo.Model
           result = GeneralTags.TryGetValue(NativeMethods.General.General_Title, out var trackTitle) ? (string)trackTitle : null;
           if (!string.IsNullOrEmpty(result))
           {
-            return result.Split(new[] { " / " }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.Trim();
+            return result!.Split([" / "], StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.Trim();
           }
         }
 
@@ -90,7 +90,7 @@ namespace MediaInfo.Model
         }
 
         return !string.IsNullOrEmpty(result)
-          ? result.Split(new[] {" / "}, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.Trim()
+          ? result!.Split([" / "], StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.Trim()
           : result;
       }
     }
@@ -101,7 +101,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The title of the subtrack.
     /// </value>
-    public string SubTrack => GeneralTags.TryGetValue(NativeMethods.General.General_SubTrack, out var result) ? (string)result : null;
+    public string? SubTrack => GeneralTags.TryGetValue(NativeMethods.General.General_SubTrack, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the original album name (in case of a remake/remix).
@@ -109,7 +109,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The original album name (in case of a remake/remix).
     /// </value>
-    public string OriginalAlbum => GeneralTags.TryGetValue(NativeMethods.General.General_Original_Album, out var result) ? (string)result : null;
+    public string? OriginalAlbum => GeneralTags.TryGetValue(NativeMethods.General.General_Original_Album, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the original track name (in case of a remake/remix).
@@ -117,7 +117,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The original track name (in case of a remake/remix).
     /// </value>
-    public string OriginalTrack => GeneralTags.TryGetValue(NativeMethods.General.General_Original_Track, out var result) ? (string)result : null;
+    public string? OriginalTrack => GeneralTags.TryGetValue(NativeMethods.General.General_Original_Track, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the number of the current track.
@@ -157,9 +157,10 @@ namespace MediaInfo.Model
     /// <value>
     /// A person or band/collective generally considered responsible for the work : Singer, Implementor.
     /// </value>
-    public string Artist => GeneralTags.TryGetValue(NativeMethods.General.General_Performer, out var performer) ?
+    public string? Artist => GeneralTags.TryGetValue(NativeMethods.General.General_Performer, out var performer) ?
       (string)performer :
-      GeneralTags.TryGetValue(NativeMethods.General.General_Album_Performer, out var result) ? (string)result : null;
+      GeneralTags.TryGetValue(NativeMethods.General.General_Album_Performer, out var result) ? (string)result :
+        GeneralTags.TryGetValue(NativeMethods.General.General_MusicBy, out var resultMusicBy) ? (string)resultMusicBy : null;
 
     /// <summary>
     /// Gets the album artist.
@@ -167,7 +168,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The album artist.
     /// </value>
-    public string AlbumArtist => GeneralTags.TryGetValue(NativeMethods.General.General_Album_Performer, out var result) ? (string)result : null;
+    public string? AlbumArtist => GeneralTags.TryGetValue(NativeMethods.General.General_Album_Performer, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the official artist/performer web page.
@@ -175,7 +176,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The official artist/performer web page.
     /// </value>
-    public string ArtistUrl => GeneralTags.TryGetValue(NativeMethods.General.General_Performer_Url, out var result) ? (string)result : null;
+    public string? ArtistUrl => GeneralTags.TryGetValue(NativeMethods.General.General_Performer_Url, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the accompaniment name.
@@ -183,7 +184,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The accompaniment name.
     /// </value>
-    public string Accompaniment => GeneralTags.TryGetValue(NativeMethods.General.General_Accompaniment, out var result) ? (string)result : null;
+    public string? Accompaniment => GeneralTags.TryGetValue(NativeMethods.General.General_Accompaniment, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the composer name.
@@ -191,7 +192,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The composer name.
     /// </value>
-    public string Composer => GeneralTags.TryGetValue(NativeMethods.General.General_Composer, out var result) ? (string)result : null;
+    public string? Composer => GeneralTags.TryGetValue(NativeMethods.General.General_Composer, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the composer nationality.
@@ -199,7 +200,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The composer nationality.
     /// </value>
-    public string ComposerNationality => GeneralTags.TryGetValue(NativeMethods.General.General_Composer_Nationality, out var result) ? (string)result : null;
+    public string? ComposerNationality => GeneralTags.TryGetValue(NativeMethods.General.General_Composer_Nationality, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the arranger name.
@@ -207,7 +208,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The arranger name.
     /// </value>
-    public string Arranger => GeneralTags.TryGetValue(NativeMethods.General.General_Arranger, out var result) ? (string)result : null;
+    public string? Arranger => GeneralTags.TryGetValue(NativeMethods.General.General_Arranger, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the lyricist name.
@@ -215,7 +216,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The lyricist name.
     /// </value>
-    public string Lyricist => GeneralTags.TryGetValue(NativeMethods.General.General_Lyricist, out var result) ? (string)result : null;
+    public string? Lyricist => GeneralTags.TryGetValue(NativeMethods.General.General_Lyricist, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the conductor name.
@@ -223,7 +224,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The conductor name.
     /// </value>
-    public string Conductor => GeneralTags.TryGetValue(NativeMethods.General.General_Conductor, out var result) ? (string)result : null;
+    public string? Conductor => GeneralTags.TryGetValue(NativeMethods.General.General_Conductor, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the sound engineer name.
@@ -231,7 +232,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The sound engineer name.
     /// </value>
-    public string SoundEngineer => GeneralTags.TryGetValue(NativeMethods.General.General_SoundEngineer, out var result) ? (string)result : null;
+    public string? SoundEngineer => GeneralTags.TryGetValue(NativeMethods.General.General_SoundEngineer, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets who mastered track.
@@ -239,7 +240,7 @@ namespace MediaInfo.Model
     /// <value>
     /// Who mastered track.
     /// </value>
-    public string MasteredBy => GeneralTags.TryGetValue(NativeMethods.General.General_MasteredBy, out var result) ? (string)result : null;
+    public string? MasteredBy => GeneralTags.TryGetValue(NativeMethods.General.General_MasteredBy, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets who remixed track.
@@ -247,7 +248,7 @@ namespace MediaInfo.Model
     /// <value>
     /// Who remixed track.
     /// </value>
-    public string RemixedBy => GeneralTags.TryGetValue(NativeMethods.General.General_RemixedBy, out var result) ? (string)result : null;
+    public string? RemixedBy => GeneralTags.TryGetValue(NativeMethods.General.General_RemixedBy, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the label name.
@@ -255,7 +256,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The label name.
     /// </value>
-    public string Label => GeneralTags.TryGetValue(NativeMethods.General.General_Label, out var result) ? (string)result : null;
+    public string? Label => GeneralTags.TryGetValue(NativeMethods.General.General_Label, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the recorded date.
@@ -271,7 +272,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The genre.
     /// </value>
-    public string Genre => GeneralTags.TryGetValue(NativeMethods.General.General_Genre, out var result) ? (string)result : null;
+    public string? Genre => GeneralTags.TryGetValue(NativeMethods.General.General_Genre, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the mood.
@@ -279,7 +280,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The mood.
     /// </value>
-    public string Mood => GeneralTags.TryGetValue(NativeMethods.General.General_Mood, out var result) ? (string)result : null;
+    public string? Mood => GeneralTags.TryGetValue(NativeMethods.General.General_Mood, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the track ISRC.
@@ -287,7 +288,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The track ISRC.
     /// </value>
-    public string Isrc => GeneralTags.TryGetValue(NativeMethods.General.General_ISRC, out var result) ? (string)result : null;
+    public string? Isrc => GeneralTags.TryGetValue(NativeMethods.General.General_ISRC, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the bar code.
@@ -295,7 +296,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The bar code.
     /// </value>
-    public string BarCode => GeneralTags.TryGetValue(NativeMethods.General.General_BarCode, out var result) ? (string)result : null;
+    public string? BarCode => GeneralTags.TryGetValue(NativeMethods.General.General_BarCode, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the LCCN.
@@ -303,7 +304,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The LCCN.
     /// </value>
-    public string Lccn => GeneralTags.TryGetValue(NativeMethods.General.General_LCCN, out var result) ? (string)result : null;
+    public string? Lccn => GeneralTags.TryGetValue(NativeMethods.General.General_LCCN, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the catalog number.
@@ -311,7 +312,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The catalog number.
     /// </value>
-    public string CatalogNumber => GeneralTags.TryGetValue(NativeMethods.General.General_CatalogNumber, out var result) ? (string)result : null;
+    public string? CatalogNumber => GeneralTags.TryGetValue(NativeMethods.General.General_CatalogNumber, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the label code.
@@ -319,7 +320,7 @@ namespace MediaInfo.Model
     /// <value>
     /// The label code.
     /// </value>
-    public string LabelCode => GeneralTags.TryGetValue(NativeMethods.General.General_LabelCode, out var result) ? (string)result : null;
+    public string? LabelCode => GeneralTags.TryGetValue(NativeMethods.General.General_LabelCode, out var result) ? (string)result : null;
 
     /// <summary>
     /// Gets the name of the person or organization that encoded/ripped the audio file.
@@ -327,6 +328,6 @@ namespace MediaInfo.Model
     /// <value>
     /// The name of the person or organization that encoded/ripped the audio file.
     /// </value>
-    public string EncodedBy => GeneralTags.TryGetValue(NativeMethods.General.General_EncodedBy, out var result) ? (string)result : null;
+    public string? EncodedBy => GeneralTags.TryGetValue(NativeMethods.General.General_EncodedBy, out var result) ? (string)result : null;
   }
 }

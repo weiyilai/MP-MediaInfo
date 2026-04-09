@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+﻿#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
@@ -9,8 +9,11 @@
 namespace MediaInfo.Model
 {
   /// <summary>
-  /// Describes type of video codecs
+  /// Defines the normalized video codec values exposed by the wrapper.
   /// </summary>
+  /// <remarks>
+  /// These values map raw MediaInfo format and codec identifiers to a stable .NET enumeration.
+  /// </remarks>
   public enum VideoCodec
   {
     /// <summary>
@@ -324,9 +327,24 @@ namespace MediaInfo.Model
     BinkVideo,
 
     /// <summary>
-    /// AV1
+    /// AOMedia Video 1 (AV1).
     /// </summary>
     Av1,
+
+    /// <summary>
+    /// AOMedia Video 2 (AV2).
+    /// </summary>
+    Av2,
+
+    /// <summary>
+    /// AVS3 video codec.
+    /// </summary>
+    Avs3V,
+
+    /// <summary>
+    /// Versatile Video Coding (VVC / H.266).
+    /// </summary>
+    Vvc,
 
     /// <summary>
     /// HuffYUV

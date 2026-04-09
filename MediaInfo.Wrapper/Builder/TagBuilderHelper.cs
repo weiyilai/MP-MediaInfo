@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+﻿#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
@@ -14,10 +14,28 @@ using System.Globalization;
 namespace MediaInfo.Builder
 {
   /// <summary>
-  /// Tag builder helper class
+  /// A helper class for parsing tag values to specific types.
   /// </summary>
   public static class TagBuilderHelper
   {
+    private static readonly string[] DateFormats = new[]
+    {
+      "yyyy", "yyyy-MM", "yyyy-MM-dd", "yyyy-M", "yyyy-M-d", "yyyy-MM-d", "yyyy-M-dd", 
+      "UTC yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.f", 
+      "yyyy-MM-dd HH:mm:ss.ff", "yyyy-MM-dd HH:mm:ss.fff",  "yyyy-MM-dd HH:mm:ss.ffff", 
+      "yyyy-MM-dd HH:mm:ss.fffff", "yyyy/MM/dd", "yyyy/M/d", "yyyy/M/dd", "yyyy/M/d",
+      "UTC yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss.f",
+      "yyyy/MM/dd HH:mm:ss.ff", "yyyy/MM/dd HH:mm:ss.fff", "yyyy/MM/dd HH:mm:ss.ffff",
+      "yyyy/MM/dd HH:mm:ss.fffff", "dd.MM.yyyy", "d.MM.yyyy", "dd.M.yyyy", "d.M.yyyy",
+      "UTC dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy HH:mm:ss.f",
+      "dd.MM.yyyy HH:mm:ss.ff", "dd.MM.yyyy HH:mm:ss.fff", "dd.MM.yyyy HH:mm:ss.ffff",
+      "dd.MM.yyyy HH:mm:ss.fffff", "MM/dd/yyyy", "M/dd/yyyy", "MM/d/yyyy", "M/d/yyyy",
+      "UTC MM/dd/yyyy HH:mm:ss", "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy HH:mm:ss.f",
+      "dd.MM.yyyy HH:mm:ss.ff", "dd.MM.yyyy HH:mm:ss.fff", "dd.MM.yyyy HH:mm:ss.ffff",
+      "dd.MM.yyyy HH:mm:ss.fffff", "MM/dd/yyyy HH:mm:ss", "yyyy-MM-dd HH:mm:ss UTC",
+      "yyyy-MM-dd HH:mm:ssZ"
+    };
+
     private static readonly Dictionary<string, bool> BooleanValues = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase)
     {
         { "1", true },
@@ -48,7 +66,7 @@ namespace MediaInfo.Builder
     };
 
     /// <summary>
-    /// Tries the parse.
+    /// Tries the parse boolean value from string.
     /// </summary>
     /// <param name="source">The source string.</param>
     /// <param name="result">if set to <c>true</c> [result].</param>
@@ -57,7 +75,7 @@ namespace MediaInfo.Builder
         BooleanValues.TryGetValue(source, out result);
 
     /// <summary>
-    /// Tries the get string.
+    /// Tries the get string value from string.
     /// </summary>
     /// <param name="source">The source string.</param>
     /// <param name="value">The result value.</param>
@@ -69,7 +87,7 @@ namespace MediaInfo.Builder
     }
 
     /// <summary>
-    /// Tries the get string.
+    /// Tries the get string value from string.
     /// </summary>
     /// <param name="source">The source string.</param>
     /// <param name="value">The result value.</param>
@@ -81,43 +99,59 @@ namespace MediaInfo.Builder
     }
 
     /// <summary>
-    /// Tries the get string in BASE64.
+    /// Tries the get string value in BASE64.
     /// </summary>
     /// <param name="source">The source BASE64 string.</param>
     /// <param name="value">The result value.</param>
     /// <returns><c>true</c> if source string is not empty and valid BASE64 string, <c>false</c> otherwise.</returns>
-    public static bool TryGetBase64(this string source, out object value)
+    public static bool TryGetBase64(this string source, out object? value)
     {
-      if (!string.IsNullOrEmpty(source))
+      if (string.IsNullOrEmpty(source))
       {
-        value = Convert.FromBase64String(source);
-        return true;
+          value = null;
+          return false;
       }
 
-      value = null;
-      return false;
+      try
+      {
+          value = Convert.FromBase64String(source);
+          return true;
+      }
+      catch (FormatException)
+      {
+          value = null;
+          return false;
+      }
     }
 
     /// <summary>
-    /// Tries the get string in BASE64.
+    /// Tries the get string value in BASE64.
     /// </summary>
     /// <param name="source">The source BASE64 string.</param>
     /// <param name="value">The result value as byte array.</param>
     /// <returns><c>true</c> if source string is not empty and valid BASE64 string, <c>false</c> otherwise.</returns>
-    public static bool TryGetBase64(this string source, out byte[] value)
+    public static bool TryGetBase64(this string source, out byte[]? value)
     {
-      if (!string.IsNullOrEmpty(source))
+      if (string.IsNullOrEmpty(source))
       {
-        value = Convert.FromBase64String(source);
-        return true;
+          value = null;
+          return false;
       }
 
-      value = null;
-      return false;
+      try
+      {
+          value = Convert.FromBase64String(source);
+          return true;
+      }
+      catch (FormatException)
+      {
+          value = null;
+          return false;
+      }
     }
 
     /// <summary>
-    /// Tries the get int value.
+    /// Tries the get int value from string.
     /// </summary>
     /// <param name="source">The source string.</param>
     /// <param name="value">The result int value.</param>
@@ -130,7 +164,7 @@ namespace MediaInfo.Builder
     }
 
     /// <summary>
-    /// Tries the get int value.
+    /// Tries the get int value from string.
     /// </summary>
     /// <param name="source">The source string.</param>
     /// <param name="value">The result int value.</param>
@@ -139,7 +173,7 @@ namespace MediaInfo.Builder
       int.TryParse(source, out value);
 
     /// <summary>
-    /// Tries the get long value.
+    /// Tries the get long value from string.
     /// </summary>
     /// <param name="source">The source string.</param>
     /// <param name="value">The result long value.</param>
@@ -152,7 +186,7 @@ namespace MediaInfo.Builder
     }
 
     /// <summary>
-    /// Tries the get long value.
+    /// Tries the get long value from string.
     /// </summary>
     /// <param name="source">The source string.</param>
     /// <param name="value">The result long value.</param>
@@ -161,7 +195,7 @@ namespace MediaInfo.Builder
       long.TryParse(source, out value);
 
     /// <summary>
-    /// Tries the get double value.
+    /// Tries the get double value from string.
     /// </summary>
     /// <param name="source">The source string.</param>
     /// <param name="value">The result double value.</param>
@@ -174,7 +208,7 @@ namespace MediaInfo.Builder
     }
 
     /// <summary>
-    /// Tries the get <see cref="BitrateMode"/> value.
+    /// Tries the get <see cref="BitrateMode"/> value from string.
     /// </summary>
     /// <param name="source">The source string.</param>
     /// <param name="value">The result <see cref="BitrateMode"/> value.</param>
@@ -183,7 +217,7 @@ namespace MediaInfo.Builder
       BitrateModes.TryGetValue(source, out value);
 
     /// <summary>
-    /// Tries the get double value.
+    /// Tries the get double value from string.
     /// </summary>
     /// <param name="source">The source string.</param>
     /// <param name="value">The result double value.</param>
@@ -191,7 +225,9 @@ namespace MediaInfo.Builder
     public static bool TryGetDouble(this string source, out double value) =>
       double.TryParse(source, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out value);
 
-    /// <summary>A string extension method that attempts to get stereo mode a StereoMode from the given string.</summary>
+    /// <summary>
+    /// A string extension method that attempts to get stereo mode a StereoMode from the given string.
+    /// </summary>
     /// <param name="source">The source.</param>
     /// <param name="mode">The stereo mode.</param>
     /// <returns>True if it succeeds, false if it fails.</returns>
@@ -199,7 +235,7 @@ namespace MediaInfo.Builder
       StereoModes.TryGetValue(source, out mode);
 
     /// <summary>
-    /// Tries the get date value.
+    /// Tries the get date value from string.
     /// </summary>
     /// <param name="source">The source string.</param>
     /// <param name="value">The result date value.</param>
@@ -207,38 +243,27 @@ namespace MediaInfo.Builder
     public static bool TryGetDate(this string source, out object value)
     {
       var result = DateTime.TryParseExact(
-      source,
-      new[] { "yyyy", "yyyy-MM", "yyyy-MM-dd", "yyyy-M", "yyyy-M-d", "yyyy-MM-d", "yyyy-M-dd", "UTC yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.f",  "yyyy-MM-dd HH:mm:ss.ff", "yyyy-MM-dd HH:mm:ss.fff",  "yyyy-MM-dd HH:mm:ss.ffff",  "yyyy-MM-dd HH:mm:ss.fffff",
-              "yyyy/MM/dd", "yyyy/M/d", "yyyy/M/dd", "yyyy/M/d", "UTC yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss.f", "yyyy/MM/dd HH:mm:ss.ff", "yyyy/MM/dd HH:mm:ss.fff", "yyyy/MM/dd HH:mm:ss.ffff", "yyyy/MM/dd HH:mm:ss.fffff",
-              "dd.MM.yyyy", "d.MM.yyyy", "dd.M.yyyy", "d.M.yyyy", "UTC dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy HH:mm:ss.f", "dd.MM.yyyy HH:mm:ss.ff", "dd.MM.yyyy HH:mm:ss.fff", "dd.MM.yyyy HH:mm:ss.ffff", "dd.MM.yyyy HH:mm:ss.fffff",
-              "MM/dd/yyyy", "M/dd/yyyy", "MM/d/yyyy", "M/d/yyyy", "UTC MM/dd/yyyy HH:mm:ss", "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy HH:mm:ss.f", "dd.MM.yyyy HH:mm:ss.ff", "dd.MM.yyyy HH:mm:ss.fff", "dd.MM.yyyy HH:mm:ss.ffff", "dd.MM.yyyy HH:mm:ss.fffff",
-      },
-      CultureInfo.InvariantCulture,
-       DateTimeStyles.None,
-      out var resultValue);
+        source,
+        DateFormats,
+        CultureInfo.InvariantCulture,
+        DateTimeStyles.None,
+        out var resultValue);
       value = resultValue;
       return result;
     }
 
     /// <summary>
-    /// Tries the get date value.
+    /// Tries the get date value from string.
     /// </summary>
     /// <param name="source">The source string.</param>
     /// <param name="value">The result date value.</param>
     /// <returns><c>true</c> if source string is not empty and valid date value, <c>false</c> otherwise.</returns>
-    public static bool TryGetDate(this string source, out DateTime value)
-    {
-      var result = DateTime.TryParseExact(
-      source,
-      new[] { "yyyy", "yyyy-MM", "yyyy-MM-dd", "yyyy-M", "yyyy-M-d", "yyyy-MM-d", "yyyy-M-dd", "UTC yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.f",  "yyyy-MM-dd HH:mm:ss.ff", "yyyy-MM-dd HH:mm:ss.fff",  "yyyy-MM-dd HH:mm:ss.ffff",  "yyyy-MM-dd HH:mm:ss.fffff",
-              "yyyy/MM/dd", "yyyy/M/d", "yyyy/M/dd", "yyyy/M/d", "UTC yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss.f", "yyyy/MM/dd HH:mm:ss.ff", "yyyy/MM/dd HH:mm:ss.fff", "yyyy/MM/dd HH:mm:ss.ffff", "yyyy/MM/dd HH:mm:ss.fffff",
-              "dd.MM.yyyy", "d.MM.yyyy", "dd.M.yyyy", "d.M.yyyy", "UTC dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy HH:mm:ss.f", "dd.MM.yyyy HH:mm:ss.ff", "dd.MM.yyyy HH:mm:ss.fff", "dd.MM.yyyy HH:mm:ss.ffff", "dd.MM.yyyy HH:mm:ss.fffff",
-              "MM/dd/yyyy", "M/dd/yyyy", "MM/d/yyyy", "M/d/yyyy", "UTC MM/dd/yyyy HH:mm:ss", "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy HH:mm:ss.f", "dd.MM.yyyy HH:mm:ss.ff", "dd.MM.yyyy HH:mm:ss.fff", "dd.MM.yyyy HH:mm:ss.ffff", "dd.MM.yyyy HH:mm:ss.fffff",
-      },
-      CultureInfo.InvariantCulture,
-       DateTimeStyles.None,
-      out value);
-      return result;
-    }
+    public static bool TryGetDate(this string source, out DateTime value) =>
+      DateTime.TryParseExact(
+        source,
+        DateFormats,
+        CultureInfo.InvariantCulture,
+        DateTimeStyles.None,
+        out value);
   }
 }

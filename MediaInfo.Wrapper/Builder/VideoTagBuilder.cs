@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2017-2022 Yaroslav Tatarenko
+﻿#region Copyright (C) 2017-2026 Yaroslav Tatarenko
 
-// Copyright (C) 2017-2022 Yaroslav Tatarenko
-// This product uses MediaInfo library, Copyright (c) 2002-2021 MediaArea.net SARL. 
+// Copyright (C) 2017-2026 Yaroslav Tatarenko
+// This product uses MediaInfo library, Copyright (c) 2002-2026 MediaArea.net SARL. 
 // https://mediaarea.net
 
 #endregion
@@ -12,11 +12,22 @@ using MediaInfo.Model;
 
 namespace MediaInfo.Builder
 {
-    internal class VideoTagBuilder : GeneralTagBuilder<VideoTags>
-    {
-        #region Tag items
+  /// <summary>
+  /// Builds video tag metadata by extracting and parsing video stream information from the provided media source.
+  /// </summary>
+  /// <remarks>This class is intended for internal use when constructing video tag data. It processes all
+  /// available video tag fields defined in the native video enumeration and adds them to the resulting tag
+  /// collection.
+  /// </remarks>
+  /// <param name="mediaInfo">The media information source from which video stream data is retrieved. Cannot be null.</param>
+  /// <param name="streamPosition">The zero-based index of the video stream to process within the media source. Must be non-negative.</param>
+  internal class VideoTagBuilder(MediaInfo mediaInfo, int streamPosition) : GeneralTagBuilder<VideoTags>(mediaInfo, streamPosition)
+  {
+    #region Tag items
 
-        private static readonly List<Tuple<NativeMethods.Video, ParseDelegate<object>>> GeneralTagItems;
+    private static readonly List<Tuple<NativeMethods.Video, ParseDelegate<object>>> GeneralTagItems;
+
+    #endregion
 
         #endregion
 
