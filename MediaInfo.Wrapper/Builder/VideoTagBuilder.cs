@@ -6,7 +6,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaInfo.Model;
 
@@ -25,30 +24,33 @@ namespace MediaInfo.Builder
   {
     #region Tag items
 
-    private static readonly List<Tuple<NativeMethods.Video, ParseDelegate<object>>> GeneralTagItems;
+    private static readonly List<(NativeMethods.Video VideoType, ParseDelegate<object> ParseMethod)> GeneralTagItems;
 
     #endregion
 
     static VideoTagBuilder()
     {
+#if NET8_0_OR_GREATER
+      var values = System.Enum.GetValues<NativeMethods.Video>();
+#else
       var values = typeof(NativeMethods.Video).GetEnumValues();
-      GeneralTagItems = new List<Tuple<NativeMethods.Video, ParseDelegate<object>>>(values.Length);
+#endif
+      GeneralTagItems = new List<(NativeMethods.Video VideoType, ParseDelegate<object> ParseMethod)>(values.Length);
       foreach (NativeMethods.Video item in values)
       {
-        GeneralTagItems.Add(new Tuple<NativeMethods.Video, ParseDelegate<object>>(item, TagBuilderHelper.TryGetString));
+        GeneralTagItems.Add((item, TagBuilderHelper.TryGetString));
       }
     }
 
-    /// <inheritdoc />
     public override VideoTags Build()
     {
       var result = base.Build();
       foreach (var tagItem in GeneralTagItems)
       {
-        var value = MediaInfo.Get(StreamKind.Video, StreamPosition, (int)tagItem.Item1);
-        if (!string.IsNullOrEmpty(value) && tagItem.Item2(value, out var tagValue))
+        var value = MediaInfo.Get(StreamKind.Video, StreamPosition, (int)tagItem.VideoType);
+        if (!string.IsNullOrEmpty(value) && tagItem.ParseMethod(value, out var tagValue))
         {
-          result.VideoDataTags.Add(tagItem.Item1, tagValue);
+          result.VideoDataTags.Add(tagItem.VideoType, tagValue);
         }
       }
 
