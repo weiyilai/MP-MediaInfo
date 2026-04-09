@@ -30,11 +30,11 @@ namespace MediaInfo.Builder
     static AudioTagBuilder()
     {
 #if NET8_0_OR_GREATER
-            var values = Enum.GetValues<NativeMethods.Audio>();
+      var values = System.Enum.GetValues<NativeMethods.Audio>();
 #else
-            var values = typeof(NativeMethods.Audio).GetEnumValues();
+      var values = typeof(NativeMethods.Audio).GetEnumValues();
 #endif
-            GeneralTagItems = new List<Tuple<NativeMethods.Audio, ParseDelegate<object>>>(values.Length);
+      GeneralTagItems = new List<(NativeMethods.Audio, ParseDelegate<object>)>(values.Length);
       foreach (NativeMethods.Audio item in values)
       {
         GeneralTagItems.Add(new(item, TagBuilderHelper.TryGetString));
